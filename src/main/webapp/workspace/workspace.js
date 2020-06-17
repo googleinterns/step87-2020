@@ -22,7 +22,8 @@ window.onresize = () => {
 
 function createFirepad(ref, parent, language) {
   const editor = monaco.editor.create(parent, {
-    language: language
+    language: language,
+    theme: "vs-dark"
   });
 
   Firepad.fromMonaco(ref, editor);
