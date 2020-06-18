@@ -25,8 +25,6 @@ public final class EnterQueue extends HttpServlet {
     System.setProperty(
         DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
 
-    String className = request.getParameter("className");
-
     try {
       Key classCode = KeyFactory.stringToKey(request.getParameter("classCode"));
       Entity classEntity = datastore.get(classCode);

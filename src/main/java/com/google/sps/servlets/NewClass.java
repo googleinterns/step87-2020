@@ -25,7 +25,6 @@ public final class NewClass extends HttpServlet {
         DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
 
     String className = request.getParameter("className");
-
     List<String> emptyQueue = Collections.emptyList();
 
     Entity classEntity = new Entity("Class");
@@ -33,7 +32,6 @@ public final class NewClass extends HttpServlet {
     classEntity.setProperty("name", className);
     classEntity.setProperty("beingHelped", "");
     classEntity.setProperty("studentQueue", emptyQueue);
-    classEntity.setProperty("beingHelped", "");
 
     datastore.put(classEntity);
   }
