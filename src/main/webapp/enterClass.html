@@ -8,19 +8,21 @@
   </head>
 
   <body>
-    <form action="/class" method="POST">
+    <form action="/enterqueue" method="POST">
       <textarea name="classCode" placeholder="Enter class code:"></textarea>
       <br>
       <label for="ta"> Enter as a TA?</label>
       <input type="checkbox" id="enterTA" name="enterTA" value="TA">
       <br>
-      <input type="submit" name="enter" value="go to queue!"/>
+      <input type="submit" value="go to queue!"/>
+    </form>
 
-      <br><br><br>
+    <br>
 
+    <form action="/newclass" method="POST">
       <textarea name="className" placeholder="Enter class name:"></textarea>
       <br>
-      <input type="submit" name="enter" value="create a new class!"/>
+      <input type="submit" value="create a new class!"/>
     </form>
   </body>
 </html>
