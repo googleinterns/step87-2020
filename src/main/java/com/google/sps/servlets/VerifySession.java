@@ -24,7 +24,7 @@ public class VerifySession extends HttpServlet {
     if (cookies != null) {
       for (Cookie cookie : cookies) {
         if (cookie.getName().equals(name)) {
-          return cookie.getValue();
+          return cookie.getValue(); // Retrieve the data from the cookie for authentication
         }
       }
     }
