@@ -16,7 +16,7 @@ import com.google.appengine.api.datastore.DatastoreServiceConfig;
 
 /** Servlet that creates a new class Datastore.*/
 @WebServlet("/newclass")
-public class NewClass extends HttpServlet {
+public final class NewClass extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form.
