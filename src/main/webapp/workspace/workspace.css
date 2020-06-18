@@ -24,7 +24,7 @@ body {
   flex-direction: column;
 }
 
-.tabs-container {
+#tabs-container {
   display: flex;
   float: left;
   overflow-x: scroll;

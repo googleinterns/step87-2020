@@ -20,7 +20,17 @@ function getFirebaseRef() {
   }
 }
 
+function scrollTabs(event) {
+  // Only translate vertical scrolling to horizontal scrolling.
+  if (event.deltaY) {
+    this.scrollLeft += (event.deltaY);
+    event.preventDefault();
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("tabs-container").onwheel = scrollTabs;
+
   const config = {
     apiKey: 'AIzaSyA1r_PfVDCXfTgoUNisci5Ag2MKEEwsZCE',
     databaseURL: "https://fulfillment-deco-step-2020.firebaseio.com",
