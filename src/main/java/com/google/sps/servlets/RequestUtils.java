@@ -15,6 +15,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/session-verify")
-public class VerifySession extends HttpServlet {
+public class RequestUtils extends HttpServlet{
+  // Obtain the cookie from the current session
+  public static String getCookie(HttpServletRequest request, String name, String defaultValue) {
+    Cookie[] cookies = request.getCookies();
+
+    if (cookies != null) {
+      for (Cookie cookie : cookies) {
+        if (cookie.getName().equals(name)) {
+          return cookie.getValue(); // Retrieve the data from the cookie for authentication
+        }
+      }
+    }
+    return defaultValue;
+  }
 }
