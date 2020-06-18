@@ -63,6 +63,55 @@
           <deploy.version>1</deploy.version>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>com.coveo</groupId>
+        <artifactId>fmt-maven-plugin</artifactId>
+        <version>2.9.1</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+              <goal>format</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.7.1</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <skipEmptyReport>false</skipEmptyReport>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.cj.jshintmojo</groupId>
+        <artifactId>jshint-maven-plugin</artifactId>
+        <executions>
+            <execution>
+                <goals>
+                    <goal>lint</goal>
+                </goals>
+            </execution>
+        </executions>
+        <configuration>
+            <version>2.9.3</version>
+            <options>esnext,maxparams:3,indent,camelcase,eqeqeq,forin,immed,latedef,noarg,noempty,nonew</options>
+            <globals>require,$,yourFunkyJavascriptModule</globals>
+            <directories>
+                <directory>src/main/webapp</directory>
+            </directories>
+            <reporter>html</reporter>
+            <reportFile>target/site/jshint.html</reportFile>
+            <skipEmptyReport>false</skipEmptyReport>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>
