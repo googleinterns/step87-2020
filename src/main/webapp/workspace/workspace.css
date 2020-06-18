@@ -51,6 +51,6 @@ body {
   background-color: #333333;
 }
 
-.inactive-tab:hover, .active-tab:hover {
+.tab:hover {
   background-color: #555555;
 }
