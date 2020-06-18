@@ -8,9 +8,49 @@ body {
   height: 100%;
   width: 100%;
   overflow: hidden;
+  background-color: #333333;
 }
 
 #firepad-container {
   height: 100%;
   width: 100%;
+  flex: 1;
+}
+
+.column {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tabs-container {
+  float: left;
+  overflow: scroll;
+}
+
+.tab {
+  border: none;
+  height: 30px;
+  color: #b5b5b5;
+  float: left;
+  padding: 10px 8px;
+  display: flex;
+  align-items: center;
+
+  border-right-style: solid;
+  border-color: #1e1e1e;
+  border-width: 1px;
+}
+
+.active-tab {
+  background-color: #1e1e1e;
+}
+
+.inactive-tab {
+  background-color: #333333;
+}
+
+.inactive-tab:hover, .active-tab:hover {
+  background-color: #555555;
 }
