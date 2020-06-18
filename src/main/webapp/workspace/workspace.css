@@ -54,3 +54,7 @@ body {
 .tab:hover {
   background-color: #555555;
 }
+
+.tab:focus {
+  outline: none;
+}
