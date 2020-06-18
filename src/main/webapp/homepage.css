@@ -3,7 +3,7 @@ body, html {
   margin: 0;
 }
 
-/* Place all text on background image for landing page */
+/* Place sign-in options and text on background image for landing page */
 .bg {
   background-image: url("/images/home.jpg");
   height: 100%; 
@@ -15,7 +15,7 @@ body, html {
   font-size: 50px;
 }
 
-/* Remove whitespace at top of page */
+/* Prevent header text from creating whitespace at top of page */
 .bg h1{
   margin:0;
 }
