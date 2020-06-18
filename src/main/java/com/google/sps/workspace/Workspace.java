@@ -1,17 +1,16 @@
 package com.google.sps.workspace;
 
-import java.util.Objects;
-
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.KeyFactory;
+import java.util.Objects;
 
 /**
- * Provides an interface to access and modify workspaces in the datastore.
- * The contents of this object will only reflect the current state of the 
- * entities. It will not update with the datastore.
+ * Provides an interface to access and modify workspaces in the datastore. The contents of this
+ * object will only reflect the current state of the entities. It will not update with the
+ * datastore.
  */
 public class Workspace {
   private static final String KIND = "Workspace";
@@ -20,7 +19,7 @@ public class Workspace {
   private String studentUID;
   private String TaUID;
   private String workspaceID;
-  
+
   private Workspace() {
     datastore = DatastoreServiceFactory.getDatastoreService();
   }
@@ -33,7 +32,7 @@ public class Workspace {
     Entity entity = new Entity(KIND);
     entity.setProperty("studentUID", studentUID);
     entity.setProperty("taUID", TaUID);
-    
+
     workspaceID = KeyFactory.keyToString(datastore.put(entity));
   }
 
@@ -46,31 +45,25 @@ public class Workspace {
     TaUID = (String) entity.getProperty("taUID");
   }
 
-  /**
-   * @return the studentUID
-   */
+  /** @return the studentUID */
   public String getStudentUID() {
     return studentUID;
   }
 
-  /**
-   * @return the taUID
-   */
+  /** @return the taUID */
   public String getTaUID() {
     return TaUID;
   }
 
-  /**
-   * @return the workspaceID
-   */
+  /** @return the workspaceID */
   public String getWorkspaceID() {
     return workspaceID;
   }
 
   public void update(String studentID, String TaUID) throws EntityNotFoundException {
     Entity entity = datastore.get(KeyFactory.stringToKey(workspaceID));
-    entity.setProperty("studentUID", studentID);
-    entity.setProperty("taUID", TaUID);
+    entity.setProperty("studentUID", Objects.requireNonNull(studentID));
+    entity.setProperty("taUID", Objects.requireNonNull(TaUID));
     datastore.put(entity);
 
     this.studentUID = studentID;
