@@ -59,14 +59,4 @@ public class Workspace {
   public String getWorkspaceID() {
     return workspaceID;
   }
-
-  public void update(String studentID, String TaUID) throws EntityNotFoundException {
-    Entity entity = datastore.get(KeyFactory.stringToKey(workspaceID));
-    entity.setProperty("studentUID", Objects.requireNonNull(studentID));
-    entity.setProperty("taUID", Objects.requireNonNull(TaUID));
-    datastore.put(entity);
-
-    this.studentUID = studentID;
-    this.TaUID = TaUID;
-  }
 }

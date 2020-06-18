@@ -91,26 +91,4 @@ public class WorkspaceTest {
     Workspace w2 = new Workspace(w1.getWorkspaceID());
     assertEquals(w1.getWorkspaceID(), w2.getWorkspaceID());
   }
-
-  @Test
-  public void update() throws EntityNotFoundException {
-    Workspace w1 = new Workspace(STUDENT, TA);
-    w1.update(STUDENT + "Update", TA + "Update");
-    Workspace w2 = new Workspace(w1.getWorkspaceID());
-
-    assertEquals(STUDENT + "Update", w1.getStudentUID());
-    assertEquals(STUDENT + "Update", w2.getStudentUID());
-    assertEquals(TA + "Update", w1.getTaUID());
-    assertEquals(TA + "Update", w2.getTaUID());
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void updateNullStudentID() throws EntityNotFoundException {
-    new Workspace(STUDENT, TA).update(null, TA);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void updateNullTAID() throws EntityNotFoundException {
-    new Workspace(STUDENT, TA).update(STUDENT, null);
-  }
 }
