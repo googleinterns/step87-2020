@@ -24,11 +24,21 @@ body {
   flex-direction: column;
 }
 
+#tab-bar {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  justify-content: space-between;
+}
+
 #tabs-container {
   display: flex;
-  float: left;
   overflow-x: scroll;
   flex-direction: row;
+}
+
+#permanent-buttons {
+  flex-shrink: 0;
 }
 
 .tab {
@@ -53,6 +63,10 @@ body {
 
 .inactive-tab {
   background-color: #333333;
+}
+
+.permanent-tab {
+  background-color: #1e1e1e;
 }
 
 .tab:hover {
