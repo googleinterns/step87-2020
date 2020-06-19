@@ -1,14 +1,5 @@
-let currentEditor;
-
-function createFirepad(ref, parent, language) {
-  const editor = monaco.editor.create(parent, {
-    language: language,
-    theme: "vs-dark"
-  });
-
-  Firepad.fromMonaco(ref, editor);
-  currentEditor = editor;
-}
+let tabs = {};
+let currentTab;
 
 function getFirebaseRef() {
   const workspaceID = getParam("workspaceID");
@@ -52,17 +43,91 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 window.onresize = () => {
-  currentEditor.layout();
+  tabs[currentTab].editor.layout();
 };
 
 function uploadFiles() {
   document.getElementById("upload-files").click();
 }
 
+function switchTab(tab) {
+  if (currentTab !== tab) {
+    if (tabs[currentTab]) {
+      tabs[currentTab].editorContainer.classList.add("hidden");
+      tabs[currentTab].tabButton.classList.remove("active-tab");
+      tabs[currentTab].tabButton.classList.add("inactive-tab");
+    }
+
+    tabs[tab].editorContainer.classList.remove("hidden");
+    tabs[tab].tabButton.classList.remove("inactive-tab");
+    tabs[tab].tabButton.classList.add("active-tab");
+
+    tabs[tab].editor.layout();
+
+    currentTab = tab;
+  }
+}
+
+// Firebase does not accept the folowing characters: 
+// .$[]#/
+// We must encode them to store them in realtime database.
+function encodeFileName(filename) {
+  return encodeURIComponent(filename).replace(/\./, '%2E');
+}
+
+function decodeFileName(filename) {
+  return decodeURIComponent(filename.replace("%2E", "."));
+}
+
+function createNewTab(file) {
+  if (!tabs[file.name]) {
+    const tab = document.createElement("button");
+    tab.classList.add("inactive-tab", "tab");
+    tab.innerText = file.name;
+
+    tab.onclick = (event) => {
+      switchTab(file.name);
+    };
+
+    const firepadContainer = document.createElement("div");
+    firepadContainer.classList.add("hidden", "firepad-container");
+
+    const editor = monaco.editor.create(firepadContainer, {
+      language: "javascript",
+      theme: "vs-dark"
+    });
+    
+    const firepad = Firepad.fromMonaco(getFirebaseRef().child(encodeFileName(file.name)), editor);
+
+    firepad.on("ready", () => {
+      file.text().then((contents) => {
+        firepad.setText(contents);
+      });
+    });
+
+    tabs[file.name] = {
+      editor: editor,
+      firepad: firepad,
+      tabButton: tab,
+      editorContainer: firepadContainer
+    };
+
+    document.getElementById("tabs-container").appendChild(tab);
+    document.getElementById("firepads").appendChild(firepadContainer);
+  } else {
+    file.text().then(contents => {
+      tabs[file.name].firepad.setText(contents);
+    });
+  }
+
+}
+
 function filesUploaded() {
   const files = document.getElementById("upload-files").files;
 
   for(var file of files) {
-    console.log(file.name);
+    createNewTab(file);
   }
+
+  switchTab(files[0].name);
 }

@@ -11,7 +11,12 @@ body {
   background-color: #333333;
 }
 
-#firepad-container {
+.firepad-container {
+  height: 100%;
+  width: 100%;
+}
+
+#firepads {
   height: 100%;
   width: 100%;
   flex: 1;
