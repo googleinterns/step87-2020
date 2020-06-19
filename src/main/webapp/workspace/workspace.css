@@ -66,10 +66,15 @@ body {
 }
 
 .permanent-tab {
-  background-color: #1e1e1e;
+  background-color: #0077ff;
+  color: white;
 }
 
-.tab:hover {
+.permanent-tab:hover {
+  background-color: #3392ff;
+}
+
+.active-tab:hover, .inactive-tab:hover {
   background-color: #555555;
 }
 
