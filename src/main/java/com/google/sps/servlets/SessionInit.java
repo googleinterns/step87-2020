@@ -23,4 +23,25 @@ public class SessionInit extends HttpServlet {
       return value;
     }
   }
+
+  @Override
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    String idToken = getParameter(request, "idToken", "");
+    // Set session expiration to 5 days.
+    long expiresIn = TimeUnit.DAYS.toMillis(5);
+    SessionCookieOptions options = SessionCookieOptions.builder().setExpiresIn(expiresIn).build();
+    try {
+      // Create the session cookie. This will also verify the ID token in the process.
+      // The session cookie will have the same claims as the ID token.
+      String sessionCookie =
+          FirebaseAuth.getInstance(FirebaseAppManager.getApp())
+              .createSessionCookie(idToken, options);
+      // Set cookie policy parameters as required.
+      Cookie cookie = new Cookie("session", sessionCookie /* ... other parameters */);
+      cookie.setMaxAge((int) TimeUnit.MILLISECONDS.toSeconds(expiresIn));
+      response.addCookie(cookie);
+    } catch (FirebaseAuthException e) {
+      response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    }
+  }
 }
