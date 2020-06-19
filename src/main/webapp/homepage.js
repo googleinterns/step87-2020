@@ -36,7 +36,7 @@ function loadSignIn() {
     signInSuccess: function(user, credential, redirectUrl) {
       user.getIdToken().then(tok => {
         fetch("/init?idToken=" + tok).then(resp => {
-          window.location.href = "/session-verify";
+          window.location.href = "/index.html"; //Currently redirect to landing page after login
         });
       });
       return false;
