@@ -49,3 +49,11 @@ document.addEventListener("DOMContentLoaded", () => {
 window.onresize = () => {
   currentEditor.layout();
 };
+
+function uploadFiles() {
+  const tab = document.createElement("button");
+  tab.classList.add("inactive-tab", "tab");
+  tab.innerText = "New Tab";
+
+  document.getElementById("tabs-container").appendChild(tab);
+}
