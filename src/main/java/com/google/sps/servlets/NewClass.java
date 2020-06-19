@@ -6,7 +6,6 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -25,13 +24,12 @@ public final class NewClass extends HttpServlet {
         DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
 
     String className = request.getParameter("className");
-    List<String> emptyQueue = Collections.emptyList();
 
     Entity classEntity = new Entity("Class");
     classEntity.setProperty("owner", "");
     classEntity.setProperty("name", className);
     classEntity.setProperty("beingHelped", "");
-    classEntity.setProperty("studentQueue", emptyQueue);
+    classEntity.setProperty("studentQueue", Collections.emptyList());
 
     datastore.put(classEntity);
   }
