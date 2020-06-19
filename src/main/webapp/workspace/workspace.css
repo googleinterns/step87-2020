@@ -35,6 +35,13 @@ body {
   display: flex;
   overflow-x: scroll;
   flex-direction: row;
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+#tabs-container::-webkit-scrollbar { 
+  display: none;
 }
 
 #permanent-buttons {
@@ -46,7 +53,7 @@ body {
   height: 30px;
   color: #b5b5b5;
   float: left;
-  padding: 10px 8px;
+  padding: 20px 15px;
   display: flex;
   align-items: center;
 
