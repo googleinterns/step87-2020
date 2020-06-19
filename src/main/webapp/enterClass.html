@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Enter Class</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+  </head>
+
+  <body>
+    <form action="/enterqueue" method="POST">
+      <textarea name="classCode" placeholder="Enter class code:"></textarea>
+      <br>
+      <label for="ta"> Enter as a TA?</label>
+      <input type="checkbox" id="enterTA" name="enterTA" value="TA">
+      <br>
+      <input type="submit" value="go to queue!"/>
+    </form>
+
+    <br>
+
+    <form action="/newclass" method="POST">
+      <textarea name="className" placeholder="Enter class name:"></textarea>
+      <br>
+      <input type="submit" value="create a new class!"/>
+    </form>
+  </body>
+</html>
