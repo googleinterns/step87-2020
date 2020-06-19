@@ -28,7 +28,7 @@ public class SessionInit extends HttpServlet {
           FirebaseAuth.getInstance(FirebaseAppManager.getApp())
               .createSessionCookie(idToken, options);
       // Set cookie policy parameters as required.
-      Cookie cookie = new Cookie("session", sessionCookie /* ... other parameters */);
+      Cookie cookie = new Cookie("session", sessionCookie);
       cookie.setMaxAge((int) TimeUnit.MILLISECONDS.toSeconds(expiresIn));
       response.addCookie(cookie);
     } catch (FirebaseAuthException e) {
