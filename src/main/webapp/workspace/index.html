@@ -18,6 +18,7 @@
     <script src="workspace.js"></script>
 
     <link rel="stylesheet" href="workspace.css" />
+    <link rel="stylesheet" href="/style/common.css" />
   </head>
   <body>
     <div class="column">
@@ -27,6 +28,7 @@
         </div>
         <div id="permanent-buttons">
           <button class="permanent-tab tab" onclick="uploadFiles()">Upload</button>
+          <input type="file" id="upload-files" class="hidden" oninput="filesUploaded()" multiple/>
         </div>
       </div>
       <div id="firepad-container"></div>
