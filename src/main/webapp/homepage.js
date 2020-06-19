@@ -31,26 +31,26 @@ function loadSignIn() {
   var ui = new firebaseui.auth.AuthUI(firebase.auth());
 
   ui.start('#firebaseui-auth-container', {
-  // Get ID token
-  callbacks: {
-    signInSuccess: function(user, credential, redirectUrl) {
-      user.getIdToken().then(tok => {
-        fetch("/init?idToken=" + tok).then(resp => {
-          window.location.href = "/index.html"; //Currently redirect to landing page after login
+    // Get ID token
+    callbacks: {
+      signInSuccess: function(user, credential, redirectUrl) {
+        user.getIdToken().then(tok => {
+          fetch("/init?idToken=" + tok).then(resp => {
+            window.location.href = "/index.html"; // Currently redirect to landing page after login
+          });
         });
-      });
-      return false;
-    }
-  },
-  // Provide multiple options for user to sign in 
-  signInOptions : [
-    {
-      provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID, // Sign in w/ Google Account
-      customParameters: {
-        prompt: 'select_account'
+        return false;
       }
     },
-  ],
+    // Provide sign in options for user to select from
+    signInOptions : [
+      {
+        provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID, // Sign in w/ Google Account
+        customParameters: {
+          prompt: 'select_account'
+        }
+      },
+    ],
   });
 }
 

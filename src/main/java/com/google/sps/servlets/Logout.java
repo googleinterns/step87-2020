@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+// Delete the session cookie and sign out user
 @WebServlet("/sign-out")
 public class Logout extends HttpServlet {
   @Override
