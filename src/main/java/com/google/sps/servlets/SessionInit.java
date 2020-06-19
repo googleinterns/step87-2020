@@ -14,19 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/init")
 public class SessionInit extends HttpServlet {
-  // Return empty string if no comment, otherwise return text
-  private String getParameter(HttpServletRequest request, String name, String defaultValue) {
-    String value = request.getParameter(name);
-    if (value == null) {
-      return defaultValue;
-    } else {
-      return value;
-    }
-  }
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String idToken = getParameter(request, "idToken", "");
+    String idToken = RequestUtils.getParameter(request, "idToken", "");
     // Set session expiration to 5 days.
     long expiresIn = TimeUnit.DAYS.toMillis(5);
     SessionCookieOptions options = SessionCookieOptions.builder().setExpiresIn(expiresIn).build();
