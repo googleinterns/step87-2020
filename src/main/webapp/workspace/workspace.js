@@ -42,7 +42,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   require.config({ paths: {'vs': 'https://unpkg.com/monaco-editor@latest/min/vs'}});
   require(['vs/editor/editor.main'], function() {
-    createFirepad(ref, document.getElementById("firepad-container"), "javascript");
+    // Once the monaco library is loaded, we can start uploading files.
+    const hiddenElements = document.getElementsByClassName("initially-hidden");
+
+    for (let e of hiddenElements) {
+      e.classList.remove("initially-hidden");
+    }
   });
 });
 
@@ -55,5 +60,9 @@ function uploadFiles() {
 }
 
 function filesUploaded() {
-  console.log("gotFiles");
+  const files = document.getElementById("upload-files").files;
+
+  for(var file of files) {
+    console.log(file.name);
+  }
 }

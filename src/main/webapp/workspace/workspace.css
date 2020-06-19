@@ -88,3 +88,7 @@ body {
 .tab:focus {
   outline: none;
 }
+
+.initially-hidden {
+  display: none;
+}
