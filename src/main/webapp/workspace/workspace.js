@@ -89,10 +89,19 @@ function createNewTab(filename, contents) {
     const firepadContainer = document.createElement("div");
     firepadContainer.classList.add("hidden", "firepad-container");
 
+    const fileExtension = "." + filename.split('.').pop();
+
+    const languages = monaco.languages.getLanguages().filter((lang) => lang.extensions.includes(fileExtension));
+
+    const language = languages.length >= 1 ? languages[0].id : "plaintext";
+
     const editor = monaco.editor.create(firepadContainer, {
-      language: "javascript",
+      language: language,
       theme: "vs-dark"
     });
+
+    //Use LF
+    editor.getModel().setEOL("\n");
     
     const firepad = Firepad.fromMonaco(getFirebaseRef().child(encodeFileName(filename)), editor);
 
@@ -166,7 +175,8 @@ async function filesUploaded() { // jshint ignore:line
   const files = document.getElementById("upload-files").files;
 
   for(var file of files) {
-    let contents =  await file.text(); // jshint ignore:line
+    // Convert to LF if in CRLF
+    let contents =  (await file.text()).replace(/\n\r/g, "\n"); // jshint ignore:line
     createNewTab(file.name, contents);
   }
 
