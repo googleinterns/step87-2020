@@ -32,7 +32,9 @@ public class SessionInit extends HttpServlet {
       cookie.setMaxAge((int) TimeUnit.MILLISECONDS.toSeconds(expiresIn));
       response.addCookie(cookie);
     } catch (FirebaseAuthException e) {
-      response.sendError(HttpServletResponse.SC_FORBIDDEN); // server understands request, but user cannot proceed w/o logging in
+      response.sendError(
+          HttpServletResponse
+              .SC_FORBIDDEN); // server understands request, but user cannot proceed w/o logging in
     }
   }
 }
