@@ -21,6 +21,17 @@ import javax.servlet.http.HttpServletResponse;
 /** Servlet that creates a new class Datastore. */
 @WebServlet("/enterqueue")
 public final class EnterQueue extends HttpServlet {
+  FirebaseAuth authInstance;
+
+  @Override
+  public void init(ServletConfig config) throws ServletException {
+    try {
+      authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
+    } catch (IOException e) {
+      throw new ServletException(e);
+    }
+  }
+
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form.
@@ -36,7 +47,7 @@ public final class EnterQueue extends HttpServlet {
 
       String idToken = request.getParameter("idToken");
       FirebaseToken decodedToken =
-          FirebaseAuth.getInstance(FirebaseAppManager.getApp()).verifyIdToken(idToken);
+          authInstance.verifyIdToken(idToken);
 
       ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
       updatedQueue.add(decodedToken.getUid());

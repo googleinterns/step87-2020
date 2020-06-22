@@ -8,16 +8,30 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.sps.firebase.FirebaseAppManager;
+import java.io.*;
 import java.io.IOException;
 import java.util.Collections;
+import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /** Servlet that creates a new class Datastore. */
 @WebServlet("/newclass")
-public final class NewClass extends HttpServlet {
+public class NewClass extends HttpServlet {
+  FirebaseAuth authInstance;
+
+  @Override
+  public void init(ServletConfig config) throws ServletException {
+    try {
+      authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
+    } catch (IOException e) {
+      throw new ServletException(e);
+    }
+  }
+
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form.
@@ -31,8 +45,7 @@ public final class NewClass extends HttpServlet {
       String className = request.getParameter("className").trim();
 
       String idToken = request.getParameter("idToken");
-      FirebaseToken decodedToken =
-          FirebaseAuth.getInstance(FirebaseAppManager.getApp()).verifyIdToken(idToken);
+      FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
 
       Entity classEntity = new Entity("Class");
       classEntity.setProperty("owner", decodedToken.getUid());
