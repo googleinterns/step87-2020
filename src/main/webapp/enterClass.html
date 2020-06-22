@@ -4,16 +4,24 @@
     <meta charset="UTF-8">
     <title>Enter Class</title>
     <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
   </head>
 
-  <body>
+  <script>
+    function getToken() {
+      firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
+        document.getElementById("idToken").value = idToken;
+      })
+    }
+  </script>
+
+  <body onload="getToken()">
     <form action="/enterqueue" method="POST">
       <textarea name="classCode" placeholder="Enter class code:"></textarea>
       <br>
       <label for="ta"> Enter as a TA?</label>
       <input type="checkbox" id="enterTA" name="enterTA" value="TA">
       <br>
+      <input type="hidden" name="idToken" value=""/>
       <input type="submit" value="go to queue!"/>
     </form>
 
@@ -22,7 +30,9 @@
     <form action="/newclass" method="POST">
       <textarea name="className" placeholder="Enter class name:"></textarea>
       <br>
+      <input type="hidden" name="idToken" value=""/>
       <input type="submit" value="create a new class!"/>
     </form>
   </body>
 </html>
+

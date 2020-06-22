@@ -25,8 +25,13 @@ public final class NewClass extends HttpServlet {
 
     String className = request.getParameter("className");
 
+    String idToken = request.getParameter("idToken");
+    FirebaseToken decodedToken =
+        FirebaseAuth.getInstance(FirebaseAppManager.getApp())
+            .verifyIdToken(idToken);
+
     Entity classEntity = new Entity("Class");
-    classEntity.setProperty("owner", "");
+    classEntity.setProperty("owner", decodedToken.getUid());
     classEntity.setProperty("name", className);
     classEntity.setProperty("beingHelped", "");
     classEntity.setProperty("studentQueue", Collections.emptyList());

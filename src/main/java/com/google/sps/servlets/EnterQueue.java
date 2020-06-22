@@ -29,8 +29,14 @@ public final class EnterQueue extends HttpServlet {
     try {
       Key classCode = KeyFactory.stringToKey(request.getParameter("classCode"));
       Entity classEntity = datastore.get(classCode);
+
+      String idToken = request.getParameter("idToken");
+      FirebaseToken decodedToken =
+        FirebaseAuth.getInstance(FirebaseAppManager.getApp())
+            .verifyIdToken(idToken);
+
       ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
-      updatedQueue.add("student"); // temporary until authentification is implemented
+      updatedQueue.add(decodedToken.getUid());
       classEntity.setProperty("studentQueue", updatedQueue);
 
       datastore.put(classEntity);
