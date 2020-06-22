@@ -1,6 +1,9 @@
 let tabs = {};
 let currentTab;
 
+/**
+ * Gets the base firebase reference for this workspace.
+ */
 function getFirebaseRef() {
   const workspaceID = getParam("workspaceID");
   if (workspaceID !== null) {
@@ -11,6 +14,10 @@ function getFirebaseRef() {
   }
 }
 
+/**
+ * Scroll event handler that allows users to scroll tabs using
+ * a scroll wheel. 
+ */
 function scrollTabs(event) {
   // Only translate vertical scrolling to horizontal scrolling.
   if (event.deltaY) {
@@ -19,6 +26,10 @@ function scrollTabs(event) {
   }
 }
 
+/**
+ * Switches the current tab.
+ * @param {String} tab name of the tab to switch to . 
+ */
 function switchTab(tab) {
   if (currentTab !== tab) {
     if (tabs[currentTab]) {
@@ -37,17 +48,30 @@ function switchTab(tab) {
   }
 }
 
-// Firebase does not accept the folowing characters: 
-// .$[]#/
-// We must encode them to store them in realtime database.
+/**
+ * Firebase does not accept the folowing characters: 
+ * .$[]#/
+ * We must encode them to store them in realtime database.
+ * @param {String} filename  filename to encode.
+ */
 function encodeFileName(filename) {
   return encodeURIComponent(filename).replace(/\./g, '%2E');
 }
 
+/**
+ * Decodes a file name from the realtime database
+ * @param {String} filename  filename to decode.
+ */
 function decodeFileName(filename) {
   return decodeURIComponent(filename.replace(/%2E/g, "."));
 }
 
+/**
+ * Creates a new tab with the given filename and the given contents.
+ * @param {String} filename The filename for the tab.
+ * @param {String} contents  The contents of the file. If non null the 
+ * tab will be initialized with this string.
+ */
 function createNewTab(filename, contents) {
   if (!tabs[filename]) {
     // Add filename to tabs immediately so that the tab is not added
@@ -128,10 +152,16 @@ window.onresize = () => {
   }
 };
 
+/**
+ * Called when the upload files button is clicked.
+ */
 function uploadFiles() {
   document.getElementById("upload-files").click();
 }
 
+/**
+ * Called when files have been uploaded.
+ */
 async function filesUploaded() { // jshint ignore:line
   const files = document.getElementById("upload-files").files;
 
