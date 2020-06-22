@@ -50,6 +50,10 @@ function decodeFileName(filename) {
 
 function createNewTab(filename, contents) {
   if (!tabs[filename]) {
+    // Add filename to tabs immediately so that the tab is not added
+    // twice in the firebase child_added callback.
+    tabs[filename] = {};
+
     const tab = document.createElement("button");
     tab.classList.add("inactive-tab", "tab");
     tab.innerText = filename;
