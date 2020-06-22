@@ -41,11 +41,11 @@ function switchTab(tab) {
 // .$[]#/
 // We must encode them to store them in realtime database.
 function encodeFileName(filename) {
-  return encodeURIComponent(filename).replace(/\./, '%2E');
+  return encodeURIComponent(filename).replace(/\./g, '%2E');
 }
 
 function decodeFileName(filename) {
-  return decodeURIComponent(filename.replace("%2E", "."));
+  return decodeURIComponent(filename.replace(/%2E/g, "."));
 }
 
 function createNewTab(filename, contents) {
