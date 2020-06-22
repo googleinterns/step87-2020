@@ -7,6 +7,10 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
+import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.servlet.annotation.WebServlet;
@@ -27,13 +31,12 @@ public final class EnterQueue extends HttpServlet {
         DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
 
     try {
-      Key classCode = KeyFactory.stringToKey(request.getParameter("classCode"));
+      Key classCode = KeyFactory.stringToKey(request.getParameter("classCode").trim());
       Entity classEntity = datastore.get(classCode);
 
       String idToken = request.getParameter("idToken");
       FirebaseToken decodedToken =
-        FirebaseAuth.getInstance(FirebaseAppManager.getApp())
-            .verifyIdToken(idToken);
+          FirebaseAuth.getInstance(FirebaseAppManager.getApp()).verifyIdToken(idToken);
 
       ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
       updatedQueue.add(decodedToken.getUid());
@@ -44,6 +47,8 @@ public final class EnterQueue extends HttpServlet {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
     } catch (IllegalArgumentException e) {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+    } catch (FirebaseAuthException e) {
+      response.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
   }
 }
