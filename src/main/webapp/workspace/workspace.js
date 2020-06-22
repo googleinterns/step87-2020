@@ -138,8 +138,9 @@ function filesUploaded() {
   for(var file of files) {
     file.text().then(contents => {
       createNewTab(file.name, contents);
+      if (file === files[0]) {
+        switchTab(file.name);
+      }
     });
   }
-
-  switchTab(files[0].name);
 }
