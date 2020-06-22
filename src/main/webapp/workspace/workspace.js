@@ -132,15 +132,13 @@ function uploadFiles() {
   document.getElementById("upload-files").click();
 }
 
-function filesUploaded() {
+async function filesUploaded() { // jshint ignore:line
   const files = document.getElementById("upload-files").files;
 
   for(var file of files) {
-    file.text().then(contents => {
-      createNewTab(file.name, contents);
-      if (file === files[0]) {
-        switchTab(file.name);
-      }
-    });
+    let contents =  await file.text(); // jshint ignore:line
+    createNewTab(file.name, contents);
   }
+
+  switchTab(files[0].name);
 }
