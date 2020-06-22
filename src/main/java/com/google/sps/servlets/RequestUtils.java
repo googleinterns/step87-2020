@@ -18,4 +18,14 @@ public class RequestUtils extends HttpServlet {
     }
     return defaultValue;
   }
+
+  // Return empty string if no comment, otherwise return text
+  public static String getParameter(HttpServletRequest request, String name, String defaultValue) {
+    String value = request.getParameter(name);
+    if (value == null) {
+      return defaultValue;
+    } else {
+      return value;
+    }
+  }
 }
