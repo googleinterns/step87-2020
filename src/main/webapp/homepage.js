@@ -48,7 +48,6 @@ function loadSignIn() {
 function logout() {
   firebase.auth().signOut().then(function() {
   console.log('Signed Out');
-  fetch("/sign-out");
   }, function(error) {
   console.error('Sign Out Error', error);
   });
