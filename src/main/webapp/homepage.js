@@ -31,17 +31,6 @@ function loadSignIn() {
   var ui = new firebaseui.auth.AuthUI(firebase.auth());
 
   ui.start('#firebaseui-auth-container', {
-    // Get ID token
-    callbacks: {
-      signInSuccess: function(user, credential, redirectUrl) {
-        user.getIdToken().then(tok => {
-          fetch("/init?idToken=" + tok).then(resp => {
-            window.location.href = "/index.html"; // Currently redirect to landing page after login
-          });
-        });
-        return false;
-      }
-    },
     // Provide sign in options for user to select from
     signInOptions : [
       {
@@ -51,6 +40,7 @@ function loadSignIn() {
         }
       },
     ],
+    signInSuccessUrl: "/enterClass.html",
   });
 }
 
@@ -58,7 +48,6 @@ function loadSignIn() {
 function logout() {
   firebase.auth().signOut().then(function() {
   console.log('Signed Out');
-  fetch("/sign-out");
   }, function(error) {
   console.error('Sign Out Error', error);
   });
