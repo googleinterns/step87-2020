@@ -59,10 +59,24 @@ function checkSignIn() {
   var user = firebase.auth().currentUser;
   
   if (user) {
-    // User is signed in.
+    // User is signed in, they need to have the option of logging out
     button.style.visibility = "visible";
   } else {
-    // No user is signed in.
+    // No user is signed in
     button.style.visibility = "hidden";
   }
 }
+
+// When user sign-in state changes, hide or show logout button
+function hideLogout() {
+  var button = document.getElementById("signout");
+ 
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      button.style.visibility = "visible";
+    } else {
+    button.style.visibility = "hidden";
+    }
+  });
+}
+
