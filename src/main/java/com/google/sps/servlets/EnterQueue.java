@@ -46,8 +46,9 @@ public final class EnterQueue extends HttpServlet {
     // navigate to /_ah/admin to view Datastore
 
     try {
-      Key classCode = KeyFactory.stringToKey(request.getParameter("classCode").trim());
-      Entity classEntity = datastore.get(classCode);
+      String classCode = request.getParameter("classCode").trim();
+      Key classKey = KeyFactory.stringToKey(classCode);
+      Entity classEntity = datastore.get(classKey);
 
       String idToken = request.getParameter("idToken");
       FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
@@ -57,6 +58,13 @@ public final class EnterQueue extends HttpServlet {
       classEntity.setProperty("studentQueue", updatedQueue);
 
       datastore.put(classEntity);
+
+      if (request.getParameter("enterTA") == null) {
+        response.sendRedirect("/queue/student.html?classCode=" + classCode);
+      } else {
+        response.sendRedirect("/queue/ta.html?classCode=" + classCode);
+      }
+
     } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
     } catch (IllegalArgumentException e) {
