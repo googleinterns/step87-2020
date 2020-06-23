@@ -8,9 +8,93 @@ body {
   height: 100%;
   width: 100%;
   overflow: hidden;
+  background-color: #333333;
 }
 
-#firepad-container {
+.firepad-container {
   height: 100%;
   width: 100%;
+}
+
+#firepads {
+  height: 100%;
+  width: 100%;
+  flex: 1;
+}
+
+.column {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#tab-bar {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+#tabs-container {
+  display: flex;
+  overflow-x: scroll;
+  flex-direction: row;
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+#tabs-container::-webkit-scrollbar { 
+  display: none;
+}
+
+#permanent-buttons {
+  flex-shrink: 0;
+}
+
+.tab {
+  border: none;
+  height: 30px;
+  color: #b5b5b5;
+  float: left;
+  padding: 20px 15px;
+  display: flex;
+  align-items: center;
+
+  border-right-style: solid;
+  border-color: #1e1e1e;
+  border-width: 1px;
+
+  flex-shrink: 0;
+}
+
+.active-tab {
+  background-color: #1e1e1e;
+}
+
+.inactive-tab {
+  background-color: #333333;
+}
+
+.permanent-tab {
+  background-color: #0077ff;
+  color: white;
+}
+
+.permanent-tab:hover {
+  background-color: #3392ff;
+}
+
+.active-tab:hover, .inactive-tab:hover {
+  background-color: #555555;
+}
+
+.tab:focus {
+  outline: none;
+}
+
+.initially-hidden {
+  display: none;
 }
