@@ -176,7 +176,7 @@ async function filesUploaded() { // jshint ignore:line
 
   for(var file of files) {
     // Convert to LF if in CRLF
-    let contents =  (await file.text()).replace(/\n\r/g, "\n"); // jshint ignore:line
+    let contents =  (await file.text()).replace(/\r\n/g, "\n"); // jshint ignore:line
     createNewTab(file.name, contents);
   }
 
