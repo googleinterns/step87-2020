@@ -44,3 +44,7 @@ body, html {
   background-color: #555555;
   color: white;
 }
+
+#signout {
+ visibility: hidden;
+}

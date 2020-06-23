@@ -84,5 +84,5 @@ function addAuthStateListener() {
 function start() {
   loadSignIn();
   checkSignIn();
-  hideLogout();
+  addAuthStateListener();
 }
