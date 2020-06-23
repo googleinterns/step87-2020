@@ -34,7 +34,7 @@ public class WorkspaceTest {
   }
 
   @Test
-  public void WorkspaceNewEntity() throws EntityNotFoundException {
+  public void WorkspaceNewEntity() throws Exception {
     Workspace w = new Workspace(STUDENT, TA);
 
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
@@ -45,27 +45,27 @@ public class WorkspaceTest {
   }
 
   @Test(expected = NullPointerException.class)
-  public void WorkspaceNullStudent() throws EntityNotFoundException {
+  public void WorkspaceNullStudent() throws Exception {
     new Workspace(null, TA);
   }
 
   @Test(expected = NullPointerException.class)
-  public void WorkspaceNullTA() throws EntityNotFoundException {
+  public void WorkspaceNullTA() throws Exception {
     new Workspace(STUDENT, null);
   }
 
   @Test(expected = NullPointerException.class)
-  public void WorkspaceNullID() throws EntityNotFoundException {
+  public void WorkspaceNullID() throws Exception {
     new Workspace(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void WorkspaceNonExistantID() throws EntityNotFoundException {
+  public void WorkspaceNonExistantID() throws Exception {
     new Workspace("NotValid");
   }
 
   @Test
-  public void WorkspaceID() throws EntityNotFoundException {
+  public void WorkspaceID() throws Exception {
     String id = new Workspace(STUDENT, TA).getWorkspaceID();
 
     Workspace w = new Workspace(id);
@@ -86,7 +86,7 @@ public class WorkspaceTest {
   }
 
   @Test
-  public void getWorkspaceID() throws EntityNotFoundException {
+  public void getWorkspaceID() throws Exception {
     Workspace w1 = new Workspace(STUDENT, TA);
     Workspace w2 = new Workspace(w1.getWorkspaceID());
     assertEquals(w1.getWorkspaceID(), w2.getWorkspaceID());
