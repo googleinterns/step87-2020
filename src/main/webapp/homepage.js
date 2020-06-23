@@ -52,3 +52,17 @@ function logout() {
   console.error('Sign Out Error', error);
   });
 }
+
+// If the user is signed in on first visit to homepage, show the logout button, if not, don't show logout button
+function checkSignIn() {
+  var button = document.getElementById("signout");
+  var user = firebase.auth().currentUser;
+  
+  if (user) {
+    // User is signed in.
+    button.style.visibility = "visible";
+  } else {
+    // No user is signed in.
+    button.style.visibility = "hidden";
+  }
+}
