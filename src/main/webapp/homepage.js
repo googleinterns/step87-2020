@@ -68,7 +68,7 @@ function checkSignIn() {
 }
 
 // When user sign-in state changes, hide or show logout button
-function hideLogout() {
+function addAuthStateListener() {
   var button = document.getElementById("signout");
  
   firebase.auth().onAuthStateChanged(function(user) {
@@ -80,3 +80,9 @@ function hideLogout() {
   });
 }
 
+// Homepage checks for sign in onload
+function start() {
+  loadSignIn();
+  checkSignIn();
+  hideLogout();
+}
