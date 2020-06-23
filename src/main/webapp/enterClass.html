@@ -3,24 +3,22 @@
   <head>
     <meta charset="UTF-8">
     <title>Enter Class</title>
-    <!-- firebase.auth().currentUser.getUid().then(function(data) {
-        document.getElementById("idToken").value = data; -->
     <!-- Firebase App (the core Firebase SDK) must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/7.15.1/firebase-app.js"></script>
-    <!-- Add Firebase Authentication -->
+    <!-- Firebase Authentication -->
     <script src="https://www.gstatic.com/firebasejs/7.15.1/firebase-auth.js"></script>
   </head>
 
   <script>
     function getToken() {
-        var firebaseConfig = {
-            apiKey: "AIzaSyA1r_PfVDCXfTgoUNisci5Ag2MKEEwsZCE",
-            authDomain: "fulfillment-deco-step-2020.firebaseapp.com",
-            databaseURL: "https://fulfillment-deco-step-2020.firebaseio.com",
-            projectId: "fulfillment-deco-step-2020",
-            storageBucket: "fulfillment-deco-step-2020.appspot.com",
-            messagingSenderId: "7165833112",
-            appId: "1:7165833112:web:3b4af53c5de6aa73b7c5ed"
+      var firebaseConfig = {
+        apiKey: "AIzaSyA1r_PfVDCXfTgoUNisci5Ag2MKEEwsZCE",
+        authDomain: "fulfillment-deco-step-2020.firebaseapp.com",
+        databaseURL: "https://fulfillment-deco-step-2020.firebaseio.com",
+        projectId: "fulfillment-deco-step-2020",
+        storageBucket: "fulfillment-deco-step-2020.appspot.com",
+        messagingSenderId: "7165833112",
+        appId: "1:7165833112:web:3b4af53c5de6aa73b7c5ed"
         };
 
       // Initialize Firebase
@@ -37,10 +35,9 @@
     }
 
     function setToken(token){
-        let forms = document.getElementsByName("idToken");
-        forms.forEach((form) => form.value = token);
+      let forms = document.getElementsByName("idToken");
+      forms.forEach((form) => form.value = token);
     }
-      
   </script>
 
   <body onload="getToken()">
