@@ -27,10 +27,6 @@ public class NewClass extends HttpServlet {
   public void init(ServletConfig config) throws ServletException {
     try {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
-
-      datastore = DatastoreServiceFactory.getDatastoreService();
-      System.setProperty(
-          DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -40,6 +36,10 @@ public class NewClass extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form.
     // navigate to /_ah/admin to view Datastore
+
+    datastore = DatastoreServiceFactory.getDatastoreService();
+    System.setProperty(
+        DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
 
     try {
       String className = request.getParameter("className").trim();

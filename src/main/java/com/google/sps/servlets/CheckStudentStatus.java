@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 @WebServlet("/check-student")
 public class CheckStudentStatus extends HttpServlet {
   FirebaseAuth authInstance;
@@ -31,10 +30,6 @@ public class CheckStudentStatus extends HttpServlet {
   public void init(ServletConfig config) throws ServletException {
     try {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
-
-      datastore = DatastoreServiceFactory.getDatastoreService();
-      System.setProperty(
-          DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -42,6 +37,10 @@ public class CheckStudentStatus extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    datastore = DatastoreServiceFactory.getDatastoreService();
+    System.setProperty(
+        DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
+    
     try {
       // Find user ID
       String idToken = request.getParameter("userToken");
