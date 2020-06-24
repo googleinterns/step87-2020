@@ -136,6 +136,6 @@ public class QueueStatusTest {
 
     queue.doGet(httpRequest, httpResponse);
 
-    assertEquals(stringWriter.toString(), "1");
+    assertEquals("1", stringWriter.toString());
   }
 }
