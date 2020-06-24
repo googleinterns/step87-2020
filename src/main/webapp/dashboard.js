@@ -30,3 +30,8 @@ function drawChart() {
 }
 
 google.charts.setOnLoadCallback(drawChart);
+
+// After a TA email is submitted, retrieve and add a class TA
+function addClassTA() {
+  fetch("/addta");
+}
