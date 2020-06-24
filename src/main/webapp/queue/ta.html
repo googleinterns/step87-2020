@@ -19,7 +19,7 @@
         storageBucket: "fulfillment-deco-step-2020.appspot.com",
         messagingSenderId: "7165833112",
         appId: "1:7165833112:web:3b4af53c5de6aa73b7c5ed"
-      };
+        };
 
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
@@ -31,34 +31,24 @@
         } else {
             console.log("user not logged in");
         }
-      });
+        });
     }
 
     function setToken(token){
       let forms = document.getElementsByName("idToken");
       forms.forEach((form) => form.value = token);
     }
+
+    function logout(){
+      const request = new Request('/delete-data', {method: 'POST'});
+      fetch(request);
+    }
+    
   </script>
 
   <body onload="getToken()">
-    <form action="/enterqueue" method="POST">
-      <textarea name="classCode" placeholder="Enter class code:"></textarea>
-      <br>
-      <label for="ta"> Enter as a TA?</label>
-      <input type="checkbox" id="enterTA" name="enterTA" value="TA">
-      <br>
-      <input type="hidden" name="idToken" value=""/>
-      <input type="submit" value="go to queue!"/>
-    </form>
-
-    <br>
-
-    <form action="/newclass" method="POST">
-      <textarea name="className" placeholder="Enter class name:"></textarea>
-      <br>
-      <input type="hidden" name="idToken" value=""/>
-      <input type="submit" value="create a new class!"/>
-    </form>
+    <div id="queue_status">
+      <h1>hello TA</h1>
+    </div>
   </body>
 </html>
-
