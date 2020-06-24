@@ -2,3 +2,8 @@ body {
   text-align: center;
   background-color: #ADDCF5;
 }
+
+#line-chart{
+  display: inline-block;
+  margin: 0 auto;
+}
