@@ -22,6 +22,12 @@ public class TATest {
 
   private DatastoreService datastore;
 
+  @Mock FirebaseAuth authInstance;
+
+  @InjectMocks NewClass addNew;
+
+  @InjectMocks EnterQueue addFirst;
+
   @Mock HttpServletRequest httpRequest;
 
   @Mock HttpServletResponse httpResponse;

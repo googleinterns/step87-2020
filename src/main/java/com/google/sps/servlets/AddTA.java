@@ -1,31 +1,58 @@
 package com.google.sps.servlets;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.UserRecord;
 import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.UserRecord;
+import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 // Once class owner submits a TA email, retrieve that user and add them as a TA to the class
-@WebServlet("/addta")
+@WebServlet("/add-ta")
 public class AddTA extends HttpServlet {
+
+  FirebaseAuth authInstance;
+
+  @Override
+  public void init(ServletConfig config) throws ServletException {
+    try {
+      authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
+    } catch (IOException e) {
+      throw new ServletException(e);
+    }
+  }
+
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-    // Obtain the teaching assistant email and search for the user
-    String teachingAssistantEmail = getParameter("taEmail").trim();
-    UserRecord userRecord = FirebaseAuth.getInstance().getUserByEmail(teachingAssistantEmail);
-    System.out.println("Successfully fetched user data: " + userRecord.getUid());
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    
+    try {
+      // Obtain the teaching assistant email and search for the user
+      String teachingAssistantEmail = request.getParameter("taEmail").trim();
+      UserRecord userRecord = authInstance.getUserByEmail(teachingAssistantEmail);
+      System.out.println("Successfully fetched user data: " + userRecord.getUid());
 
-    // Create a TA entity with both a user ID and a class ID
-    // Entity taEntity = new Entity("TA");
-    // taEntity.setProperty("userKey", userRecord.getUid());
-    // taEntity.setProperty("classKey", "DEFAULT"); // Need to get class key from URL
+      String classCode = request.getParameter("classCode").trim();
+
+      // Create a TA entity with both a user ID and a class ID
+      Entity taEntity = new Entity("TA");
+      taEntity.setProperty("userKey", userRecord.getUid());
+      taEntity.setProperty("classKey", classCode); 
+
+      datastore.put(taEntity); // Store the new TA with their class code
+
+    } catch (FirebaseAuthException e) {
+      response.sendError(HttpServletResponse.SC_NOT_FOUND);
+    } catch (IllegalArgumentException e) {
+      response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+    }
   }
 }
