@@ -2,12 +2,12 @@ package com.google.sps.servlets;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -40,17 +40,14 @@ public class AddTA extends HttpServlet {
       String teachingAssistantEmail = request.getParameter("taEmail").trim();
       UserRecord userRecord = authInstance.getUserByEmail(teachingAssistantEmail);
 
-      PrintWriter out = response.getWriter();
-      out.println("Successfully fetched user data: " + userRecord.getUid());
-
       String classCode = request.getParameter("classCode").trim();
 
       // Create a TA entity with both a user ID and a class ID
-      //   Entity taEntity = new Entity("TA");
-      //   taEntity.setProperty("userKey", userRecord.getUid());
-      //   taEntity.setProperty("classKey", classCode);
+      Entity taEntity = new Entity("TA");
+      taEntity.setProperty("userKey", userRecord.getUid());
+      taEntity.setProperty("classKey", classCode);
 
-      // datastore.put(taEntity); // Store the new TA with their class code
+      datastore.put(taEntity); // Store the new TA with their class code
 
     } catch (FirebaseAuthException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);

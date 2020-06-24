@@ -1,11 +1,17 @@
 package com.google.sps.servlets;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Query;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.UserRecord;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
@@ -26,9 +32,7 @@ public class TATest {
 
   @Mock FirebaseAuth authInstance;
 
-  @InjectMocks NewClass addNew;
-
-  @InjectMocks EnterQueue addFirst;
+  @InjectMocks AddTA addTA;
 
   @Mock HttpServletRequest httpRequest;
 
@@ -45,14 +49,21 @@ public class TATest {
     helper.tearDown();
   }
 
-  // Check if one TA gets added properly to the datastore
   @Test
-  public void addClassTA() throws Exception {
-    Entity firstTA = new Entity("TA");
+  public void addNewTA() throws Exception {
 
-    firstTA.setProperty("userKey", "");
-    firstTA.setProperty("classKey", "");
+    when(httpRequest.getParameter("taEmail")).thenReturn("test@google.com");
+    when(httpRequest.getParameter("classCode")).thenReturn("testClassCode");
 
-    datastore.put(firstTA); // Put an empty TA entity into the datastore
+    UserRecord userRecord = mock(UserRecord.class);
+    when(authInstance.getUserByEmail("test@google.com")).thenReturn(userRecord);
+    when(userRecord.getUid()).thenReturn("taID");
+
+    addTA.doPost(httpRequest, httpResponse);
+
+    Entity testEntity = datastore.prepare(new Query("TA")).asSingleEntity();
+
+    assertEquals("taID",testEntity.getProperty("userKey"));
+    assertEquals("testClassCode",testEntity.getProperty("classKey"));
   }
 }
