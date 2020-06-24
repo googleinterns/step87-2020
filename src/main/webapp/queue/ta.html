@@ -10,45 +10,31 @@
   </head>
 
   <script>
-    function getToken() {
-      var firebaseConfig = {
-        apiKey: "AIzaSyA1r_PfVDCXfTgoUNisci5Ag2MKEEwsZCE",
-        authDomain: "fulfillment-deco-step-2020.firebaseapp.com",
-        databaseURL: "https://fulfillment-deco-step-2020.firebaseio.com",
-        projectId: "fulfillment-deco-step-2020",
-        storageBucket: "fulfillment-deco-step-2020.appspot.com",
-        messagingSenderId: "7165833112",
-        appId: "1:7165833112:web:3b4af53c5de6aa73b7c5ed"
-        };
+    function getQueue() {
+      var params = window.location.search;
+      const request = new Request("/get-queue" + params, {method: "GET"});
+      document.getElementById('queue').innerHTML = "";
 
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
-
-      var user = firebase.auth().currentUser;
-      firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-          user.getIdToken().then((token) => setToken(token));
-        } else {
-            console.log("user not logged in");
-        }
-        });
+      fetch(request).then(response => response.json()).then((queue) => {
+        const queueListElement = document.getElementById('queue');
+        queue.forEach((name) => {
+          queueListElement.appendChild(createListElement(name));
+        })
+      });
     }
 
-    function setToken(token){
-      let forms = document.getElementsByName("idToken");
-      forms.forEach((form) => form.value = token);
+    function createListElement(text) {
+      const liElement = document.createElement('h1');
+      liElement.innerText = text;
+      return liElement;
     }
-
-    function logout(){
-      const request = new Request('/delete-data', {method: 'POST'});
-      fetch(request);
-    }
-    
   </script>
 
-  <body onload="getToken()">
-    <div id="queue_status">
-      <h1>hello TA</h1>
-    </div>
+  <body onload="getQueue()">
+    <h1>hello TA</h1>
+
+    <div id = "beingHelped"></div>
+
+    <div id="queue"></div>
   </body>
 </html>
