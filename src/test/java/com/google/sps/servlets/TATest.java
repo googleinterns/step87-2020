@@ -63,7 +63,7 @@ public class TATest {
 
     Entity testEntity = datastore.prepare(new Query("TA")).asSingleEntity();
 
-    assertEquals("taID",testEntity.getProperty("userKey"));
-    assertEquals("testClassCode",testEntity.getProperty("classKey"));
+    assertEquals("taID", testEntity.getProperty("userKey"));
+    assertEquals("testClassCode", testEntity.getProperty("classKey"));
   }
 }
