@@ -10,7 +10,6 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
-import com.google.gson.Gson;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ public class CheckStudentStatus extends HttpServlet {
     datastore = DatastoreServiceFactory.getDatastoreService();
     System.setProperty(
         DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
-    
+
     try {
       // Find user ID
       String idToken = request.getParameter("userToken");
@@ -54,11 +53,10 @@ public class CheckStudentStatus extends HttpServlet {
 
       // Find position in queue
       ArrayList<String> queue = (ArrayList) classEntity.getProperty("studentQueue");
-      String pos = Integer.toString(queue.indexOf(uID));
+      String pos = Integer.toString(queue.indexOf(uID) + 1);
 
-      Gson gson = new Gson();
       response.setContentType("application/json;");
-      response.getWriter().println(gson.toJson(pos));
+      response.getWriter().print(pos);
 
     } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
