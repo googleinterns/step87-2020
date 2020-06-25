@@ -6,6 +6,9 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -18,7 +21,7 @@ public class WorkspaceFile {
 
   public WorkspaceFile(DataSnapshot snap) {
     // TODO: decode fileName
-    fileName = snap.getKey();
+    fileName = decodeFilename(snap.getKey());
     if (snap.hasChild("checkpoint/id")) {
       docBase = (String) snap.child("checkpoint").child("o").getValue();
 
@@ -126,5 +129,13 @@ public class WorkspaceFile {
 
   public String getFilename() {
     return fileName;
+  }
+
+  public String decodeFilename(String filename) {
+    try {
+      return URLDecoder.decode(filename.replaceAll("%2E", "."), StandardCharsets.UTF_8.name());
+    } catch (UnsupportedEncodingException e) {
+      return filename;
+    }
   }
 }
