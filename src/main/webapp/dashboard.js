@@ -21,7 +21,9 @@ function drawChart() {
 
   var options = {
     title: 'Site Visitors',
-    legend: { position: 'bottom' }
+    legend: { position: 'right' },
+    hAxis: {title: 'Day' },
+    vAxis: {title: 'Number of Visits' },
   };
 
   var chart = new google.visualization.LineChart(document.getElementById('line-chart'));
