@@ -21,7 +21,6 @@ public class WorkspaceFile {
   private final String fileName;
 
   protected WorkspaceFile(DataSnapshot snap) {
-    // TODO: decode fileName
     fileName = decodeFilename(snap.getKey());
     if (snap.hasChild("checkpoint/id")) {
       docBase = (String) snap.child("checkpoint").child("o").getValue();
