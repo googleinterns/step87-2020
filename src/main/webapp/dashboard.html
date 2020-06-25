@@ -18,17 +18,29 @@
 
   <body>
     <div class="left">
+      <h1>Admin Dashboard</h1>
       <div class="centered">
-        <form action="/add-ta" method="POST"> 
+        <!-- <form action="/add-ta" method="POST"> 
           <label for="TAemail">Add a TA by Email:</label><br>
           <input type="text" id="taEmail" name="taEmail"><br>
           <input type="submit" value="Submit">
-        </form> 
+        </form>  -->
+        <div class="ta-form">
+          <form>
+            <fieldset><legend>Add a TA by Email</legend>
+              <label for="TAemail">
+                <span>Email <span class="required">*</span></span>
+                <input type="text" class="input-field" name="taEmail" value="" /></br>
+                <input id="submitButton" type="submit" value="Submit">
+              </label>
+            </fieldset>
+          </form>
+        </div>
       </div>
     </div>
 
     <div class="right">
-      <h1>Admin Dashboard</h1>
+      <h1>Site Statistics</h1>
       <div id="line-chart" style="width: 900px; height: 500px"></div>
     </div>
 

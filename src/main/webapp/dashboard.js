@@ -39,6 +39,8 @@ function drawChart() {
         // false, it's the entire chart.
         useObjectBoundingBoxUnits: true
       },
+      stroke: '#082f44',
+      strokeWidth: 5
     },
   };
 
