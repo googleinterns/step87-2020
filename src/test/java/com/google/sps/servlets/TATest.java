@@ -50,11 +50,14 @@ public class TATest {
   }
 
   @Test
+  // Add a TA and their class to the TA datastore
   public void addNewTA() throws Exception {
 
+    // Create examples for the TA email and class code
     when(httpRequest.getParameter("taEmail")).thenReturn("test@google.com");
     when(httpRequest.getParameter("classCode")).thenReturn("testClassCode");
 
+    // Firebase needs to return the correct user ID for the TA
     UserRecord userRecord = mock(UserRecord.class);
     when(authInstance.getUserByEmail("test@google.com")).thenReturn(userRecord);
     when(userRecord.getUid()).thenReturn("taID");
@@ -63,6 +66,7 @@ public class TATest {
 
     Entity testEntity = datastore.prepare(new Query("TA")).asSingleEntity();
 
+    // Check if the datastore contains the propery userKey and classKey
     assertEquals("taID", testEntity.getProperty("userKey"));
     assertEquals("testClassCode", testEntity.getProperty("classKey"));
   }
