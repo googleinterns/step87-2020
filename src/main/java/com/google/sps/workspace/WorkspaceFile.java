@@ -4,6 +4,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -48,31 +50,39 @@ public class WorkspaceFile {
 
           @Override
           public void onDataChange(DataSnapshot snapshot) {
-            String doc = padSurrogatePairs(docBase);
-            for (DataSnapshot ops : snapshot.getChildren()) {
-              long idx = 0;
-              for (DataSnapshot op : (List<DataSnapshot>) ops.getValue()) {
-                if (op.getValue() instanceof Long) {
-                  long longOp = op.getValue(Long.class).longValue();
-                  if (longOp > 0) {
-                    // retain
-                    idx += longOp;
+            try {
+              String doc = padSurrogatePairs(docBase);
+              for (DataSnapshot ops : snapshot.getChildren()) {
+                long idx = 0;
+                for (Object op : (List<Object>) ops.child("o").getValue()) {
+                  if (op instanceof Long) {
+                    long longOp = ((Long) op).longValue();
+                    if (longOp > 0) {
+                      // retain
+                      idx += longOp;
+                    } else {
+                      // delete
+                      doc = slice(doc, (int) idx, (int) -longOp);
+                      // doc.substring(0, (int) idx + 1) + doc.substring((int) (idx - longOp + 1));
+                    }
                   } else {
-                    // delete
-                    doc = doc.substring(0, (int) idx) + doc.substring((int) (idx - longOp));
+                    // insert
+                    String stringOp = padSurrogatePairs((String) op);
+                    doc = insert(doc, stringOp, (int) idx);
                   }
-                } else {
-                  // insert
-                  String stringOp = padSurrogatePairs(op.getValue(String.class));
-                  doc = doc.substring(0, (int) idx + 1) + stringOp + doc.substring((int) idx + 1);
                 }
+
+                // Remove surrogate pair padding.
+                doc.replaceAll("\0", "");
               }
 
-              // Remove surrogate pair padding.
-              doc.replaceAll("\0", "");
+              future.complete(doc);
+            } catch (Exception e) {
+              StringWriter sw = new StringWriter();
+              PrintWriter pw = new PrintWriter(sw);
+              e.printStackTrace(pw);
+              future.complete(sw.toString());
             }
-
-            future.complete(doc);
           }
 
           @Override
@@ -84,13 +94,29 @@ public class WorkspaceFile {
     return future;
   }
 
+  public static String slice(String str, int start, int length) {
+    if (str.length() > start + length) {
+      return str.substring(0, (int) start) + str.substring((int) (start + length));
+    } else {
+      return str.substring(0, (int) start);
+    }
+  }
+
+  public static String insert(String orig, String insert, int idx) {
+    if (orig.length() > idx) {
+      return orig.substring(0, (int) idx) + insert + orig.substring((int) idx);
+    } else {
+      return orig + insert;
+    }
+  }
+
   public static String padSurrogatePairs(String str) {
     String newStr = str;
 
     int offset = 0;
     for (int i = 0; i < str.length(); i++) {
       if (str.codePointAt(i) >= 0x10000 && str.codePointAt(i) <= 0x10FFFF) {
-        newStr = newStr.substring(0, i + offset + 1) + '\0' + newStr.substring(i + offset + 1);
+        newStr = insert(newStr, "\0", i + offset);
         offset++;
       }
     }
