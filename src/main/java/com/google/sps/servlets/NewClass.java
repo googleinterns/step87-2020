@@ -4,6 +4,7 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
@@ -54,6 +55,13 @@ public class NewClass extends HttpServlet {
       classEntity.setProperty("studentQueue", Collections.emptyList());
 
       datastore.put(classEntity);
+
+      Entity visitEntity = new Entity("Visit");
+      visitEntity.setProperty("classKey", KeyFactory.keyToString(classEntity.getKey()));
+      visitEntity.setProperty("numVisits", 0);
+
+      datastore.put(visitEntity);
+
     } catch (FirebaseAuthException e) {
       response.sendError(HttpServletResponse.SC_FORBIDDEN);
     }
