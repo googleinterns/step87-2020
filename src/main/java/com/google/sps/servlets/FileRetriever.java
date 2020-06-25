@@ -7,6 +7,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.sps.firebase.FirebaseAppManager;
+import com.google.sps.workspace.WorkspaceFile;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -31,7 +32,7 @@ public class FileRetriever extends HttpServlet {
 
     ref.child("t").setValueAsync("t");
 
-    CompletableFuture<String> future = new CompletableFuture<>();
+    CompletableFuture<WorkspaceFile> future = new CompletableFuture<>();
     ref.addListenerForSingleValueEvent(
         new ValueEventListener() {
 
@@ -39,14 +40,8 @@ public class FileRetriever extends HttpServlet {
           public void onDataChange(DataSnapshot snapshot) {
             ref.removeEventListener(this);
 
-            // WorkspaceFile file = new WorkspaceFile(snapshot);
-            future.complete(Thread.currentThread().getName());
-
-            // try {
-            // future.complete(file.getContents().get());
-            // } catch (InterruptedException | ExecutionException e) {
-            // future.completeExceptionally(e);
-            // }
+            WorkspaceFile file = new WorkspaceFile(snapshot);
+            future.complete(file);
           }
 
           @Override
@@ -57,10 +52,10 @@ public class FileRetriever extends HttpServlet {
         });
 
     try {
-      resp.getWriter().println(future.get());
+      resp.getWriter().println(future.get().getContents().get());
       resp.getWriter().println(Thread.currentThread().getName());
     } catch (InterruptedException | ExecutionException e) {
-      resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getStackTrace().toString());
+      resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.toString());
     }
   }
 }
