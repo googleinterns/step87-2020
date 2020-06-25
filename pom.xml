@@ -86,6 +86,13 @@
       <artifactId>google-cloud-tasks</artifactId>
       <version>1.29.1</version>
     </dependency>
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-compress</artifactId>
+        <version>1.20</version>
+    </dependency>
+
+
   </dependencies>
 
   <build>
