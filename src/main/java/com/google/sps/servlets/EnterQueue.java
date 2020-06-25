@@ -46,19 +46,22 @@ public final class EnterQueue extends HttpServlet {
 
     try {
       String classCode = request.getParameter("classCode").trim();
-      Key classKey = KeyFactory.stringToKey(classCode);
-      Entity classEntity = datastore.get(classKey);
-
-      String idToken = request.getParameter("idToken");
-      FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
-
-      ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
-      updatedQueue.add(decodedToken.getUid());
-      classEntity.setProperty("studentQueue", updatedQueue);
-
-      datastore.put(classEntity);
 
       if (request.getParameter("enterTA") == null) {
+        Key classKey = KeyFactory.stringToKey(classCode);
+        Entity classEntity = datastore.get(classKey);
+
+        String idToken = request.getParameter("idToken");
+        FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
+
+        ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
+        String uID = decodedToken.getUid();
+        if (!updatedQueue.contains(uID)) {
+          updatedQueue.add(uID);
+          classEntity.setProperty("studentQueue", updatedQueue);
+
+          datastore.put(classEntity);
+        }
         response.sendRedirect("/queue/student.html?classCode=" + classCode);
       } else {
         response.sendRedirect("/queue/ta.html?classCode=" + classCode);
