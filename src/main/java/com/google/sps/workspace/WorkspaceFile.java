@@ -123,4 +123,8 @@ public class WorkspaceFile {
 
     return newStr;
   }
+
+  public String getFilename() {
+    return fileName;
+  }
 }
