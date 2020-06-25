@@ -21,6 +21,7 @@ public class AddTA extends HttpServlet {
 
   FirebaseAuth authInstance;
 
+  // Get the current session
   @Override
   public void init(ServletConfig config) throws ServletException {
     try {
@@ -30,6 +31,7 @@ public class AddTA extends HttpServlet {
     }
   }
 
+  // Add a TA to the datastore
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
