@@ -86,8 +86,16 @@ public class EnterClassTest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", "");
     init.setProperty("studentQueue", emptyQueue);
+    init.setProperty("visitKey", "visitKey");
 
     datastore.put(init);
+
+    Entity visitInit = new Entity("Visit", "visitKey");
+
+    visitInit.setProperty("classKey", "ownerID");
+    visitInit.setProperty("numVisits", 0);
+
+    datastore.put(visitInit);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
