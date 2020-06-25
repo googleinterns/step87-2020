@@ -12,6 +12,7 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserRecord;
+import com.google.gson.Gson;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -39,6 +40,8 @@ public class GetQueueTest {
   @Mock HttpServletResponse httpResponse;
 
   @Mock FirebaseAuth authInstance;
+
+  @Mock Gson gson;
 
   @InjectMocks GetQueue queue;
 
@@ -75,16 +78,15 @@ public class GetQueueTest {
     when(authInstance.getUser("uID2")).thenReturn(mockUser2);
     when(mockUser2.getEmail()).thenReturn("test2@google.com");
 
+    when(gson.toJson(new ArrayList<String>(Arrays.asList("test1@google.com", "test2@google.com"))))
+        .thenReturn("test1@google.com, test2@google.com");
+
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
     when(httpResponse.getWriter()).thenReturn(writer);
 
     queue.doGet(httpRequest, httpResponse);
 
-    assertEquals(
-        new ArrayList<String>(Arrays.asList("\"test1@google.com\"", "\"test2@google.com\"")),
-        stringWriter.toString());
+    assertEquals("test1@google.com, test2@google.com", stringWriter.toString());
   }
 }
-
-// write json conversiton comment
