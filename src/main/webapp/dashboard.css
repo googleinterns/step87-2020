@@ -42,59 +42,61 @@ body {
 }
 
 .ta-form{
-	max-width: 400px;
-	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+  max-width: 400px;
+  font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
+
 .ta-form label{
-	display:block;
-	margin-bottom: 10px;
+  display:block;
+  margin-bottom: 10px;
 }
+
 .ta-form label > span{
-	float: left;
-	width: 200px;
-	color: #082f44;
-	font-weight: bold;
-	font-size: 15px;
-	text-shadow: 1px 1px 1px #fff;
+  float: left;
+  width: 200px;
+  color: #082f44;
+  font-weight: bold;
+  font-size: 15px;
+  text-shadow: 1px 1px 1px #fff;
 }
 
 .ta-form fieldset{
-	border-radius: 10px;
-	margin: 0px 0px 10px 0px;
-	border: 1px solid #e8f5fc;
-	padding: 20px;
-	background: #bbe2f7;
-	box-shadow: inset 0px 0px 15px #e8f5fc;
+  border-radius: 10px;
+  margin: 0px 0px 10px 0px;
+  border: 1px solid #e8f5fc;
+  padding: 20px;
+  background: #bbe2f7;
+  box-shadow: inset 0px 0px 15px #e8f5fc;
 }
 
 .ta-form fieldset legend{
-	color: #082f44;
-	border-top: 1px solid #e8f5fc;
-	border-left: 1px solid #e8f5fc;
-	border-right: 1px solid #e8f5fc;
-	border-radius: 5px 5px 0px 0px;
-	background: #bbe2f7;
-	padding: 0px 8px 3px 8px;
-	box-shadow: -0px -1px 2px #e8f5fc;
-	font-weight: normal;
-	font-size: 14px;
+  color: #082f44;
+  border-top: 1px solid #e8f5fc;
+  border-left: 1px solid #e8f5fc;
+  border-right: 1px solid #e8f5fc;
+  border-radius: 5px 5px 0px 0px;
+  background: #bbe2f7;
+  padding: 0px 8px 3px 8px;
+  box-shadow: -0px -1px 2px #e8f5fc;
+  font-weight: normal;
+  font-size: 14px;
 }
 
 .ta-form textarea{
-	width:350px;
-	height:100px;
+  width:350px;
+  height:100px;
 }
 
 .ta-form input[type=text],
 .ta-form textarea{
-	border-radius: 3px;
-	border: 1px solid #e8f5fc;
-	outline: none;
-	color: #082f44;
-	padding: 5px 8px 5px 8px;
-	box-shadow: inset 1px 1px 4px #e8f5fc;
-	background: white;
-	width:85%;
+  border-radius: 3px;
+  border: 1px solid #e8f5fc;
+  outline: none;
+  color: #082f44;
+  padding: 5px 8px 5px 8px;
+  box-shadow: inset 1px 1px 4px #e8f5fc;
+  background: white;
+  width:85%;
 }
 
 .ta-form  input[type=submit],
