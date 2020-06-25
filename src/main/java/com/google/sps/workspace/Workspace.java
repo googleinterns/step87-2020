@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -29,18 +30,33 @@ public class Workspace {
 
   public Workspace(String studentUID, String TaUID)
       throws IOException, InterruptedException, ExecutionException {
-    reference = FirebaseDatabase.getInstance(FirebaseAppManager.getApp()).getReference().push();
+    this(
+        studentUID,
+        TaUID,
+        FirebaseDatabase.getInstance(FirebaseAppManager.getApp()).getReference().push());
+  }
 
-    ApiFuture<Void> studentFuture = reference.child("student").setValueAsync(studentUID);
-    ApiFuture<Void> taFuture = reference.child("ta").setValueAsync(TaUID);
+  protected Workspace(String studentUID, String TaUID, DatabaseReference reference)
+      throws InterruptedException, ExecutionException {
+    this(reference);
+
+    ApiFuture<Void> studentFuture =
+        reference.child("student").setValueAsync(Objects.requireNonNull(studentUID));
+    ApiFuture<Void> taFuture = reference.child("ta").setValueAsync(Objects.requireNonNull(TaUID));
 
     studentFuture.get();
     taFuture.get();
   }
 
   public Workspace(String workspaceID) throws IOException {
-    reference =
-        FirebaseDatabase.getInstance(FirebaseAppManager.getApp()).getReference().child(workspaceID);
+    this(
+        FirebaseDatabase.getInstance(FirebaseAppManager.getApp())
+            .getReference()
+            .child(workspaceID));
+  }
+
+  protected Workspace(DatabaseReference reference) {
+    this.reference = Objects.requireNonNull(reference);
   }
 
   /** @return the studentUID */
