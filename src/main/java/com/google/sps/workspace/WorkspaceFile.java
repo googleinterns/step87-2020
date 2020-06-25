@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import com.google.sps.utils.StringUtils;
 
 public class WorkspaceFile {
   private final Query q;
@@ -19,7 +20,7 @@ public class WorkspaceFile {
 
   private final String fileName;
 
-  public WorkspaceFile(DataSnapshot snap) {
+  protected WorkspaceFile(DataSnapshot snap) {
     // TODO: decode fileName
     fileName = decodeFilename(snap.getKey());
     if (snap.hasChild("checkpoint/id")) {
@@ -65,13 +66,13 @@ public class WorkspaceFile {
                       idx += longOp;
                     } else {
                       // delete
-                      doc = slice(doc, (int) idx, (int) -longOp);
+                      doc = StringUtils.slice(doc, (int) idx, (int) -longOp);
                       // doc.substring(0, (int) idx + 1) + doc.substring((int) (idx - longOp + 1));
                     }
                   } else {
                     // insert
                     String stringOp = padSurrogatePairs((String) op);
-                    doc = insert(doc, stringOp, (int) idx);
+                    doc = StringUtils.insert(doc, stringOp, (int) idx);
                   }
                 }
 
@@ -97,29 +98,13 @@ public class WorkspaceFile {
     return future;
   }
 
-  public static String slice(String str, int start, int length) {
-    if (str.length() > start + length) {
-      return str.substring(0, (int) start) + str.substring((int) (start + length));
-    } else {
-      return str.substring(0, (int) start);
-    }
-  }
-
-  public static String insert(String orig, String insert, int idx) {
-    if (orig.length() > idx) {
-      return orig.substring(0, (int) idx) + insert + orig.substring((int) idx);
-    } else {
-      return orig + insert;
-    }
-  }
-
-  public static String padSurrogatePairs(String str) {
+  private static String padSurrogatePairs(String str) {
     String newStr = str;
 
     int offset = 0;
     for (int i = 0; i < str.length(); i++) {
       if (str.codePointAt(i) >= 0x10000 && str.codePointAt(i) <= 0x10FFFF) {
-        newStr = insert(newStr, "\0", i + offset);
+        newStr = StringUtils.insert(newStr, "\0", i + offset);
         offset++;
       }
     }
@@ -131,7 +116,7 @@ public class WorkspaceFile {
     return fileName;
   }
 
-  public String decodeFilename(String filename) {
+  private String decodeFilename(String filename) {
     try {
       return URLDecoder.decode(filename.replaceAll("%2E", "."), StandardCharsets.UTF_8.name());
     } catch (UnsupportedEncodingException e) {
