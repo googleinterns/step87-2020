@@ -61,6 +61,14 @@ public final class EnterQueue extends HttpServlet {
           classEntity.setProperty("studentQueue", updatedQueue);
 
           datastore.put(classEntity);
+
+          String visitCode = (String) classEntity.getProperty("visitKey");
+          Entity visitEntity = datastore.get(KeyFactory.stringToKey(visitCode));
+
+          Long numVisits = (Long) visitEntity.getProperty("numVisits");
+          visitEntity.setProperty("numVisits", numVisits + 1);
+
+          datastore.put(visitEntity);
         }
         response.sendRedirect("/queue/student.html?classCode=" + classCode);
       } else {

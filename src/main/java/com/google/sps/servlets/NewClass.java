@@ -4,6 +4,7 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.PropertyProjection;
@@ -70,6 +71,7 @@ public class NewClass extends HttpServlet {
         classEntity.setProperty("name", className);
         classEntity.setProperty("beingHelped", "");
         classEntity.setProperty("studentQueue", Collections.emptyList());
+        classEntity.setProperty("visitKey", "");
 
         datastore.put(classEntity);
 
@@ -78,12 +80,19 @@ public class NewClass extends HttpServlet {
         visitEntity.setProperty("numVisits", 0);
 
         datastore.put(visitEntity);
+
+        Entity updateClassEntity = datastore.get(classEntity.getKey());
+        updateClassEntity.setProperty("visitKey", KeyFactory.keyToString(visitEntity.getKey()));
+        datastore.put(updateClassEntity);
+
       } else {
         response.sendError(HttpServletResponse.SC_FORBIDDEN);
       }
 
     } catch (FirebaseAuthException e) {
       response.sendError(HttpServletResponse.SC_FORBIDDEN);
+    } catch (EntityNotFoundException e) {
+      response.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
   }
 }
