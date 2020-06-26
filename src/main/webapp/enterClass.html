@@ -25,6 +25,7 @@
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
 
+      // Logged out users cannot have access to app features
       var user = firebase.auth().currentUser;
       firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
@@ -61,6 +62,7 @@
       <input type="hidden" name="idToken" value=""/>
       <input type="submit" value="create a new class!"/>
     </form>
+    
   </body>
 </html>
 
