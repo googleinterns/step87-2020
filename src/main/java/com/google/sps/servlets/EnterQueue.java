@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** Servlet that creates a new class Datastore. */
 @WebServlet("/enterqueue")
 public final class EnterQueue extends HttpServlet {
   FirebaseAuth authInstance;
@@ -41,7 +40,6 @@ public final class EnterQueue extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form.
-    // navigate to /_ah/admin to view Datastore
 
     datastore = DatastoreServiceFactory.getDatastoreService();
     System.setProperty(
@@ -50,66 +48,48 @@ public final class EnterQueue extends HttpServlet {
     try {
       String classCode = request.getParameter("classCode").trim();
 
+      String idToken = request.getParameter("idToken");
+      FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
+      String uID = decodedToken.getUid();
+
       if (request.getParameter("enterTA") == null) {
-        Key classKey = KeyFactory.stringToKey(classCode);
-        Entity classEntity = datastore.get(classKey);
+        int retries = 10;
+        while (true) {
+          TransactionOptions options = TransactionOptions.Builder.withXG(true);
+          Transaction txn = datastore.beginTransaction(options);
+          try {
+            Key classKey = KeyFactory.stringToKey(classCode);
+            Entity classEntity = datastore.get(txn, classKey);
 
-        String idToken = request.getParameter("idToken");
-        FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
+            ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
 
-        ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
-        String uID = decodedToken.getUid();
-        if (!updatedQueue.contains(uID)) {
-          int retries = 10;
-          while (true) {
-            TransactionOptions options = TransactionOptions.Builder.withXG(true);
-            Transaction txn = datastore.beginTransaction(options);
-            try {
+            String visitCode = (String) classEntity.getProperty("visitKey");
+            Entity visitEntity = datastore.get(txn, KeyFactory.stringToKey(visitCode));
+
+            Long numVisits = (Long) visitEntity.getProperty("numVisits");
+
+            if (!updatedQueue.contains(uID)) {
               updatedQueue.add(uID);
-              classEntity.setProperty("studentQueue", updatedQueue);
-
-              datastore.put(txn, classEntity);
-
-              txn.commit();
-              break;
-            } catch (ConcurrentModificationException e) {
-              if (retries == 0) {
-                throw e;
-              }
-              // Allow retry to occur
-              --retries;
-            } finally {
-              if (txn.isActive()) {
-                txn.rollback();
-              }
+              numVisits++;
             }
-          }
 
-          while (true) {
-            TransactionOptions options = TransactionOptions.Builder.withXG(true);
-            Transaction txn = datastore.beginTransaction(options);
-            try {
+            visitEntity.setProperty("numVisits", numVisits);
+            datastore.put(txn, visitEntity);
 
-              String visitCode = (String) classEntity.getProperty("visitKey");
-              Entity visitEntity = datastore.get(KeyFactory.stringToKey(visitCode));
+            classEntity.setProperty("studentQueue", updatedQueue);
+            datastore.put(txn, classEntity);
 
-              Long numVisits = (Long) visitEntity.getProperty("numVisits");
-              visitEntity.setProperty("numVisits", numVisits + 1);
-
-              datastore.put(txn, visitEntity);
-
-              txn.commit();
-              break;
-            } catch (ConcurrentModificationException e) {
-              if (retries == 0) {
-                throw e;
-              }
-              // Allow retry to occur
-              --retries;
-            } finally {
-              if (txn.isActive()) {
-                txn.rollback();
-              }
+            txn.commit();
+            break;
+          } catch (ConcurrentModificationException e) {
+            if (retries == 0) {
+              throw e;
+            }
+            // Allow retry to occur
+            --retries;
+          } finally {
+            if (txn.isActive()) {
+              txn.rollback();
             }
           }
         }

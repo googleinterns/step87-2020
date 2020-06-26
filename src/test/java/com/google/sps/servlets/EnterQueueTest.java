@@ -33,7 +33,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class EnterQueueTest {
 
   private final LocalServiceTestHelper helper =
-      new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
+      new LocalServiceTestHelper(
+          // Use High Rep job policy to allow cross group transactions in tests.
+          new LocalDatastoreServiceTestConfig().setApplyAllHighRepJobPolicy());
 
   private DatastoreService datastore;
 
@@ -83,7 +85,10 @@ public class EnterQueueTest {
 
     datastore.put(visitInit);
 
-    when(httpRequest.getParameter("enterTA")).thenReturn(null);
+    Entity updateClassEntity = datastore.get(init.getKey());
+    updateClassEntity.setProperty("visitKey", KeyFactory.keyToString(visitInit.getKey()));
+    datastore.put(updateClassEntity);
+
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
 
@@ -93,11 +98,13 @@ public class EnterQueueTest {
 
     addFirst.doPost(httpRequest, httpResponse);
 
-    Entity testEntity = datastore.prepare(new Query("Class")).asSingleEntity();
+    Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
+    Entity testVisitEntity = datastore.prepare(new Query("Visit")).asSingleEntity();
 
-    ArrayList<String> testQueue = (ArrayList<String>) testEntity.getProperty("studentQueue");
+    ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
     assertEquals(
-        KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testEntity.getKey()));
+        KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
+    assertEquals((long) 1, testVisitEntity.getProperty("numVisits"));
     assertEquals(1, testQueue.size());
     assertEquals("uID", testQueue.get(0));
   }
@@ -114,14 +121,19 @@ public class EnterQueueTest {
 
     datastore.put(init);
 
-    Entity visitInit = new Entity("Visit", "visitKey");
+    Entity visitInit = new Entity("Visit");
 
     visitInit.setProperty("classKey", "ownerID");
-    visitInit.setProperty("numVisits", 0);
+    visitInit.setProperty("numVisits", 1);
 
     datastore.put(visitInit);
 
+    Entity updateClassEntity = datastore.get(init.getKey());
+    updateClassEntity.setProperty("visitKey", KeyFactory.keyToString(visitInit.getKey()));
+    datastore.put(updateClassEntity);
+
     when(httpRequest.getParameter("enterTA")).thenReturn(null);
+
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
 
@@ -131,13 +143,15 @@ public class EnterQueueTest {
 
     addFirst.doPost(httpRequest, httpResponse);
 
-    Entity testEntity = datastore.prepare(new Query("Class")).asSingleEntity();
+    Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
+    Entity testVisitEntity = datastore.prepare(new Query("Visit")).asSingleEntity();
 
-    ArrayList<String> testQueue = (ArrayList<String>) testEntity.getProperty("studentQueue");
+    ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
     assertEquals(
-        KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testEntity.getKey()));
+        KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
     assertEquals(2, testQueue.size());
     assertEquals("uID", testQueue.get(1));
+    assertEquals((long) 2, (long) testVisitEntity.getProperty("numVisits"));
   }
 
   @Test
@@ -152,7 +166,7 @@ public class EnterQueueTest {
 
     datastore.put(init);
 
-    Entity visitInit = new Entity("Visit", "visitKey");
+    Entity visitInit = new Entity("Visit");
 
     visitInit.setProperty("classKey", "ownerID");
     visitInit.setProperty("numVisits", 0);
@@ -160,6 +174,7 @@ public class EnterQueueTest {
     datastore.put(visitInit);
 
     when(httpRequest.getParameter("enterTA")).thenReturn(null);
+
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
 
@@ -169,19 +184,26 @@ public class EnterQueueTest {
 
     addFirst.doPost(httpRequest, httpResponse);
 
-    Entity testEntity = datastore.prepare(new Query("Class")).asSingleEntity();
+    Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
+    Entity testVisitEntity = datastore.prepare(new Query("Visit")).asSingleEntity();
 
-    ArrayList<String> testQueue = (ArrayList<String>) testEntity.getProperty("studentQueue");
+    ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
     assertEquals(
-        KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testEntity.getKey()));
+        KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
     assertEquals(1, testQueue.size());
     assertEquals("uID", testQueue.get(0));
+    assertEquals((long) 0, (long) testVisitEntity.getProperty("numVisits"));
   }
 
   @Test
   public void redirectTA() throws Exception {
     when(httpRequest.getParameter("enterTA")).thenReturn("isTA");
     when(httpRequest.getParameter("classCode")).thenReturn("code");
+    when(httpRequest.getParameter("idToken")).thenReturn("testID");
+
+    FirebaseToken mockToken = mock(FirebaseToken.class);
+    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
+    when(mockToken.getUid()).thenReturn("uID");
 
     addFirst.doPost(httpRequest, httpResponse);
 
