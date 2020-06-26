@@ -135,4 +135,8 @@ public class Workspace {
   public String getWorkspaceID() {
     return reference.getKey();
   }
+
+  public WorkspaceArchive getArchive() {
+    return new WorkspaceArchive(this);
+  }
 }

@@ -12,7 +12,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 public class WorkspaceArchive {
   private final Workspace w;
 
-  public WorkspaceArchive(Workspace w) {
+  protected WorkspaceArchive(Workspace w) {
     this.w = Objects.requireNonNull(w);
   }
 
