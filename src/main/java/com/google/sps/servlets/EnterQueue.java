@@ -7,12 +7,15 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.Transaction;
+import com.google.appengine.api.datastore.TransactionOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -57,18 +60,58 @@ public final class EnterQueue extends HttpServlet {
         ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
         String uID = decodedToken.getUid();
         if (!updatedQueue.contains(uID)) {
-          updatedQueue.add(uID);
-          classEntity.setProperty("studentQueue", updatedQueue);
+          int retries = 10;
+          while (true) {
+            TransactionOptions options = TransactionOptions.Builder.withXG(true);
+            Transaction txn = datastore.beginTransaction(options);
+            try {
+              updatedQueue.add(uID);
+              classEntity.setProperty("studentQueue", updatedQueue);
 
-          datastore.put(classEntity);
+              datastore.put(txn, classEntity);
 
-          String visitCode = (String) classEntity.getProperty("visitKey");
-          Entity visitEntity = datastore.get(KeyFactory.stringToKey(visitCode));
+              txn.commit();
+              break;
+            } catch (ConcurrentModificationException e) {
+              if (retries == 0) {
+                throw e;
+              }
+              // Allow retry to occur
+              --retries;
+            } finally {
+              if (txn.isActive()) {
+                txn.rollback();
+              }
+            }
+          }
 
-          Long numVisits = (Long) visitEntity.getProperty("numVisits");
-          visitEntity.setProperty("numVisits", numVisits + 1);
+          while (true) {
+            TransactionOptions options = TransactionOptions.Builder.withXG(true);
+            Transaction txn = datastore.beginTransaction(options);
+            try {
 
-          datastore.put(visitEntity);
+              String visitCode = (String) classEntity.getProperty("visitKey");
+              Entity visitEntity = datastore.get(KeyFactory.stringToKey(visitCode));
+
+              Long numVisits = (Long) visitEntity.getProperty("numVisits");
+              visitEntity.setProperty("numVisits", numVisits + 1);
+
+              datastore.put(txn, visitEntity);
+
+              txn.commit();
+              break;
+            } catch (ConcurrentModificationException e) {
+              if (retries == 0) {
+                throw e;
+              }
+              // Allow retry to occur
+              --retries;
+            } finally {
+              if (txn.isActive()) {
+                txn.rollback();
+              }
+            }
+          }
         }
         response.sendRedirect("/queue/student.html?classCode=" + classCode);
       } else {

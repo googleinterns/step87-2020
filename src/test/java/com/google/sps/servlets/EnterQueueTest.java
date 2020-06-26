@@ -11,6 +11,7 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
@@ -54,6 +55,12 @@ public class EnterQueueTest {
 
   @After
   public void tearDown() {
+    // Clean up any dangling transactions.
+    Transaction txn = datastore.getCurrentTransaction(null);
+    if (txn != null && txn.isActive()) {
+      txn.rollback();
+    }
+
     helper.tearDown();
   }
 
