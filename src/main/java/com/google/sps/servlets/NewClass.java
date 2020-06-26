@@ -6,9 +6,9 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.PropertyProjection;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
@@ -49,17 +49,13 @@ public class NewClass extends HttpServlet {
     try {
       String className = request.getParameter("className").trim();
 
-      Query query = new Query("Class");
-      query.addProjection(new PropertyProjection("name", String.class));
-
+      // prevents creating duplicate classes
+      Query query =
+          new Query("Class")
+              .setFilter(new FilterPredicate("name", FilterOperator.EQUAL, className));
       Boolean canAdd = true;
-
-      PreparedQuery results = datastore.prepare(query);
-      for (Entity entity : results.asIterable()) {
-        String cName = (String) entity.getProperty("name");
-        if (cName.equals(className)) {
-          canAdd = false;
-        }
+      if (datastore.prepare(query).countEntities() != 0) {
+        canAdd = false;
       }
 
       if (canAdd) {
