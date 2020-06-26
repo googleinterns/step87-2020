@@ -3,7 +3,6 @@ package com.google.sps.workspace;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,7 +14,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -49,43 +47,6 @@ public class WorkspaceTest {
 
   @Mock DatabaseError error;
   @Mock DatabaseException exception;
-
-  @Test(expected = NullPointerException.class)
-  public void workspaceNullRef() throws IOException, InterruptedException, ExecutionException {
-    new Workspace("", "", null);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void workspaceNullTA() throws IOException, InterruptedException, ExecutionException {
-    new Workspace("", null, reference);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void workspaceNullStudent() throws IOException, InterruptedException, ExecutionException {
-    new Workspace(null, "", reference);
-  }
-
-  @Test
-  public void workspace() throws InterruptedException, ExecutionException {
-    final String STUDENT = "STUDENT";
-    final String TA = "TA";
-
-    when(reference.child(eq("student"))).thenReturn(studentRef);
-    when(reference.child(eq("ta"))).thenReturn(taRef);
-    when(studentRef.setValueAsync(any())).thenReturn(apiFutureStudent);
-    when(taRef.setValueAsync(any())).thenReturn(apiFutureTA);
-
-    new Workspace(STUDENT, TA, reference);
-
-    verify(reference, times(1)).child(eq("student"));
-    verify(reference, times(1)).child(eq("ta"));
-
-    verify(studentRef, times(1)).setValueAsync(eq(STUDENT));
-    verify(taRef, times(1)).setValueAsync(eq(TA));
-
-    verify(apiFutureStudent, times(1)).get();
-    verify(apiFutureTA, times(1)).get();
-  }
 
   @Test
   public void getStudentID() throws InterruptedException, ExecutionException {

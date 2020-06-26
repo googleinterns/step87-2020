@@ -1,18 +1,13 @@
 package com.google.sps.workspace;
 
-import com.google.api.core.ApiFuture;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.sps.firebase.FirebaseAppManager;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
@@ -22,33 +17,6 @@ import java.util.concurrent.Future;
  */
 public class Workspace {
   private final DatabaseReference reference;
-
-  public Workspace(String studentUID, String TaUID)
-      throws IOException, InterruptedException, ExecutionException {
-    this(
-        studentUID,
-        TaUID,
-        FirebaseDatabase.getInstance(FirebaseAppManager.getApp()).getReference().push());
-  }
-
-  protected Workspace(String studentUID, String TaUID, DatabaseReference reference)
-      throws InterruptedException, ExecutionException {
-    this(reference);
-
-    ApiFuture<Void> studentFuture =
-        reference.child("student").setValueAsync(Objects.requireNonNull(studentUID));
-    ApiFuture<Void> taFuture = reference.child("ta").setValueAsync(Objects.requireNonNull(TaUID));
-
-    studentFuture.get();
-    taFuture.get();
-  }
-
-  public Workspace(String workspaceID) throws IOException {
-    this(
-        FirebaseDatabase.getInstance(FirebaseAppManager.getApp())
-            .getReference()
-            .child(workspaceID));
-  }
 
   protected Workspace(DatabaseReference reference) {
     this.reference = Objects.requireNonNull(reference);
