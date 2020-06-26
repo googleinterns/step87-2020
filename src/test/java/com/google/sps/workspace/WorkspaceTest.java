@@ -16,6 +16,8 @@ import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.junit.Test;
@@ -37,7 +39,11 @@ public class WorkspaceTest {
 
   @Mock DatabaseReference taRef;
 
+  @Mock DatabaseReference filesRef;
+
   @Mock DataSnapshot snap;
+
+  @Mock DatabaseReference historyRef;
 
   @Captor ArgumentCaptor<ValueEventListener> listenerCaptor;
 
@@ -159,5 +165,58 @@ public class WorkspaceTest {
 
     assertTrue(future.isDone());
     future.get();
+  }
+
+  @Test
+  public void getFiles() throws InterruptedException, ExecutionException {
+    final int NUM_FILES = 3;
+    ArrayList<DataSnapshot> files = new ArrayList<>();
+    for (int i = 0; i < NUM_FILES; i++) {
+      files.add(snap);
+    }
+
+    when(reference.child(eq("files"))).thenReturn(filesRef);
+    when(snap.getKey()).thenReturn("KEY");
+    when(snap.hasChild(eq("checkpoint/id"))).thenReturn(false);
+    when(snap.getRef()).thenReturn(filesRef);
+    when(filesRef.child(eq("history"))).thenReturn(historyRef);
+    when(snap.getChildren()).thenReturn(files);
+
+    Future<List<WorkspaceFile>> filesFuture = new Workspace(reference).getFiles();
+
+    verify(filesRef, times(1)).addListenerForSingleValueEvent(listenerCaptor.capture());
+
+    assertFalse(filesFuture.isDone());
+
+    listenerCaptor.getValue().onDataChange(snap);
+
+    assertTrue(filesFuture.isDone());
+
+    assertEquals(filesFuture.get().size(), NUM_FILES);
+  }
+
+  @Test(expected = ExecutionException.class)
+  public void getFilesException() throws InterruptedException, ExecutionException {
+    when(reference.child(eq("files"))).thenReturn(filesRef);
+    when(error.toException()).thenReturn(exception);
+
+    Future<List<WorkspaceFile>> filesFuture = new Workspace(reference).getFiles();
+
+    verify(filesRef, times(1)).addListenerForSingleValueEvent(listenerCaptor.capture());
+
+    assertFalse(filesFuture.isDone());
+
+    listenerCaptor.getValue().onCancelled(error);
+
+    assertTrue(filesFuture.isDone());
+    filesFuture.get();
+  }
+
+  @Test
+  public void getWorkspaceID() {
+    final String WORKSPACE_ID = "ID";
+    when(reference.getKey()).thenReturn(WORKSPACE_ID);
+
+    assertEquals(WORKSPACE_ID, new Workspace(reference).getWorkspaceID());
   }
 }
