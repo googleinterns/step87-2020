@@ -10,6 +10,7 @@
   </head>
 
   <script>
+
     function getToken() {
       var firebaseConfig = {
         apiKey: "AIzaSyA1r_PfVDCXfTgoUNisci5Ag2MKEEwsZCE",
@@ -29,7 +30,8 @@
         if (user) {
           user.getIdToken().then((token) => setToken(token));
         } else {
-            console.log("user not logged in");
+          console.log("User not logged in, redirecting to sign in page");
+          window.location.href = "/index.html";
         }
       });
     }
