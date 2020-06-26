@@ -80,6 +80,7 @@ public class WorkspaceFile {
                 if (idx != doc.length()) {
                   future.completeExceptionally(
                       new IllegalStateException("Operation did not operate on whole string."));
+                  return;
                 }
               }
 
