@@ -127,7 +127,18 @@ function createNewTab(filename, contents) {
 
 }
 
+function leftJitsi() {
+  document.getElementById("toggleJitsiButton").classList.add("hidden");
+  document.getElementById("jitsi-window").innerHTML = "";
+  document.getElementById("reconnect-button").classList.remove("hidden");
+
+  jitsiVisible = true;
+}
+
 function addJitsiWindow() {
+  document.getElementById("toggleJitsiButton").classList.remove("hidden");
+  document.getElementById("reconnect-button").classList.add("hidden");
+
   const parent = document.getElementById("jitsi-window");
 
   const api = new JitsiMeetExternalAPI("meet.jit.si", {
@@ -136,6 +147,8 @@ function addJitsiWindow() {
     width: 500,
     parentNode: parent
   });
+
+  api.addEventListener("videoConferenceLeft", leftJitsi);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
