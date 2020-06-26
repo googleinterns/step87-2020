@@ -8,8 +8,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.api.core.ApiFuture;
 import com.google.firebase.database.DatabaseReference;
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
