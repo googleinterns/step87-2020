@@ -32,6 +32,9 @@
         <div id="permanent-buttons" class="initially-hidden">
           <button class="permanent-tab tab" onclick="uploadFiles()">Upload</button>
           <input type="file" id="upload-files" class="hidden" oninput="filesUploaded()" multiple/>
+
+          <button class="permanent-tab tab" onclick="downloadFiles()">Download</button>
+          <a class="hidden" id="downloadLink" download="workspace.tar.gz">Download</a>
         </div>
       </div>
       <div id="firepads">
