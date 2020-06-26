@@ -24,22 +24,22 @@ public class WorkspaceFactoryTest {
   @Mock ApiFuture<Void> apiFutureTA;
 
   @Test(expected = NullPointerException.class)
-  public void workspaceNullRef() throws IOException, InterruptedException, ExecutionException {
+  public void workspaceNullRef() throws Exception {
     WorkspaceFactory.FACTORY.fromStudentAndTA("", "", null);
   }
 
   @Test(expected = NullPointerException.class)
-  public void workspaceNullTA() throws IOException, InterruptedException, ExecutionException {
+  public void workspaceNullTA() throws Exception {
     WorkspaceFactory.FACTORY.fromStudentAndTA("", null, reference);
   }
 
   @Test(expected = NullPointerException.class)
-  public void workspaceNullStudent() throws IOException, InterruptedException, ExecutionException {
+  public void workspaceNullStudent() throws Exception {
     WorkspaceFactory.FACTORY.fromStudentAndTA(null, "", reference);
   }
 
   @Test
-  public void workspace() throws InterruptedException, ExecutionException, IOException {
+  public void workspace() throws Exception {
     final String STUDENT = "STUDENT";
     final String TA = "TA";
 

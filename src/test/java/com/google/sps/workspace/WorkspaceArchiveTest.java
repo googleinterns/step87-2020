@@ -61,7 +61,7 @@ public class WorkspaceArchiveTest {
   }
 
   @Test(expected = ExecutionException.class)
-  public void archiveException() throws InterruptedException, ExecutionException, IOException {
+  public void archiveException() throws Exception {
     when(workspace.getFiles()).thenReturn(futureFiles);
     when(futureFiles.get()).thenThrow(new ExecutionException(new Exception()));
 

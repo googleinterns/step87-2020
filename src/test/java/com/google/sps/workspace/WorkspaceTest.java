@@ -49,7 +49,7 @@ public class WorkspaceTest {
   @Mock DatabaseException exception;
 
   @Test
-  public void getStudentID() throws InterruptedException, ExecutionException {
+  public void getStudentID() throws Exception {
     final String STUDENT = "STUDENT";
 
     when(reference.child(eq("student"))).thenReturn(studentRef);
@@ -69,7 +69,7 @@ public class WorkspaceTest {
   }
 
   @Test(expected = ExecutionException.class)
-  public void getStudentIDException() throws InterruptedException, ExecutionException {
+  public void getStudentIDException() throws Exception {
     final String STUDENT = "STUDENT";
 
     when(reference.child(eq("student"))).thenReturn(studentRef);
@@ -89,7 +89,7 @@ public class WorkspaceTest {
   }
 
   @Test
-  public void getTaID() throws InterruptedException, ExecutionException {
+  public void getTaID() throws Exception {
     final String TA = "TA";
 
     when(reference.child(eq("ta"))).thenReturn(taRef);
@@ -109,7 +109,7 @@ public class WorkspaceTest {
   }
 
   @Test(expected = ExecutionException.class)
-  public void getTaIDException() throws InterruptedException, ExecutionException {
+  public void getTaIDException() throws Exception {
     final String TA = "TA";
 
     when(reference.child(eq("ta"))).thenReturn(taRef);
@@ -129,7 +129,7 @@ public class WorkspaceTest {
   }
 
   @Test
-  public void getFiles() throws InterruptedException, ExecutionException {
+  public void getFiles() throws Exception {
     final int NUM_FILES = 3;
     ArrayList<DataSnapshot> files = new ArrayList<>();
     for (int i = 0; i < NUM_FILES; i++) {
@@ -157,7 +157,7 @@ public class WorkspaceTest {
   }
 
   @Test(expected = ExecutionException.class)
-  public void getFilesException() throws InterruptedException, ExecutionException {
+  public void getFilesException() throws Exception {
     when(reference.child(eq("files"))).thenReturn(filesRef);
     when(error.toException()).thenReturn(exception);
 

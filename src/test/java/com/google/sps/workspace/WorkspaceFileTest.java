@@ -46,7 +46,7 @@ public class WorkspaceFileTest {
   }
 
   @Test
-  public void getContents() throws InterruptedException, ExecutionException {
+  public void getContents() throws Exception {
     when(snap.hasChild(eq("checkpoint/id"))).thenReturn(false);
     when(snap.getKey()).thenReturn("filename");
     when(snap.getRef()).thenReturn(ref);
@@ -95,7 +95,7 @@ public class WorkspaceFileTest {
   }
 
   @Test(expected = ExecutionException.class)
-  public void getContentsException() throws InterruptedException, ExecutionException {
+  public void getContentsException() throws Exception {
     when(snap.hasChild(eq("checkpoint/id"))).thenReturn(false);
     when(snap.getKey()).thenReturn("filename");
     when(snap.getRef()).thenReturn(ref);
