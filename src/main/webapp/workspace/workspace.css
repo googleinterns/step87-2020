@@ -105,3 +105,14 @@ body {
   bottom: 50px;
   z-index: 1;
 }
+
+.jitsi-button {
+  height: 30px;
+  border: none;
+  background-color: #0077ff;
+  color: white;
+}
+
+.jitsi-button:hover {
+  background-color: #3392ff;
+}
