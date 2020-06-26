@@ -24,9 +24,21 @@
     }
 
     function createListElement(text) {
-      const liElement = document.createElement('h1');
-      liElement.innerText = text;
-      return liElement;
+      let notifyForm = document.createElement("form");
+      notifyForm.action = "/notify-student";
+      notifyForm.method = "post";
+
+      let student = document.createElement('h1');
+      student.innerText = text;
+
+      let btn = document.createElement("input");
+      btn.type = "submit";
+      btn.value = "notify student you're ready to help"
+
+      notifyForm.appendChild(student);
+      notifyForm.appendChild(btn);
+
+      return notifyForm;
     }
   </script>
 
