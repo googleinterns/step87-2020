@@ -1,5 +1,6 @@
 let tabs = {};
 let currentTab;
+let jitsiVisible = true;
 
 /**
  * Gets the base firebase reference for this workspace.
@@ -199,4 +200,19 @@ async function filesUploaded() { // jshint ignore:line
 
 function downloadFiles() {
   document.getElementById("downloadLink").click();
+}
+
+function toggleJitsi() {
+  const button = document.getElementById("toggleJitsiButton");
+  const jitsiWindow = document.getElementById("jitsi-window");
+
+  if (jitsiVisible) {
+    jitsiWindow.classList.add("hidden");
+    button.innerText = "Show Jitsi";
+  } else {
+    jitsiWindow.classList.remove("hidden");
+    button.innerText = "Hide Jitsi";
+  }
+
+  jitsiVisible = !jitsiVisible;
 }
