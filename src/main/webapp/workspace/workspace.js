@@ -126,6 +126,17 @@ function createNewTab(filename, contents) {
 
 }
 
+function addJitsiWindow() {
+  const parent = document.getElementById("jitsi-window");
+
+  const api = new JitsiMeetExternalAPI("meet.jit.si", {
+    roomName: getParam("workspaceID"),
+    height: 300,
+    width: 500,
+    parentNode: parent
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("tabs-container").onwheel = scrollTabs;
 
@@ -153,6 +164,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  addJitsiWindow();
 });
 
 window.onresize = () => {

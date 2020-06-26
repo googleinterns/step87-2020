@@ -98,3 +98,11 @@ body {
 .initially-hidden {
   display: none;
 }
+
+#jitsi-container {
+  position: absolute;
+  right: 50px;
+  bottom: 50px;
+  z-index: 1;
+  background-color: white;
+}

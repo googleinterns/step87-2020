@@ -4,6 +4,9 @@
   <head>
     <meta charset="utf-8" />
 
+    <!-- Jitsi -->
+    <script src='https://meet.jit.si/external_api.js'></script>
+
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/5.5.4/firebase.js"></script>
 
@@ -31,7 +34,12 @@
           <input type="file" id="upload-files" class="hidden" oninput="filesUploaded()" multiple/>
         </div>
       </div>
-      <div id="firepads"></div>
+      <div id="firepads">
+        <div id="jitsi-container">
+          <button onclick="toggleJitsi()">Hide window</button>
+          <div id="jitsi-window"></div>
+        </div>
+      </div>
     </div>
   </body>
 </html>
