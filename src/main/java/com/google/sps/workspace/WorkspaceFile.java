@@ -70,11 +70,17 @@ public class WorkspaceFile {
                     // insert
                     String stringOp = padSurrogatePairs((String) op);
                     doc = StringUtils.insert(doc, stringOp, (int) idx);
+                    idx += stringOp.length();
                   }
                 }
 
                 // Remove surrogate pair padding.
                 doc.replaceAll("\0", "");
+
+                if (idx != doc.length()) {
+                  future.completeExceptionally(
+                      new IllegalStateException("Operation did not operate on whole string."));
+                }
               }
 
               future.complete(doc);
