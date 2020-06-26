@@ -53,12 +53,8 @@ public class NewClass extends HttpServlet {
       Query query =
           new Query("Class")
               .setFilter(new FilterPredicate("name", FilterOperator.EQUAL, className));
-      Boolean canAdd = true;
-      if (datastore.prepare(query).countEntities() != 0) {
-        canAdd = false;
-      }
 
-      if (canAdd) {
+      if (datastore.prepare(query).countEntities() == 0) {
         String idToken = request.getParameter("idToken");
         FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
 
