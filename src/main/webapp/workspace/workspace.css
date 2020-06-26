@@ -56,10 +56,10 @@ body {
 
 .tab {
   border: none;
-  height: 30px;
+  height: 40px;
   color: #b5b5b5;
   float: left;
-  padding: 20px 15px;
+  padding: 0px 15px;
   display: flex;
   align-items: center;
 
@@ -115,4 +115,8 @@ body {
 
 .jitsi-button:hover {
   background-color: #3392ff;
+}
+
+.jitsi-button:focus {
+  outline: none;
 }
