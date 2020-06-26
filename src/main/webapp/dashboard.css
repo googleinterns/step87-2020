@@ -69,6 +69,7 @@ body {
   box-shadow: inset 0px 0px 15px #e8f5fc;
 }
 
+/* "Add a TA by Email" */
 .ta-form fieldset legend{
   color: #082f44;
   border-top: 1px solid #e8f5fc;
@@ -88,6 +89,7 @@ body {
 }
 
 .ta-form input[type=text],
+/* Area for entering the email */
 .ta-form textarea{
   border-radius: 3px;
   border: 1px solid #e8f5fc;
