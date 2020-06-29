@@ -101,12 +101,12 @@ body {
 
 .download-in-progress {
   animation-name: downloading;
-  animation-duration: 2s;
+  animation-duration: 3s;
   animation-iteration-count: infinite;
 }
 
 @keyframes downloading {
   0% {background-color: #0077ff;}
-  50% {background-color: #3392ff;}
+  50% {background-color: #333333;}
   100% {background-color: #0077ff;}
 }
