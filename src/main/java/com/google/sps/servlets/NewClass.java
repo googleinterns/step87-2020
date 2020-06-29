@@ -61,7 +61,7 @@ public class NewClass extends HttpServlet {
         Entity classEntity = new Entity("Class");
         classEntity.setProperty("owner", decodedToken.getUid());
         classEntity.setProperty("name", className);
-        classEntity.setProperty("beingHelped", "");
+        classEntity.setProperty("beingHelped", Collections.emptyList());
         classEntity.setProperty("studentQueue", Collections.emptyList());
         classEntity.setProperty("visitKey", "");
 
@@ -70,6 +70,7 @@ public class NewClass extends HttpServlet {
         Entity visitEntity = new Entity("Visit");
         visitEntity.setProperty("classKey", KeyFactory.keyToString(classEntity.getKey()));
         visitEntity.setProperty("numVisits", 0);
+        visitEntity.setProperty("className", className);
 
         datastore.put(visitEntity);
 

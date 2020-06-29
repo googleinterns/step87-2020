@@ -72,10 +72,11 @@ public class NewClassTest {
     assertEquals(
         testVisitEntity.getProperty("classKey"), KeyFactory.keyToString(testClassEntity.getKey()));
     assertEquals(testVisitEntity.getProperty("numVisits"), (long) 0);
+    assertEquals(testVisitEntity.getProperty("className"), "testClass");
 
     assertEquals(testClassEntity.getProperty("owner"), "ownerID");
     assertEquals(testClassEntity.getProperty("name"), "testClass");
-    assertEquals(testClassEntity.getProperty("beingHelped"), "");
+    assertEquals(testClassEntity.getProperty("beingHelped"), Collections.emptyList());
     assertEquals(
         testClassEntity.getProperty("visitKey"), KeyFactory.keyToString(testVisitEntity.getKey()));
 
@@ -90,7 +91,7 @@ public class NewClassTest {
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", "");
+    init.setProperty("beingHelped", Collections.emptyList());
     init.setProperty("studentQueue", emptyQueue);
     init.setProperty("visitKey", "visitKey");
 

@@ -72,7 +72,7 @@ public class EnterQueueTest {
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", "");
+    init.setProperty("beingHelped", Collections.emptyList());
     init.setProperty("studentQueue", Collections.emptyList());
     init.setProperty("visitKey", "visitKey");
 
@@ -115,7 +115,7 @@ public class EnterQueueTest {
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", "");
+    init.setProperty("beingHelped", Collections.emptyList());
     init.setProperty("studentQueue", new ArrayList(Arrays.asList("test1")));
     init.setProperty("visitKey", "visitKey");
 
@@ -160,7 +160,7 @@ public class EnterQueueTest {
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", "");
+    init.setProperty("beingHelped", Collections.emptyList());
     init.setProperty("studentQueue", new ArrayList(Arrays.asList("uID")));
     init.setProperty("visitKey", "visitKey");
 
