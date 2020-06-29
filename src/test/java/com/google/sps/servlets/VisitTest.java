@@ -1,6 +1,7 @@
 package com.google.sps.servlets;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -74,10 +75,12 @@ public class VisitTest {
   }
 
   @Test
+  // Lists of names and visits should correspond with multiple classes
   public void checkVisitsForMultipleClasses() throws Exception {
     ArrayList<String> listOfClassNames = new ArrayList<String>();
     ArrayList<Long> visitsPerClass = new ArrayList<Long>();
 
+    // Create two example classes
     Entity visitEntity = new Entity("Visit");
     visitEntity.setProperty("classKey", "testClass101");
     visitEntity.setProperty("numVisits", 15);
@@ -88,6 +91,7 @@ public class VisitTest {
     visitEntity2.setProperty("numVisits", 34);
     visitEntity2.setProperty("className", "exampleClass2");
 
+    // Store into datastore
     datastore.put(visitEntity);
     datastore.put(visitEntity2);
 
@@ -109,5 +113,29 @@ public class VisitTest {
     assertEquals((long) 15, (long) visitsPerClass.get(0));
     assertEquals((String) "exampleClass2", (String) listOfClassNames.get(1));
     assertEquals((long) 34, (long) visitsPerClass.get(1));
+  }
+
+  @Test
+  // If there are no classes, no visits should be stored
+  public void noClasses() throws Exception {
+    ArrayList<String> listOfClassNames = new ArrayList<String>();
+    ArrayList<Long> visitsPerClass = new ArrayList<Long>();
+
+    // Obtain visits from datastore and filter them into results query
+    Query query = new Query("Visit");
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery results = datastore.prepare(query);
+
+    // Store the class name and number of visits into two separate lists
+    for (Entity entity : results.asIterable()) {
+      String className = (String) entity.getProperty("className");
+      long classVisits = (long) entity.getProperty("numVisits");
+
+      listOfClassNames.add(className);
+      visitsPerClass.add(classVisits);
+    }
+
+    assertTrue(listOfClassNames.isEmpty());
+    assertTrue(visitsPerClass.isEmpty());
   }
 }
