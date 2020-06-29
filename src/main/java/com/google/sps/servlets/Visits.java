@@ -28,11 +28,11 @@ public class Visits extends HttpServlet {
 
     // Store the class name and number of visits into two separate lists
     for (Entity entity : results.asIterable()) {
-      //   String className = entity.getProperty("className");
-      //   Integer classVisits = entity.getProperty("numVisits");
+      String className = (String) entity.getProperty("className");
+      int classVisits = Integer.parseInt((String) entity.getProperty("numVisits"));
 
-      //   listOfClassNames.add(className);
-      //   visitsPerClass.add(classVisits);
+      listOfClassNames.add(className);
+      visitsPerClass.add(classVisits);
     }
   }
 }
