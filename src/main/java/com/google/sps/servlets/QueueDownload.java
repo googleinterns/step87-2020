@@ -5,6 +5,7 @@ import com.google.cloud.tasks.v2.CloudTasksClient;
 import com.google.cloud.tasks.v2.HttpMethod;
 import com.google.cloud.tasks.v2.QueueName;
 import com.google.cloud.tasks.v2.Task;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.ByteString;
 import com.google.sps.workspace.Workspace;
 import com.google.sps.workspace.WorkspaceFactory;
@@ -20,6 +21,32 @@ import javax.servlet.http.HttpServletResponse;
 public class QueueDownload extends HttpServlet {
   WorkspaceFactory workspaceFactory = WorkspaceFactory.getInstance();
 
+  public QueueDownload() {}
+
+  protected QueueDownload(WorkspaceFactory workspaceFactory) {
+    this.workspaceFactory = workspaceFactory;
+  }
+
+  @VisibleForTesting
+  protected CloudTasksClient getClient() throws IOException {
+    return CloudTasksClient.create();
+  }
+
+  @VisibleForTesting
+  protected String getProjectID() {
+    return System.getenv("GOOGLE_CLOUD_PROJECT");
+  }
+
+  @VisibleForTesting
+  protected String getQueueName() {
+    return System.getenv("DOWNLOAD_QUEUE_ID");
+  }
+
+  @VisibleForTesting
+  protected String getLocation() {
+    return System.getenv("LOCATION_ID");
+  }
+
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
@@ -27,12 +54,8 @@ public class QueueDownload extends HttpServlet {
 
     String downloadID = w.newDownloadID();
 
-    try (CloudTasksClient client = CloudTasksClient.create()) {
-      String projectId = System.getenv("GOOGLE_CLOUD_PROJECT");
-      String queueName = System.getenv("DOWNLOAD_QUEUE_ID");
-      String location = System.getenv("LOCATION_ID");
-
-      String queuePath = QueueName.of(projectId, location, queueName).toString();
+    try (CloudTasksClient client = getClient()) {
+      String queuePath = QueueName.of(getProjectID(), getLocation(), getQueueName()).toString();
 
       Task.Builder taskBuilder =
           Task.newBuilder()
