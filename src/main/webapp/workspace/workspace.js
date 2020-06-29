@@ -192,7 +192,7 @@ function downloadFiles() {
       getFirebaseRef().child("downloads").child(downloadID).on("value", snap => {
         if (snap.val() !== null) {
           const downloadLink = document.getElementById("downloadLink");
-          downloadLink.href = `/workspace/downloadWorkspace?downloadID=${snap.val()}`;
+          downloadLink.href = `/workspace/downloadWorkspace?filename=${snap.val()}`;
           downloadLink.click();
           getFirebaseRef().child("downloads").child(downloadID).off("value");
           downloadButton.classList.remove("download-in-progress");
