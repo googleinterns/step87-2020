@@ -1,11 +1,14 @@
 package com.google.sps.workspace;
 
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
-import com.google.appengine.api.datastore.KeyFactory;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 /**
  * Provides an interface to access and modify workspaces in the datastore. The contents of this
@@ -13,50 +16,95 @@ import java.util.Objects;
  * datastore.
  */
 public class Workspace {
-  private static final String KIND = "Workspace";
+  private final DatabaseReference reference;
 
-  private final transient DatastoreService datastore;
-  private String studentUID;
-  private String TaUID;
-  private String workspaceID;
-
-  private Workspace() {
-    datastore = DatastoreServiceFactory.getDatastoreService();
-  }
-
-  public Workspace(String studentUID, String TaUID) {
-    this();
-    this.studentUID = Objects.requireNonNull(studentUID);
-    this.TaUID = Objects.requireNonNull(TaUID);
-
-    Entity entity = new Entity(KIND);
-    entity.setProperty("studentUID", studentUID);
-    entity.setProperty("taUID", TaUID);
-
-    workspaceID = KeyFactory.keyToString(datastore.put(entity));
-  }
-
-  public Workspace(String workspaceID) throws EntityNotFoundException {
-    this();
-    this.workspaceID = Objects.requireNonNull(workspaceID);
-
-    Entity entity = datastore.get(KeyFactory.stringToKey(workspaceID));
-    studentUID = (String) entity.getProperty("studentUID");
-    TaUID = (String) entity.getProperty("taUID");
+  protected Workspace(DatabaseReference reference) {
+    this.reference = Objects.requireNonNull(reference);
   }
 
   /** @return the studentUID */
-  public String getStudentUID() {
-    return studentUID;
+  public Future<String> getStudentUID() {
+    CompletableFuture<String> future = new CompletableFuture<>();
+
+    reference
+        .child("student")
+        .addListenerForSingleValueEvent(
+            new ValueEventListener() {
+
+              @Override
+              public void onDataChange(DataSnapshot snapshot) {
+                future.complete((String) snapshot.getValue());
+              }
+
+              @Override
+              public void onCancelled(DatabaseError error) {
+                future.completeExceptionally(error.toException());
+              }
+            });
+
+    return future;
   }
 
   /** @return the taUID */
-  public String getTaUID() {
-    return TaUID;
+  public Future<String> getTaUID() {
+    CompletableFuture<String> future = new CompletableFuture<>();
+
+    reference
+        .child("ta")
+        .addListenerForSingleValueEvent(
+            new ValueEventListener() {
+
+              @Override
+              public void onDataChange(DataSnapshot snapshot) {
+                future.complete((String) snapshot.getValue());
+              }
+
+              @Override
+              public void onCancelled(DatabaseError error) {
+                future.completeExceptionally(error.toException());
+              }
+            });
+
+    return future;
+  }
+
+  public Future<List<WorkspaceFile>> getFiles() {
+    CompletableFuture<List<WorkspaceFile>> future = new CompletableFuture<>();
+
+    reference
+        .child("files")
+        .addListenerForSingleValueEvent(
+            new ValueEventListener() {
+
+              @Override
+              public void onDataChange(DataSnapshot snapshot) {
+                try {
+                  ArrayList<WorkspaceFile> children = new ArrayList<>();
+                  for (DataSnapshot child : snapshot.getChildren()) {
+                    children.add(new WorkspaceFile(child));
+                  }
+
+                  future.complete(children);
+                } catch (Exception e) {
+                  future.completeExceptionally(e);
+                }
+              }
+
+              @Override
+              public void onCancelled(DatabaseError error) {
+                future.completeExceptionally(error.toException());
+              }
+            });
+
+    return future;
   }
 
   /** @return the workspaceID */
   public String getWorkspaceID() {
-    return workspaceID;
+    return reference.getKey();
+  }
+
+  public WorkspaceArchive getArchive() {
+    return new WorkspaceArchive(this);
   }
 }
