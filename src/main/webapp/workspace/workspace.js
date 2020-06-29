@@ -153,8 +153,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
-
-  document.getElementById("downloadLink").href = `downloadWorkspace?workspaceID=${getParam("workspaceID")}`;
 });
 
 window.onresize = () => {
@@ -186,5 +184,15 @@ async function filesUploaded() { // jshint ignore:line
 }
 
 function downloadFiles() {
-  document.getElementById("downloadLink").click();
+  fetch(`/workspace/queueDownload?workspaceID=${getParam("workspaceID")}`)
+    .then(resp => resp.text()).then(downloadID => {
+      getFirebaseRef().child("downloads").child(downloadID).on("value", snap => {
+        if (snap.val() !== null) {
+          const downloadLink = document.getElementById("downloadLink");
+          downloadLink.href = `/workspace/downloadWorkspace?downloadID=${snap.val()}`;
+          downloadLink.click();
+          getFirebaseRef().child("downloads").child(downloadID).off("value");
+        }
+      });
+    });
 }
