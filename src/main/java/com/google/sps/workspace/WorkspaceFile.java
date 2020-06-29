@@ -64,7 +64,6 @@ public class WorkspaceFile {
                     } else {
                       // delete
                       doc = StringUtils.slice(doc, (int) idx, (int) -longOp);
-                      // doc.substring(0, (int) idx + 1) + doc.substring((int) (idx - longOp + 1));
                     }
                   } else {
                     // insert
