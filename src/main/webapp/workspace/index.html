@@ -35,12 +35,13 @@
 
           <button class="permanent-tab tab" onclick="downloadFiles()">Download</button>
           <a class="hidden" id="downloadLink" download="workspace.tar.gz">Download</a>
+
+          <button class="permanent-tab tab" id="jitsi-join" onclick="addJitsiWindow()">Join Meeting</button>
         </div>
       </div>
       <div id="firepads">
-        <div id="jitsi-container">
+        <div class="hidden" id="jitsi-container">
           <button id="toggleJitsiButton" class="jitsi-button" onclick="toggleJitsi()">Hide Jitsi</button>
-          <button class="hidden jitsi-button" id="reconnect-button" onclick="addJitsiWindow()">Reconnect</button>
           <div id="jitsi-window"></div>
         </div>
       </div>

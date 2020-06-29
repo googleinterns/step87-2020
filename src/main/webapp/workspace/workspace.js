@@ -1,6 +1,6 @@
 let tabs = {};
 let currentTab;
-let jitsiVisible = true;
+let jitsiVisible = false;
 
 /**
  * Gets the base firebase reference for this workspace.
@@ -128,16 +128,40 @@ function createNewTab(filename, contents) {
 }
 
 function leftJitsi() {
-  document.getElementById("toggleJitsiButton").classList.add("hidden");
   document.getElementById("jitsi-window").innerHTML = "";
-  document.getElementById("reconnect-button").classList.remove("hidden");
+  document.getElementById("jitsi-container").classList.add("hidden");
 
-  jitsiVisible = true;
+  const button = document.getElementById("jitsi-join");
+  button.innerText = "Join Meeting";
+  button.onclick = addJitsiWindow;
+
+  jitsiVisible = false;
 }
 
-function addJitsiWindow() {
-  document.getElementById("toggleJitsiButton").classList.remove("hidden");
-  document.getElementById("reconnect-button").classList.add("hidden");
+function toggleJitsi() {
+  const button = document.getElementById("toggleJitsiButton");
+  const jitsiWindow = document.getElementById("jitsi-window");
+
+  if (jitsiVisible) {
+    jitsiWindow.classList.add("hidden");
+    button.innerText = "Show Jitsi";
+  } else {
+    jitsiWindow.classList.remove("hidden");
+    button.innerText = "Hide Jitsi";
+  }
+
+  jitsiVisible = !jitsiVisible;
+}
+
+function addJitsiWindow() { // jshint ignore:line
+  jitsiVisible = true;
+
+  const jitsiJoin = document.getElementById("jitsi-join");
+  const jitsiShow = document.getElementById("toggleJitsiButton");
+  document.getElementById("jitsi-container").classList.remove("hidden");
+
+  jitsiShow.innerText = "Hide Jitsi";
+  jitsiJoin.innerText = "Leave Meeting";
 
   const parent = document.getElementById("jitsi-window");
 
@@ -147,6 +171,8 @@ function addJitsiWindow() {
     width: 500,
     parentNode: parent
   });
+
+  jitsiJoin.onclick = () => api.executeCommand('hangup'); 
 
   api.addEventListener("videoConferenceLeft", leftJitsi);
 }
@@ -180,7 +206,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("downloadLink").href = `downloadWorkspace?workspaceID=${getParam("workspaceID")}`;
-  addJitsiWindow();
 });
 
 window.onresize = () => {
@@ -213,19 +238,4 @@ async function filesUploaded() { // jshint ignore:line
 
 function downloadFiles() {
   document.getElementById("downloadLink").click();
-}
-
-function toggleJitsi() {
-  const button = document.getElementById("toggleJitsiButton");
-  const jitsiWindow = document.getElementById("jitsi-window");
-
-  if (jitsiVisible) {
-    jitsiWindow.classList.add("hidden");
-    button.innerText = "Show Jitsi";
-  } else {
-    jitsiWindow.classList.remove("hidden");
-    button.innerText = "Hide Jitsi";
-  }
-
-  jitsiVisible = !jitsiVisible;
 }
