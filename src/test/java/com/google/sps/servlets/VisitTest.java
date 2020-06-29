@@ -43,7 +43,7 @@ public class VisitTest {
   }
 
   @Test
-  // Add a TA and their class to the TA datastore
+  // 1 Class
   public void checkVisits() throws Exception {
     ArrayList<String> listOfClassNames = new ArrayList<String>();
     ArrayList<Long> visitsPerClass = new ArrayList<Long>();
@@ -71,5 +71,43 @@ public class VisitTest {
 
     assertEquals((String) "exampleClassName", (String) listOfClassNames.get(0));
     assertEquals((long) 15, (long) visitsPerClass.get(0));
+  }
+
+  @Test
+  public void checkVisitsForMultipleClasses() throws Exception {
+    ArrayList<String> listOfClassNames = new ArrayList<String>();
+    ArrayList<Long> visitsPerClass = new ArrayList<Long>();
+
+    Entity visitEntity = new Entity("Visit");
+    visitEntity.setProperty("classKey", "testClass101");
+    visitEntity.setProperty("numVisits", 15);
+    visitEntity.setProperty("className", "exampleClassName");
+
+    Entity visitEntity2 = new Entity("Visit");
+    visitEntity2.setProperty("classKey", "testClass103");
+    visitEntity2.setProperty("numVisits", 34);
+    visitEntity2.setProperty("className", "exampleClass2");
+
+    datastore.put(visitEntity);
+    datastore.put(visitEntity2);
+
+    // Obtain visits from datastore and filter them into results query
+    Query query = new Query("Visit");
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery results = datastore.prepare(query);
+
+    // Store the class name and number of visits into two separate lists
+    for (Entity entity : results.asIterable()) {
+      String className = (String) entity.getProperty("className");
+      long classVisits = (long) entity.getProperty("numVisits");
+
+      listOfClassNames.add(className);
+      visitsPerClass.add(classVisits);
+    }
+
+    assertEquals((String) "exampleClassName", (String) listOfClassNames.get(0));
+    assertEquals((long) 15, (long) visitsPerClass.get(0));
+    assertEquals((String) "exampleClass2", (String) listOfClassNames.get(1));
+    assertEquals((long) 34, (long) visitsPerClass.get(1));
   }
 }
