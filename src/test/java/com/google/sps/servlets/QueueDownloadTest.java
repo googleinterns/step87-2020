@@ -73,5 +73,6 @@ public class QueueDownloadTest {
     assertEquals(HttpMethod.POST, apppengineReq.getHttpMethod());
 
     verify(writer, times(1)).print(eq(DOWNLOAD_ID));
+    verify(client, times(1)).close();
   }
 }
