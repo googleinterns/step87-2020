@@ -1,9 +1,14 @@
 package com.google.sps.servlets;
 
-import com.google.sps.workspace.Workspace;
-import com.google.sps.workspace.WorkspaceArchive;
-import com.google.sps.workspace.WorkspaceFactory;
-import javax.servlet.ServletOutputStream;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
@@ -14,27 +19,26 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DownloadWorkspaceTest {
-  @Mock WorkspaceFactory workspaceFactory;
-  @Mock HttpServletRequest req;
+  @Mock BlobstoreService blobstoreService;
   @Mock HttpServletResponse resp;
-  @Mock Workspace workspace;
-  @Mock WorkspaceArchive archive;
-  @Mock ServletOutputStream out;
+  @Mock HttpServletRequest req;
 
   @InjectMocks DownloadWorkspace servlet;
 
   @Test
   public void doGet() throws Exception {
-    /*final String WORKSPACE_ID = "WORKSPACE_ID";
-    when(req.getParameter(eq("workspaceID"))).thenReturn(WORKSPACE_ID);
-    when(workspaceFactory.fromWorkspaceID(WORKSPACE_ID)).thenReturn(workspace);
-    when(workspace.getArchive()).thenReturn(archive);
-    when(resp.getOutputStream()).thenReturn(out);
+    BlobKey blobKey = mock(BlobKey.class);
+
+    final String filename = "FILENAME";
+    when(req.getParameter(eq("filename"))).thenReturn(filename);
+    when(blobstoreService.createGsBlobKey(anyString())).thenReturn(blobKey);
 
     servlet.doGet(req, resp);
 
-    verify(req, times(1)).getParameter(eq("workspaceID"));
-    verify(resp, times(1)).setContentType("application/x-gzip");
-    verify(archive, times(1)).archive(out);*/
+    verify(req, times(1)).getParameter(eq("filename"));
+    verify(resp, times(1)).setContentType(eq("application/x-gzip"));
+    verify(blobstoreService, times(1))
+        .createGsBlobKey(eq("/gs/fulfillment-deco-step-2020.appspot.com/" + filename));
+    verify(blobstoreService, times(1)).serve(blobKey, resp);
   }
 }
