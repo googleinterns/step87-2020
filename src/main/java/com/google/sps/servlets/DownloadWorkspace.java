@@ -18,7 +18,7 @@ public class DownloadWorkspace extends HttpServlet {
   public void init() throws ServletException {
     // TODO Auto-generated method stub
     super.init();
-    workspaceFactory = WorkspaceFactory.FACTORY;
+    workspaceFactory = WorkspaceFactory.getInstance();
   }
 
   @Override

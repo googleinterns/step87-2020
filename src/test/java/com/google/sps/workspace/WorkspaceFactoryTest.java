@@ -23,17 +23,17 @@ public class WorkspaceFactoryTest {
 
   @Test(expected = NullPointerException.class)
   public void workspaceNullRef() throws Exception {
-    WorkspaceFactory.FACTORY.fromStudentAndTA("", "", null);
+    WorkspaceFactory.getInstance().fromStudentAndTA("", "", null);
   }
 
   @Test(expected = NullPointerException.class)
   public void workspaceNullTA() throws Exception {
-    WorkspaceFactory.FACTORY.fromStudentAndTA("", null, reference);
+    WorkspaceFactory.getInstance().fromStudentAndTA("", null, reference);
   }
 
   @Test(expected = NullPointerException.class)
   public void workspaceNullStudent() throws Exception {
-    WorkspaceFactory.FACTORY.fromStudentAndTA(null, "", reference);
+    WorkspaceFactory.getInstance().fromStudentAndTA(null, "", reference);
   }
 
   @Test
@@ -46,7 +46,7 @@ public class WorkspaceFactoryTest {
     when(studentRef.setValueAsync(any())).thenReturn(apiFutureStudent);
     when(taRef.setValueAsync(any())).thenReturn(apiFutureTA);
 
-    WorkspaceFactory.FACTORY.fromStudentAndTA(STUDENT, TA, reference);
+    WorkspaceFactory.getInstance().fromStudentAndTA(STUDENT, TA, reference);
 
     verify(reference, times(1)).child(eq("student"));
     verify(reference, times(1)).child(eq("ta"));

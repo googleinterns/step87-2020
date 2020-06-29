@@ -9,9 +9,13 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class WorkspaceFactory {
-  public static WorkspaceFactory FACTORY = new WorkspaceFactory();
+  private static WorkspaceFactory FACTORY = new WorkspaceFactory();
 
   private WorkspaceFactory() {}
+
+  public static WorkspaceFactory getInstance() {
+    return FACTORY;
+  }
 
   public Workspace fromWorkspaceID(String workspaceID) throws IOException {
     return new Workspace(
