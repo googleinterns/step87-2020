@@ -1,10 +1,11 @@
-package com.google.sps.servlets;
+package com.google.sps;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.servlet.annotation.WebServlet;
@@ -34,5 +35,11 @@ public class Visits extends HttpServlet {
       listOfClassNames.add(className);
       visitsPerClass.add(classVisits);
     }
+
+    // Send both class names list and visits to bar chart function
+    VisitParent parent = new VisitParent(listOfClassNames, visitsPerClass);
+    Gson gson = new Gson();
+    String json = gson.toJson(parent);
+    response.getWriter().println(json);
   }
 }
