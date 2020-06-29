@@ -1,6 +1,8 @@
 package com.google.sps.firebase;
 
+import com.google.appengine.api.utils.SystemProperty;
 import com.google.auth.appengine.AppEngineCredentials;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.ThreadManager;
@@ -15,16 +17,24 @@ import java.util.concurrent.ThreadFactory;
 public class FirebaseAppManager {
   private static FirebaseApp app = null;
 
-  public static FirebaseApp getApp() throws IOException {
-    if (app == null) {
+  private static GoogleCredentials getCredentials() throws IOException {
+    if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Production) {
       List<String> scopes =
           Arrays.asList(
               "https://www.googleapis.com/auth/cloud-platform",
               "https://www.googleapis.com/auth/userinfo.email");
+      return AppEngineCredentials.newBuilder().setScopes(scopes).build();
+    } else {
+      // Local development server
+      return GoogleCredentials.getApplicationDefault();
+    }
+  }
 
+  public static FirebaseApp getApp() throws IOException {
+    if (app == null) {
       FirebaseOptions options =
           new FirebaseOptions.Builder()
-              .setCredentials(AppEngineCredentials.newBuilder().setScopes(scopes).build())
+              .setCredentials(getCredentials())
               .setDatabaseUrl("https://fulfillment-deco-step-2020.firebaseio.com")
               .setProjectId("fulfillment-deco-step-2020")
               .setThreadManager(
