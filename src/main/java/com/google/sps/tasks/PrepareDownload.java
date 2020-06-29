@@ -18,7 +18,15 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/tasks/prepareDownload")
 public class PrepareDownload extends HttpServlet {
-  WorkspaceFactory workspaceFactory = WorkspaceFactory.getInstance();
+  private WorkspaceFactory workspaceFactory;
+  private GcsService instance;
+
+  @Override
+  public void init() throws ServletException {
+    super.init();
+    workspaceFactory = WorkspaceFactory.getInstance();
+    instance = GcsServiceFactory.createGcsService();
+  }
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -31,7 +39,6 @@ public class PrepareDownload extends HttpServlet {
 
     Workspace w = workspaceFactory.fromWorkspaceID(workspaceID);
 
-    GcsService instance = GcsServiceFactory.createGcsService();
     GcsFileOptions options = GcsFileOptions.getDefaultInstance();
     GcsFilename filename =
         new GcsFilename("fulfillment-deco-step-2020.appspot.com", workspaceID + '/' + downloadID);
