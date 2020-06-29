@@ -34,7 +34,7 @@ public class Visits extends HttpServlet {
 
     // Store the class name and number of visits into two separate lists
     for (Entity entity : results.asIterable()) {
-      String className = entity.getProperty("???");
+      String className = entity.getProperty("className");
       Integer classVisits = entity.getProperty("numVisits");
 
       listOfClassNames.add(className);
