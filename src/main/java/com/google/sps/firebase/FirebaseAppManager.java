@@ -1,10 +1,12 @@
 package com.google.sps.firebase;
 
-import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.appengine.AppEngineCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.ThreadManager;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -15,9 +17,14 @@ public class FirebaseAppManager {
 
   public static FirebaseApp getApp() throws IOException {
     if (app == null) {
+      List<String> scopes =
+          Arrays.asList(
+              "https://www.googleapis.com/auth/cloud-platform",
+              "https://www.googleapis.com/auth/userinfo.email");
+
       FirebaseOptions options =
           new FirebaseOptions.Builder()
-              .setCredentials(GoogleCredentials.getApplicationDefault())
+              .setCredentials(AppEngineCredentials.newBuilder().setScopes(scopes).build())
               .setDatabaseUrl("https://fulfillment-deco-step-2020.firebaseio.com")
               .setProjectId("fulfillment-deco-step-2020")
               .setThreadManager(
