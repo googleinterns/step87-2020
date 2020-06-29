@@ -103,7 +103,7 @@ function createNewTab(filename, contents) {
     //Use LF
     editor.getModel().setEOL("\n");
     
-    const firepad = Firepad.fromMonaco(getFirebaseRef().child(encodeFileName(filename)), editor);
+    const firepad = Firepad.fromMonaco(getFirebaseRef().child("files").child(encodeFileName(filename)), editor);
 
     if (contents !== null) {
       firepad.on("ready", () => {
@@ -145,7 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
       e.classList.remove("initially-hidden");
     }
 
-    getFirebaseRef().on("child_added", (snapshot) => {
+    getFirebaseRef().child("files").on("child_added", (snapshot) => {
       const filename = decodeFileName(snapshot.key);
       createNewTab(filename, null);
       if (!currentTab) {
@@ -153,6 +153,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  document.getElementById("downloadLink").href = `downloadWorkspace?workspaceID=${getParam("workspaceID")}`;
 });
 
 window.onresize = () => {
@@ -175,10 +177,14 @@ async function filesUploaded() { // jshint ignore:line
   const files = document.getElementById("upload-files").files;
 
   for(var file of files) {
-    // Convert to LF if in CRLF
-    let contents =  (await file.text()).replace(/\r\n/g, "\n"); // jshint ignore:line
+    // Convert to LF if in CRLF or CR
+    let contents =  (await file.text()).replace(/\r\n?/g, "\n"); // jshint ignore:line
     createNewTab(file.name, contents);
   }
 
   switchTab(files[0].name);
+}
+
+function downloadFiles() {
+  document.getElementById("downloadLink").click();
 }
