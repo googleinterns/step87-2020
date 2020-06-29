@@ -15,11 +15,14 @@
     <script src="homepage.js"></script>
   </head>
   
-  <body onload="loadSignIn()">
+  <body onload="start()">
     <div class="bg">
       <h1>Landing Page</h1>
+      
+      <!--Provide sign in options for the user-->
       <div id="firebaseui-auth-container"></div>
-      <button class="button button1" onclick="logout()">Logout</button>
+      
+      <button id="signout" class="button button1" onclick="logout()">Logout</button>
     </div>
   </body>
 </html>
