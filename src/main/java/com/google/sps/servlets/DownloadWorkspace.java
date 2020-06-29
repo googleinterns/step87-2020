@@ -1,9 +1,10 @@
 package com.google.sps.servlets;
 
-import com.google.sps.workspace.Workspace;
+import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.sps.workspace.WorkspaceFactory;
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -23,14 +24,14 @@ public class DownloadWorkspace extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    Workspace w = workspaceFactory.fromWorkspaceID(req.getParameter("workspaceID"));
+    String downloadID = req.getParameter("downloadID");
 
     resp.setContentType("application/x-gzip");
 
-    try {
-      w.getArchive().archive(resp.getOutputStream());
-    } catch (InterruptedException | ExecutionException e) {
-      resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-    }
+    BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+    BlobKey blobKey =
+        blobstoreService.createGsBlobKey(
+            "/gs/fulfillment-deco-step-2020.appspot.com/" + downloadID);
+    blobstoreService.serve(blobKey, resp);
   }
 }
