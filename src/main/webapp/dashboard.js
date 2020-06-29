@@ -1,15 +1,19 @@
 google.charts.load('current', {packages: ['corechart', 'bar']});
 
 function drawBasic() {
+
+  // Set up the data table to have a class name and visits associated w/ that specific class
   var data = new google.visualization.DataTable();
   data.addColumn('string', 'Class');
   data.addColumn('number', 'Visits');
       
+  // Temporary values for class and visit lists
   var classes = ["First", "Second", "Third", "Fourth"];
   var visits = [4, 8, 15, 2];
 
-  var tempDataHolder = [];
+  var tempDataHolder = []; // To be pushed into datatable after updating
 
+  // Loop through both lists and add info sets for each class 
   for (var i = 0; i < classes.length; i++) {
     var temp = [];
     temp.push(classes[i]);
@@ -17,7 +21,7 @@ function drawBasic() {
     tempDataHolder.push(temp);
   }
 
-  data.addRows(tempDataHolder);
+  data.addRows(tempDataHolder); // Populate datatable with final data
 
   var options = {
     title: 'Number of Visits per Class',
@@ -44,7 +48,7 @@ function drawBasic() {
   };
 
   var chart = new google.visualization.ColumnChart(
-  document.getElementById('chart_div'));
+  document.getElementById('bar-chart'));
 
   chart.draw(data, options);
 }
