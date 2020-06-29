@@ -40,7 +40,7 @@ public class PrepareDownload extends HttpServlet {
     try {
       w.getArchive().archive(Channels.newOutputStream(outputChannel));
 
-      w.updateDownloadURL(downloadID, filename.getObjectName());
+      w.updateDownloadName(downloadID, filename.getObjectName());
     } catch (InterruptedException | ExecutionException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
