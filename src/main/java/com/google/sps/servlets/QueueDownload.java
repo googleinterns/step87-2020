@@ -28,8 +28,11 @@ public class QueueDownload extends HttpServlet {
     String downloadID = w.newDownloadID();
 
     try (CloudTasksClient client = CloudTasksClient.create()) {
-      String queuePath =
-          QueueName.of("fulfillment-deco-step-2020", "us-central1", "download-queue").toString();
+      String projectId = System.getenv("GOOGLE_CLOUD_PROJECT");
+      String queueName = System.getenv("DOWNLOAD_QUEUE_ID");
+      String location = System.getenv("LOCATION_ID");
+
+      String queuePath = QueueName.of(projectId, location, queueName).toString();
 
       Task.Builder taskBuilder =
           Task.newBuilder()
