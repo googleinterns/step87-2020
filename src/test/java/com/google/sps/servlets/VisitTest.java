@@ -183,4 +183,64 @@ public class VisitTest {
     assertTrue(listOfClassNames.isEmpty());
     assertTrue(visitsPerClass.isEmpty());
   }
+
+  @Test
+  // Multiple Classes w/ JSON Output
+  public void checkVisitJSONOutputMultipleClasses() throws Exception {
+    ArrayList<String> listOfClassNames = new ArrayList<String>();
+    ArrayList<Long> visitsPerClass = new ArrayList<Long>();
+
+    Entity visitEntity = new Entity("Visit");
+    visitEntity.setProperty("classKey", "testClass101");
+    visitEntity.setProperty("numVisits", 5);
+    visitEntity.setProperty("className", "exampleClassName1");
+
+    Entity visitEntity2 = new Entity("Visit");
+    visitEntity2.setProperty("classKey", "testClass102");
+    visitEntity2.setProperty("numVisits", 10);
+    visitEntity2.setProperty("className", "exampleClassName2");
+
+    Entity visitEntity3 = new Entity("Visit");
+    visitEntity3.setProperty("classKey", "testClass103");
+    visitEntity3.setProperty("numVisits", 20);
+    visitEntity3.setProperty("className", "exampleClassName3");
+
+    Entity visitEntity4 = new Entity("Visit");
+    visitEntity4.setProperty("classKey", "testClass104");
+    visitEntity4.setProperty("numVisits", 30);
+    visitEntity4.setProperty("className", "exampleClassName4");
+
+    datastore.put(visitEntity);
+    datastore.put(visitEntity2);
+    datastore.put(visitEntity3);
+    datastore.put(visitEntity4);
+
+    // Obtain visits from datastore and filter them into results query
+    Query query = new Query("Visit");
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery results = datastore.prepare(query);
+
+    // Store the class name and number of visits into two separate lists
+    for (Entity entity : results.asIterable()) {
+      String className = (String) entity.getProperty("className");
+      long classVisits = (long) entity.getProperty("numVisits");
+
+      listOfClassNames.add(className);
+      visitsPerClass.add(classVisits);
+    }
+
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter writer = new PrintWriter(stringWriter);
+    when(httpResponse.getWriter()).thenReturn(writer);
+
+    checkVisits.doGet(httpRequest, httpResponse);
+    assertTrue(stringWriter.toString().contains("exampleClassName1"));
+    assertTrue(stringWriter.toString().contains("exampleClassName2"));
+    assertTrue(stringWriter.toString().contains("exampleClassName3"));
+    assertTrue(stringWriter.toString().contains("exampleClassName4"));
+    assertTrue(stringWriter.toString().contains("5"));
+    assertTrue(stringWriter.toString().contains("10"));
+    assertTrue(stringWriter.toString().contains("20"));
+    assertTrue(stringWriter.toString().contains("30"));
+  }
 }
