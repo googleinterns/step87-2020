@@ -98,3 +98,15 @@ body {
 .initially-hidden {
   display: none;
 }
+
+.download-in-progress {
+  animation-name: downloading;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes downloading {
+  0% {background-color: #0077ff;}
+  50% {background-color: #3392ff;}
+  100% {background-color: #0077ff;}
+}

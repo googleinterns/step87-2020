@@ -184,6 +184,7 @@ async function filesUploaded() { // jshint ignore:line
 }
 
 function downloadFiles() {
+  document.getElementById("downloadButton").classList.add("download-in-progress");
   fetch(`/workspace/queueDownload?workspaceID=${getParam("workspaceID")}`)
     .then(resp => resp.text()).then(downloadID => {
       getFirebaseRef().child("downloads").child(downloadID).on("value", snap => {
@@ -192,6 +193,7 @@ function downloadFiles() {
           downloadLink.href = `/workspace/downloadWorkspace?downloadID=${snap.val()}`;
           downloadLink.click();
           getFirebaseRef().child("downloads").child(downloadID).off("value");
+          document.getElementById("downloadButton").classList.remove("download-in-progress");
         }
       });
     });
