@@ -27,6 +27,17 @@
       var params = window.location.search + "&uEmail=" + uEmail;
       const request = new Request("/notify-student" + params, {method: "POST"});
       document.getElementById('beingHelped').appendChild(createHelpedElem(uEmail));
+      
+      fetch(request);
+
+      getQueue();
+    }
+
+    function endHelp(uEmail){
+      var params = window.location.search + "&uEmail=" + uEmail;
+      const request = new Request("/end-help" + params, {method: "POST"});
+      document.getElementById('beingHelped').innerHTML = "";
+      
       fetch(request);
 
       getQueue();
@@ -60,6 +71,7 @@
       btn.value = "end interaction";
       btn.type = "button";
       btn.id = uEmail;
+      btn.onclick = function(){endHelp(this.id);};
 
       studentElem.appendChild(student);
       studentElem.appendChild(btn);
