@@ -10,10 +10,8 @@ function drawBasic() {
   fetch(`/visits`).then(response => response.json()).then(visits=> {
 
       // Temporary values for class and visit lists
-//   var classes = visits.listOfClassNames;
-//   var numVisits = visits.visitsPerClass;
-    var classes = ["First", "Second", "Third", "Fourth"];
-    var numVisits = [4, 8, 15, 2];
+    var classes = visits.listOfClassNames;
+    var numVisits = visits.visitsPerClass;
 
     var tempDataHolder = []; // To be pushed into datatable after updating
 
