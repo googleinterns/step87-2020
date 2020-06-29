@@ -23,22 +23,48 @@
       });
     }
 
+    function notifyStudent(uEmail){
+      var params = window.location.search + "&uEmail=" + uEmail;
+      const request = new Request("/notify-student" + params, {method: "POST"});
+      document.getElementById('beingHelped').appendChild(createHelpedElem(uEmail));
+      fetch(request);
+
+      getQueue();
+    }
+
     function createListElement(text) {
-      let notifyForm = document.createElement("form");
-      notifyForm.action = "/notify-student";
-      notifyForm.method = "post";
+      let notifyElem = document.createElement("div");
 
       let student = document.createElement('h1');
       student.innerText = text;
 
       let btn = document.createElement("input");
-      btn.type = "submit";
-      btn.value = "notify student you're ready to help"
+      btn.value = "notify student you're ready to help";
+      btn.type = "button";
+      btn.id = text;
+      btn.onclick = function(){notifyStudent(this.id);};
 
-      notifyForm.appendChild(student);
-      notifyForm.appendChild(btn);
+      notifyElem.appendChild(student);
+      notifyElem.appendChild(btn);
 
-      return notifyForm;
+      return notifyElem;
+    }
+
+    function createHelpedElem(uEmail){
+      let studentElem = document.createElement("div");
+
+      let student = document.createElement('h1');
+      student.innerText = "You are helping " + uEmail;
+
+      let btn = document.createElement("input");
+      btn.value = "end interaction";
+      btn.type = "button";
+      btn.id = uEmail;
+
+      studentElem.appendChild(student);
+      studentElem.appendChild(btn);
+
+      return studentElem;
     }
   </script>
 
