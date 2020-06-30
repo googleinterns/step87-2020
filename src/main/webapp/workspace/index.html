@@ -4,6 +4,9 @@
   <head>
     <meta charset="utf-8" />
 
+    <!-- Jitsi -->
+    <script src='https://meet.jit.si/external_api.js'></script>
+
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/5.5.4/firebase.js"></script>
 
@@ -33,9 +36,16 @@
 
           <button class="permanent-tab tab" id="downloadButton" onclick="downloadFiles()">Download</button>
           <a class="hidden" id="downloadLink" download="workspace.tar.gz">Download</a>
+
+          <button class="permanent-tab tab" id="jitsi-join" onclick="addJitsiWindow()">Join Meeting</button>
         </div>
       </div>
-      <div id="firepads"></div>
+      <div id="firepads">
+        <div class="hidden" id="jitsi-container">
+          <button id="toggleJitsiButton" class="jitsi-button" onclick="toggleJitsi()">Hide Jitsi</button>
+          <div id="jitsi-window"></div>
+        </div>
+      </div>
     </div>
   </body>
 </html>
