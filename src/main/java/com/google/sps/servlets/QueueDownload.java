@@ -97,6 +97,8 @@ public class QueueDownload extends HttpServlet {
 
           resp.getWriter().print(downloadID);
         }
+      } else {
+        resp.sendError(HttpServletResponse.SC_FORBIDDEN);
       }
     } catch (IllegalArgumentException | FirebaseAuthException e) {
       resp.sendError(HttpServletResponse.SC_FORBIDDEN);
