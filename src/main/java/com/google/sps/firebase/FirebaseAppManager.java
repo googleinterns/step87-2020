@@ -10,8 +10,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 // Only create app one time
 public class FirebaseAppManager {
@@ -54,8 +56,13 @@ public class FirebaseAppManager {
                     @Override
                     protected ExecutorService getExecutor(FirebaseApp app) {
                       // TODO Auto-generated method stub
-                      return Executors.newCachedThreadPool(
-                          com.google.appengine.api.ThreadManager.backgroundThreadFactory());
+                      return new ThreadPoolExecutor(
+                          0,
+                          1,
+                          60L,
+                          TimeUnit.SECONDS,
+                          new SynchronousQueue<Runnable>(),
+                          getThreadFactory());
                     }
                   })
               .build();
