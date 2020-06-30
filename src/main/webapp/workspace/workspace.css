@@ -109,6 +109,8 @@ body {
   0% {background-color: #0077ff;}
   50% {background-color: #333333;}
   100% {background-color: #0077ff;}
+}
+
 #jitsi-container {
   position: absolute;
   right: 50px;
