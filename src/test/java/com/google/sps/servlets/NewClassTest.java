@@ -82,6 +82,9 @@ public class NewClassTest {
 
     ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
     assertTrue(testQueue.isEmpty());
+
+    ArrayList<String> taList = (ArrayList<String>) testClassEntity.getProperty("taList");
+    assertTrue(taList.isEmpty());
   }
 
   @Test
@@ -92,6 +95,7 @@ public class NewClassTest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
+    init.setProperty("taList", Collections.emptyList());
     init.setProperty("visitKey", "visitKey");
 
     datastore.put(init);

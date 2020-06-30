@@ -67,6 +67,7 @@ public class NewClass extends HttpServlet {
         classEntity.setProperty("beingHelped", beingHelped);
 
         classEntity.setProperty("studentQueue", Collections.emptyList());
+        classEntity.setProperty("taList", Collections.emptyList());
         classEntity.setProperty("visitKey", "");
 
         datastore.put(classEntity);
