@@ -181,7 +181,7 @@ function downloadFiles() {
   downloadButton.classList.add("download-in-progress");
   downloadButton.disabled = true;
   getToken().then(tok => {
-    fetch(`/workspace/queueDownload?workspaceID=${getParam("workspaceID")}&token=${tok}`)
+    fetch(`/workspace/queueDownload?workspaceID=${getParam("workspaceID")}&idToken=${tok}`)
     .then(resp => resp.text()).then(downloadID => {
       getFirebaseRef().child("downloads").child(downloadID).on("value", snap => {
         if (snap.val() !== null) {
