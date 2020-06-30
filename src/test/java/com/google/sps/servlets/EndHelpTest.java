@@ -1,5 +1,6 @@
 package com.google.sps.servlets;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -7,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
@@ -14,6 +16,7 @@ import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,11 +73,20 @@ public class EndHelpTest {
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new ArrayList(Arrays.asList("test1")));
     init.setProperty("studentQueue", new ArrayList(Arrays.asList("test2")));
     init.setProperty("visitKey", "visitKey");
 
+    EmbeddedEntity beingHelped = new EmbeddedEntity();
+    beingHelped.setProperty("taID", "test1");
+    beingHelped.setProperty("ta3ID", "test3");
+    init.setProperty("beingHelped", beingHelped);
+
     datastore.put(init);
+
+    when(httpRequest.getParameter("idToken")).thenReturn("testID");
+    FirebaseToken mockToken = mock(FirebaseToken.class);
+    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
+    when(mockToken.getUid()).thenReturn("taID");
 
     when(httpRequest.getParameter("uEmail")).thenReturn("test@google.com");
 
@@ -89,11 +101,13 @@ public class EndHelpTest {
     Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
 
     ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
-    ArrayList<String> helpQueue = (ArrayList<String>) testClassEntity.getProperty("beingHelped");
     assertEquals(
         KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
     assertEquals(1, testQueue.size());
     assertEquals("test2", testQueue.get(0));
-    assertEquals(0, helpQueue.size());
+
+    EmbeddedEntity got = (EmbeddedEntity) testClassEntity.getProperty("beingHelped");
+    assertThat((String) got.getProperty("taID")).named("got.taID").isNull();
+    assertThat((String) got.getProperty("ta3ID")).named("got.ta3ID").isNotNull();
   }
 }
