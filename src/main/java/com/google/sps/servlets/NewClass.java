@@ -3,6 +3,7 @@ package com.google.sps.servlets;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.KeyFactory;
@@ -61,7 +62,10 @@ public class NewClass extends HttpServlet {
         Entity classEntity = new Entity("Class");
         classEntity.setProperty("owner", decodedToken.getUid());
         classEntity.setProperty("name", className);
-        classEntity.setProperty("beingHelped", Collections.emptyList());
+
+        EmbeddedEntity beingHelped = new EmbeddedEntity();
+        classEntity.setProperty("beingHelped", beingHelped);
+
         classEntity.setProperty("studentQueue", Collections.emptyList());
         classEntity.setProperty("visitKey", "");
 

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
@@ -17,7 +18,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
@@ -76,7 +76,7 @@ public class NewClassTest {
 
     assertEquals(testClassEntity.getProperty("owner"), "ownerID");
     assertEquals(testClassEntity.getProperty("name"), "testClass");
-    assertEquals(testClassEntity.getProperty("beingHelped"), Collections.emptyList());
+    assertEquals(testClassEntity.getProperty("beingHelped"), new EmbeddedEntity());
     assertEquals(
         testClassEntity.getProperty("visitKey"), KeyFactory.keyToString(testVisitEntity.getKey()));
 
@@ -87,12 +87,11 @@ public class NewClassTest {
   @Test
   public void addDuplicateClass() throws Exception {
     Entity init = new Entity("Class");
-    List<String> emptyQueue = Collections.emptyList();
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", Collections.emptyList());
-    init.setProperty("studentQueue", emptyQueue);
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("studentQueue", Collections.emptyList());
     init.setProperty("visitKey", "visitKey");
 
     datastore.put(init);
