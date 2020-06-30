@@ -49,8 +49,8 @@ public class NotifyStudent extends HttpServlet {
 
     try {
       String classCode = request.getParameter("classCode").trim();
-      String idToken = request.getParameter("idToken");
-      FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
+      String taToken = request.getParameter("taToken");
+      FirebaseToken decodedToken = authInstance.verifyIdToken(taToken);
       String taID = decodedToken.getUid();
 
       int retries = 10;
@@ -61,18 +61,18 @@ public class NotifyStudent extends HttpServlet {
           Key classKey = KeyFactory.stringToKey(classCode);
           Entity classEntity = datastore.get(txn, classKey);
 
-          // Get uID from uEmail
-          String uEmail = request.getParameter("uEmail");
-          UserRecord userRecord = authInstance.getUserByEmail(uEmail);
-          String uID = userRecord.getUid();
+          // Get studentID from studentEmail
+          String studentEmail = request.getParameter("studentEmail");
+          UserRecord userRecord = authInstance.getUserByEmail(studentEmail);
+          String studentID = userRecord.getUid();
 
           // Update queue
           ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
-          updatedQueue.remove(uID);
+          updatedQueue.remove(studentID);
 
           // Update beingHelped
           EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
-          beingHelped.setProperty(uID, taID);
+          beingHelped.setProperty(studentID, taID);
 
           classEntity.setProperty("studentQueue", updatedQueue);
           classEntity.setProperty("beingHelped", beingHelped);

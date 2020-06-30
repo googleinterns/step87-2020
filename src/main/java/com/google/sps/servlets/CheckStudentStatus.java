@@ -42,9 +42,9 @@ public class CheckStudentStatus extends HttpServlet {
 
     try {
       // Find user ID
-      String idToken = request.getParameter("userToken");
-      FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
-      String uID = decodedToken.getUid();
+      String studentToken = request.getParameter("studentToken");
+      FirebaseToken decodedToken = authInstance.verifyIdToken(studentToken);
+      String studentID = decodedToken.getUid();
 
       // Retrive entity
       String classCode = request.getParameter("classCode").trim();
@@ -53,10 +53,10 @@ public class CheckStudentStatus extends HttpServlet {
 
       // Find position in queue
       ArrayList<String> queue = (ArrayList) classEntity.getProperty("studentQueue");
-      String pos = Integer.toString(queue.indexOf(uID) + 1);
+      String studentPosition = Integer.toString(queue.indexOf(studentID) + 1);
 
       response.setContentType("application/json;");
-      response.getWriter().print(pos);
+      response.getWriter().print(studentPosition);
 
     } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);

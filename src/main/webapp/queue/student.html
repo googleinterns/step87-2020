@@ -10,7 +10,10 @@
   </head>
 
   <script>
-    function getStatus() {
+    var repeat = setInterval(makeRequest, 5000);
+    var studentToken;
+
+    function getToken() {
       var firebaseConfig = {
         apiKey: "AIzaSyA1r_PfVDCXfTgoUNisci5Ag2MKEEwsZCE",
         authDomain: "fulfillment-deco-step-2020.firebaseapp.com",
@@ -27,26 +30,52 @@
       var user = firebase.auth().currentUser;
       firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
-          user.getIdToken().then((token) => makeRequest(token));
+          user.getIdToken().then((token) => setToken(token));
         } else {
             console.log("user not logged in");
         }
       });
     }
 
-    function makeRequest(token){
-      var params = window.location.search + "&userToken=" + token;
+    function setToken(token){
+      studentToken = token;
+      makeRequest();
+    }
+
+    function makeRequest(){
+      var params = window.location.search + "&studentToken=" + studentToken;
       const request = new Request("/check-student" + params, {method: "GET"});
-      fetch(request).then(response => response.json()).then((pos) => {
-        document.getElementById("pos").innerHTML = "#" + pos;
+      fetch(request).then(response => response.json()).then((studentPosition) => {
+        if (studentPosition == "0") {
+          document.getElementById("queue_status").innerHTML = "";
+          getTA();
+      
+      fetch(request);
+        } 
+        else {
+            document.getElementById("studentPosition").innerHTML = "#" + studentPosition;
+        }
       });
     }
+
+    function getTA(){
+      var params = window.location.search + "&studentToken=" + studentToken;
+      const request = new Request("/get-ta" + params, {method: "GET"});
+
+      fetch(request).then(response => response.json()).then((helpedBy) => {
+        document.getElementById("beingHelped").innerHTML = "You are being helped by " + helpedBy;
+      });
+
+    }
+
   </script>
 
-  <body onload="getStatus()">
+  <body onload="getToken()">
+    <h1 id = "beingHelped"> </h1>
+
     <div id="queue_status">
       <h1>you are</h1>
-      <h1 id="pos">#</h1>
+      <h1 id="studentPosition">#</h1>
       <h1> on the queue</h1>
     </div>
   </body>

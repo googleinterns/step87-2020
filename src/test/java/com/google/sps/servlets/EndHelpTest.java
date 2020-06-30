@@ -83,12 +83,12 @@ public class EndHelpTest {
 
     datastore.put(init);
 
-    when(httpRequest.getParameter("idToken")).thenReturn("testID");
+    when(httpRequest.getParameter("taToken")).thenReturn("testID");
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("taID");
 
-    when(httpRequest.getParameter("uEmail")).thenReturn("test@google.com");
+    when(httpRequest.getParameter("studentEmail")).thenReturn("test@google.com");
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
 
