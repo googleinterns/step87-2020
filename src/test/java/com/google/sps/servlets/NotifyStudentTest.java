@@ -1,5 +1,6 @@
 package com.google.sps.servlets;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -7,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
@@ -14,10 +16,10 @@ import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
@@ -71,11 +73,16 @@ public class NotifyStudentTest {
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", Collections.emptyList());
+    init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", new ArrayList(Arrays.asList("test1", "test2")));
     init.setProperty("visitKey", "visitKey");
 
     datastore.put(init);
+
+    when(httpRequest.getParameter("idToken")).thenReturn("testID");
+    FirebaseToken mockToken = mock(FirebaseToken.class);
+    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
+    when(mockToken.getUid()).thenReturn("taID");
 
     when(httpRequest.getParameter("uEmail")).thenReturn("test@google.com");
 
@@ -90,12 +97,12 @@ public class NotifyStudentTest {
     Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
 
     ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
-    ArrayList<String> helpQueue = (ArrayList<String>) testClassEntity.getProperty("beingHelped");
+    EmbeddedEntity got = (EmbeddedEntity) testClassEntity.getProperty("beingHelped");
+    assertThat((String) got.getProperty("taID")).named("got.taID").isEqualTo("test1");
+
     assertEquals(
         KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
     assertEquals(1, testQueue.size());
     assertEquals("test2", testQueue.get(0));
-    assertEquals(1, helpQueue.size());
-    assertEquals("test1", helpQueue.get(0));
   }
 }

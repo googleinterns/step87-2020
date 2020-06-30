@@ -3,6 +3,7 @@ package com.google.sps.servlets;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
@@ -10,6 +11,7 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
@@ -22,7 +24,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** Servlet that creates a new class Datastore. */
 @WebServlet("/notify-student")
 public class NotifyStudent extends HttpServlet {
   FirebaseAuth authInstance;
@@ -48,6 +49,9 @@ public class NotifyStudent extends HttpServlet {
 
     try {
       String classCode = request.getParameter("classCode").trim();
+      String idToken = request.getParameter("idToken");
+      FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
+      String taID = decodedToken.getUid();
 
       int retries = 10;
       while (true) {
@@ -67,8 +71,8 @@ public class NotifyStudent extends HttpServlet {
           updatedQueue.remove(uID);
 
           // Update beingHelped
-          ArrayList<String> beingHelped = (ArrayList) classEntity.getProperty("beingHelped");
-          beingHelped.add(uID);
+          EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
+          beingHelped.setProperty(taID, uID);
 
           classEntity.setProperty("studentQueue", updatedQueue);
           classEntity.setProperty("beingHelped", beingHelped);
