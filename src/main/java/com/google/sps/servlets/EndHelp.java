@@ -67,7 +67,7 @@ public class EndHelp extends HttpServlet {
 
           // Update beingHelped
           EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
-          beingHelped.removeProperty(taID);
+          beingHelped.removeProperty(uID);
 
           classEntity.setProperty("beingHelped", beingHelped);
           datastore.put(txn, classEntity);

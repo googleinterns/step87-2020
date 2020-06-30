@@ -77,8 +77,8 @@ public class EndHelpTest {
     init.setProperty("visitKey", "visitKey");
 
     EmbeddedEntity beingHelped = new EmbeddedEntity();
-    beingHelped.setProperty("taID", "test1");
-    beingHelped.setProperty("ta3ID", "test3");
+    beingHelped.setProperty("test1", "taID");
+    beingHelped.setProperty("test3", "ta3ID");
     init.setProperty("beingHelped", beingHelped);
 
     datastore.put(init);
@@ -107,7 +107,7 @@ public class EndHelpTest {
     assertEquals("test2", testQueue.get(0));
 
     EmbeddedEntity got = (EmbeddedEntity) testClassEntity.getProperty("beingHelped");
-    assertThat((String) got.getProperty("taID")).named("got.taID").isNull();
-    assertThat((String) got.getProperty("ta3ID")).named("got.ta3ID").isNotNull();
+    assertThat((String) got.getProperty("test1")).named("got.test1").isNull();
+    assertThat((String) got.getProperty("test3")).named("got.test3").isNotNull();
   }
 }

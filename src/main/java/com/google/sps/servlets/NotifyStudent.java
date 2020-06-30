@@ -72,7 +72,7 @@ public class NotifyStudent extends HttpServlet {
 
           // Update beingHelped
           EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
-          beingHelped.setProperty(taID, uID);
+          beingHelped.setProperty(uID, taID);
 
           classEntity.setProperty("studentQueue", updatedQueue);
           classEntity.setProperty("beingHelped", beingHelped);

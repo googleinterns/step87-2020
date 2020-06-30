@@ -98,7 +98,7 @@ public class NotifyStudentTest {
 
     ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
     EmbeddedEntity got = (EmbeddedEntity) testClassEntity.getProperty("beingHelped");
-    assertThat((String) got.getProperty("taID")).named("got.taID").isEqualTo("test1");
+    assertThat((String) got.getProperty("test1")).named("got.test1").isEqualTo("taID");
 
     assertEquals(
         KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
