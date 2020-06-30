@@ -129,13 +129,6 @@ function createNewTab(filename, contents) {
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("tabs-container").onwheel = scrollTabs;
 
-  const config = {
-    apiKey: 'AIzaSyA1r_PfVDCXfTgoUNisci5Ag2MKEEwsZCE',
-    databaseURL: "https://fulfillment-deco-step-2020.firebaseio.com",
-    projectId: "fulfillment-deco-step-2020",
-  };
-  firebase.initializeApp(config);
-
   require.config({ paths: {'vs': 'https://unpkg.com/monaco-editor@latest/min/vs'}});
   require(['vs/editor/editor.main'], function() {
     // Once the monaco library is loaded, we can start uploading files.
@@ -187,7 +180,8 @@ function downloadFiles() {
   const downloadButton = document.getElementById("downloadButton");
   downloadButton.classList.add("download-in-progress");
   downloadButton.disabled = true;
-  fetch(`/workspace/queueDownload?workspaceID=${getParam("workspaceID")}`)
+  getToken().then(tok => {
+    fetch(`/workspace/queueDownload?workspaceID=${getParam("workspaceID")}&token=${tok}`)
     .then(resp => resp.text()).then(downloadID => {
       getFirebaseRef().child("downloads").child(downloadID).on("value", snap => {
         if (snap.val() !== null) {
@@ -200,4 +194,5 @@ function downloadFiles() {
         }
       });
     });
+  });
 }
