@@ -47,13 +47,13 @@
       const request = new Request("/check-student" + params, {method: "GET"});
       fetch(request).then(response => response.json()).then((studentPosition) => {
         if (studentPosition == "0") {
-          document.getElementById("queue_status").innerHTML = "";
+          document.getElementById("queue_status").innerText = "";
           getTA();
       
       fetch(request);
         } 
         else {
-            document.getElementById("studentPosition").innerHTML = "#" + studentPosition;
+            document.getElementById("studentPosition").innerText = "#" + studentPosition;
         }
       });
     }
@@ -63,7 +63,7 @@
       const request = new Request("/get-ta" + params, {method: "GET"});
 
       fetch(request).then(response => response.json()).then((helpedBy) => {
-        document.getElementById("beingHelped").innerHTML = "You are being helped by " + helpedBy;
+        document.getElementById("beingHelped").innerText = "You are being helped by " + helpedBy;
       });
 
     }
