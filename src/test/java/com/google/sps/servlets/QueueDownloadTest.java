@@ -58,7 +58,7 @@ public class QueueDownloadTest {
   public void doGetTestStudent() throws Exception {
     QueueDownload servlet = spy(new QueueDownload(workspaceFactory, auth));
     FirebaseToken tok = mock(FirebaseToken.class);
-    
+
     final CompletableFuture<String> future = new CompletableFuture<>();
     future.complete(UID);
 
