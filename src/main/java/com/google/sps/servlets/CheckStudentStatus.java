@@ -53,7 +53,7 @@ public class CheckStudentStatus extends HttpServlet {
 
       // Find position in queue
       ArrayList<String> queue = (ArrayList) classEntity.getProperty("studentQueue");
-      String studentPosition = Integer.toString(queue.indexOf(studentID) + 1);
+      int studentPosition = queue.indexOf(studentID) + 1;
 
       response.setContentType("application/json;");
       response.getWriter().print(studentPosition);
