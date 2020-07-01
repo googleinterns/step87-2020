@@ -15,7 +15,6 @@ import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -24,8 +23,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/notify-student")
-public class NotifyStudent extends HttpServlet {
+@WebServlet("/end-help")
+public class EndHelp extends HttpServlet {
   FirebaseAuth authInstance;
   DatastoreService datastore;
 
@@ -66,15 +65,10 @@ public class NotifyStudent extends HttpServlet {
           UserRecord userRecord = authInstance.getUserByEmail(studentEmail);
           String studentID = userRecord.getUid();
 
-          // Update queue
-          ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
-          updatedQueue.remove(studentID);
-
           // Update beingHelped
           EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
-          beingHelped.setProperty(studentID, taID);
+          beingHelped.removeProperty(studentID);
 
-          classEntity.setProperty("studentQueue", updatedQueue);
           classEntity.setProperty("beingHelped", beingHelped);
           datastore.put(txn, classEntity);
 

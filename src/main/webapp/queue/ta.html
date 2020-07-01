@@ -10,6 +10,38 @@
   </head>
 
   <script>
+    var repeat = setInterval(getQueue, 5000);
+    var taToken;
+
+    function getToken() {
+      var firebaseConfig = {
+        apiKey: "AIzaSyA1r_PfVDCXfTgoUNisci5Ag2MKEEwsZCE",
+        authDomain: "fulfillment-deco-step-2020.firebaseapp.com",
+        databaseURL: "https://fulfillment-deco-step-2020.firebaseio.com",
+        projectId: "fulfillment-deco-step-2020",
+        storageBucket: "fulfillment-deco-step-2020.appspot.com",
+        messagingSenderId: "7165833112",
+        appId: "1:7165833112:web:3b4af53c5de6aa73b7c5ed"
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      var user = firebase.auth().currentUser;
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          user.getIdToken().then((token) => setToken(token));
+        } else {
+            console.log("user not logged in");
+        }
+      });
+    }
+
+    function setToken(token){
+      taToken = token;
+      getQueue();
+    }
+
     function getQueue() {
       var params = window.location.search;
       const request = new Request("/get-queue" + params, {method: "GET"});
@@ -17,32 +49,70 @@
 
       fetch(request).then(response => response.json()).then((queue) => {
         const queueListElement = document.getElementById('queue');
-        queue.forEach((name) => {
-          queueListElement.appendChild(createListElement(name));
+        queue.forEach((studentEmail) => {
+          queueListElement.appendChild(createListElement(studentEmail));
         })
       });
     }
 
-    function createListElement(text) {
-      let notifyForm = document.createElement("form");
-      notifyForm.action = "/notify-student";
-      notifyForm.method = "post";
+    function notifyStudent(studentEmail){
+      var params = window.location.search + "&studentEmail=" + studentEmail + "&taToken=" + taToken;
+      const request = new Request("/notify-student" + params, {method: "POST"});
+      document.getElementById('beingHelped').appendChild(createHelpedElem(studentEmail));
+      
+      fetch(request);
+
+      getQueue();
+    }
+
+    function endHelp(studentEmail){
+      var params = window.location.search + "&studentEmail=" + studentEmail + "&taToken=" + taToken;
+      const request = new Request("/end-help" + params, {method: "POST"});
+      document.getElementById('beingHelped').innerHTML = "";
+      
+      fetch(request);
+
+      getQueue();
+    }
+
+    function createListElement(studentEmail) {
+      let notifyElem = document.createElement("div");
 
       let student = document.createElement('h1');
-      student.innerText = text;
+      student.innerText = studentEmail;
 
       let btn = document.createElement("input");
-      btn.type = "submit";
-      btn.value = "notify student you're ready to help"
+      btn.value = "notify student you're ready to help";
+      btn.type = "button";
+      btn.id = studentEmail;
+      btn.onclick = function(){notifyStudent(this.id);};
 
-      notifyForm.appendChild(student);
-      notifyForm.appendChild(btn);
+      notifyElem.appendChild(student);
+      notifyElem.appendChild(btn);
 
-      return notifyForm;
+      return notifyElem;
+    }
+
+    function createHelpedElem(studentEmail){
+      let studentElem = document.createElement("div");
+
+      let student = document.createElement('h1');
+      student.innerText = "You are helping " + studentEmail;
+
+      let btn = document.createElement("input");
+      btn.value = "end interaction";
+      btn.type = "button";
+      btn.id = studentEmail;
+      btn.onclick = function(){endHelp(this.id);};
+
+      studentElem.appendChild(student);
+      studentElem.appendChild(btn);
+
+      return studentElem;
     }
   </script>
 
-  <body onload="getQueue()">
+  <body onload="getToken()">
     <h1>hello TA</h1>
 
     <div id = "beingHelped"></div>
