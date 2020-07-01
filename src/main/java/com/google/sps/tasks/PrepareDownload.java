@@ -16,6 +16,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * This class uploads an archive of the workspace to cloud storage and
+ * then updates the realtime database with the name of the GCS object.
+ */
 @WebServlet("/tasks/prepareDownload")
 public class PrepareDownload extends HttpServlet {
   private WorkspaceFactory workspaceFactory;

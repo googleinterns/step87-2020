@@ -22,6 +22,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * This servlet queues a Cloud Task that will upload an archive to cloud
+ * storage and update the database when its done so that the client can retrieve the
+ * download.
+ */
 @WebServlet("/workspace/queueDownload")
 public class QueueDownload extends HttpServlet {
   private WorkspaceFactory workspaceFactory;
