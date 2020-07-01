@@ -54,16 +54,18 @@ public class GetTAHelping extends HttpServlet {
       FirebaseToken decodedToken = authInstance.verifyIdToken(studentToken);
       String studentID = decodedToken.getUid();
 
-      // Get TA id
       EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
-      String taID = (String) beingHelped.getProperty(studentID);
+      EmbeddedEntity queueInfo = (EmbeddedEntity) beingHelped.getProperty(studentID);
 
       // if interaction ended
-      if (taID == null) {
+      if (queueInfo == null) {
         response.setContentType("application/json;");
         response.getWriter().print(gson.toJson("null"));
 
       } else {
+        // Get TA id
+        String taID = (String) queueInfo.getProperty("taID");
+
         // Get TA email
         UserRecord userRecord = authInstance.getUser(taID);
         String taEmail = userRecord.getEmail();

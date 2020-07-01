@@ -67,8 +67,13 @@ public class GetTAHelpingTest {
     init.setProperty("name", "testClass");
     init.setProperty("studentQueue", setQueue);
 
+    EmbeddedEntity queueInfo = new EmbeddedEntity();
+    queueInfo.setProperty("taID", "taID");
+    queueInfo.setProperty("workspaceID", "workspaceID");
+
     EmbeddedEntity beingHelped = new EmbeddedEntity();
-    beingHelped.setProperty("test1", "taID");
+    beingHelped.setProperty("studentID", queueInfo);
+
     init.setProperty("beingHelped", beingHelped);
 
     datastore.put(init);
@@ -78,7 +83,7 @@ public class GetTAHelpingTest {
     when(httpRequest.getParameter("studentToken")).thenReturn("testID");
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
-    when(mockToken.getUid()).thenReturn("test1");
+    when(mockToken.getUid()).thenReturn("studentID");
 
     UserRecord mockTA = mock(UserRecord.class);
     when(authInstance.getUser("taID")).thenReturn(mockTA);
@@ -104,15 +109,20 @@ public class GetTAHelpingTest {
     init.setProperty("name", "testClass");
     init.setProperty("studentQueue", setQueue);
 
+    EmbeddedEntity queueInfo = new EmbeddedEntity();
+    queueInfo.setProperty("taID", "taID");
+    queueInfo.setProperty("workspaceID", "workspaceID");
+
     EmbeddedEntity beingHelped = new EmbeddedEntity();
-    beingHelped.setProperty("test1", "taID");
+    beingHelped.setProperty("studentID", queueInfo);
+
     init.setProperty("beingHelped", beingHelped);
 
     datastore.put(init);
 
-    when(httpRequest.getParameter("studentToken")).thenReturn("testID");
+    when(httpRequest.getParameter("studentToken")).thenReturn("studentToken");
     FirebaseToken mockToken = mock(FirebaseToken.class);
-    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
+    when(authInstance.verifyIdToken("studentToken")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("dne");
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
