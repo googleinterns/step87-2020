@@ -1,4 +1,4 @@
-package com.google.sps;
+package com.google.sps.servlets;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -8,6 +8,7 @@ import com.google.appengine.api.datastore.Query;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.google.sps.firebase.FirebaseAppManager;
+import com.google.sps.visits.VisitParent;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.servlet.ServletConfig;

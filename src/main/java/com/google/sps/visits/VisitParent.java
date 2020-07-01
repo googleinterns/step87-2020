@@ -1,4 +1,4 @@
-package com.google.sps;
+package com.google.sps.visits;
 
 import java.util.List;
 
