@@ -62,7 +62,8 @@ public class PrepareDownloadTest {
     verify(workspaceFactory, times(1)).fromWorkspaceID(workspaceID);
     verify(instance, times(1)).createOrReplace(filenameCaptor.capture(), any(GcsFileOptions.class));
     assertEquals(workspaceID + '/' + downloadID, filenameCaptor.getValue().getObjectName());
-    verify(archive, times(1)).archive(any(OutputStream.class));
+    verify(archive, times(1))
+        .archive(any(OutputStream.class), eq(WorkspaceArchive.ArchiveType.ZIP));
     verify(workspace, times(1))
         .updateDownloadName(downloadID, filenameCaptor.getValue().getObjectName());
   }
