@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.GZIPOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 
 public class WorkspaceArchive {
   public enum ArchiveType {
@@ -17,17 +19,20 @@ public class WorkspaceArchive {
     TAR
   }
 
+  private final ArchiveType type;
+
   private final Workspace w;
 
-  protected WorkspaceArchive(Workspace w) {
+  protected WorkspaceArchive(Workspace w, ArchiveType type) {
     this.w = Objects.requireNonNull(w);
+    this.type = Objects.requireNonNull(type);
   }
 
-  public void archive(OutputStream out, ArchiveType type)
+  public void archive(OutputStream out)
       throws InterruptedException, ExecutionException, IOException {
     switch (type) {
       case ZIP:
-        archive(new ZipOutputStream(out));
+        archive(new ZipArchiveOutputStream(out));
         break;
       case TAR:
         archive(new TarArchiveOutputStream(new GZIPOutputStream(out)));
@@ -35,41 +40,36 @@ public class WorkspaceArchive {
     }
   }
 
-  protected void archive(TarArchiveOutputStream tarOut)
-      throws InterruptedException, ExecutionException, IOException {
-    List<WorkspaceFile> files = w.getFiles().get();
-
-    for (WorkspaceFile file : files) {
-      byte contents[] = file.getContents().get().getBytes();
-
-      TarArchiveEntry entry = new TarArchiveEntry(file.getFilename());
-      entry.setSize(contents.length);
-
-      tarOut.putArchiveEntry(entry);
-      tarOut.write(contents);
-
-      tarOut.closeArchiveEntry();
+  private ArchiveEntry getEntry(String name, long size) {
+    switch (type) {
+      case ZIP:
+        ZipArchiveEntry zipEntry = new ZipArchiveEntry(name);
+        zipEntry.setSize(size);
+        return zipEntry;
+      case TAR:
+        TarArchiveEntry tarEntry = new TarArchiveEntry(name);
+        tarEntry.setSize(size);
+        return tarEntry;
+      default:
+        return null;
     }
-
-    tarOut.close();
   }
 
-  protected void archive(ZipOutputStream zipOut)
+  protected void archive(ArchiveOutputStream archiveOut)
       throws InterruptedException, ExecutionException, IOException {
     List<WorkspaceFile> files = w.getFiles().get();
 
     for (WorkspaceFile file : files) {
       byte contents[] = file.getContents().get().getBytes();
 
-      ZipEntry entry = new ZipEntry(file.getFilename());
-      entry.setSize(contents.length);
+      ArchiveEntry entry = getEntry(file.getFilename(), contents.length);
 
-      zipOut.putNextEntry(entry);
-      zipOut.write(contents);
+      archiveOut.putArchiveEntry(entry);
+      archiveOut.write(contents);
 
-      zipOut.closeEntry();
+      archiveOut.closeArchiveEntry();
     }
 
-    zipOut.close();
+    archiveOut.close();
   }
 }

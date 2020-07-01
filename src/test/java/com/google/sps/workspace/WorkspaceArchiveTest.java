@@ -6,6 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.sps.workspace.WorkspaceArchive.ArchiveType;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,12 @@ public class WorkspaceArchiveTest {
 
   @Test(expected = NullPointerException.class)
   public void workspaceArchiveNullWorkspace() {
-    new WorkspaceArchive(null);
+    new WorkspaceArchive(null, ArchiveType.ZIP);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void workspaceArchiveNullType() {
+    new WorkspaceArchive(workspace, null);
   }
 
   @Test
@@ -47,7 +53,7 @@ public class WorkspaceArchiveTest {
     when(file.getContents()).thenReturn(futureString);
     when(futureString.get()).thenReturn(CONTENTS);
 
-    new WorkspaceArchive(workspace).archive(tarOut);
+    new WorkspaceArchive(workspace, ArchiveType.TAR).archive(tarOut);
 
     verify(workspace, times(1)).getFiles();
     verify(file, times(NUM_FILES)).getFilename();
@@ -65,6 +71,6 @@ public class WorkspaceArchiveTest {
     when(workspace.getFiles()).thenReturn(futureFiles);
     when(futureFiles.get()).thenThrow(new ExecutionException(new Exception()));
 
-    new WorkspaceArchive(workspace).archive(tarOut);
+    new WorkspaceArchive(workspace, ArchiveType.TAR).archive(tarOut);
   }
 }
