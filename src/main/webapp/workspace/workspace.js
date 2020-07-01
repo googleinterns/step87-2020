@@ -1,5 +1,6 @@
 let tabs = {};
 let currentTab;
+let jitsiVisible = false;
 
 /**
  * Gets the base firebase reference for this workspace.
@@ -126,15 +127,58 @@ function createNewTab(filename, contents) {
 
 }
 
+function leftJitsi() {
+  document.getElementById("jitsi-window").innerHTML = "";
+  document.getElementById("jitsi-container").classList.add("hidden");
+
+  const button = document.getElementById("jitsi-join");
+  button.innerText = "Join Meeting";
+  button.onclick = addJitsiWindow;
+
+  jitsiVisible = false;
+}
+
+function toggleJitsi() {
+  const button = document.getElementById("toggleJitsiButton");
+  const jitsiWindow = document.getElementById("jitsi-window");
+
+  if (jitsiVisible) {
+    jitsiWindow.classList.add("hidden");
+    button.innerText = "Show Jitsi";
+  } else {
+    jitsiWindow.classList.remove("hidden");
+    button.innerText = "Hide Jitsi";
+  }
+
+  jitsiVisible = !jitsiVisible;
+}
+
+function addJitsiWindow() { // jshint ignore:line
+  jitsiVisible = true;
+
+  const jitsiJoin = document.getElementById("jitsi-join");
+  const jitsiShow = document.getElementById("toggleJitsiButton");
+  document.getElementById("jitsi-container").classList.remove("hidden");
+
+  jitsiShow.innerText = "Hide Jitsi";
+  jitsiJoin.innerText = "Leave Meeting";
+
+  const parent = document.getElementById("jitsi-window");
+
+  const api = new JitsiMeetExternalAPI("meet.jit.si", {
+    roomName: getParam("workspaceID"),
+    height: 300,
+    width: 500,
+    parentNode: parent
+  });
+
+  jitsiJoin.onclick = () => api.executeCommand('hangup'); 
+
+  api.addEventListener("videoConferenceLeft", leftJitsi);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("tabs-container").onwheel = scrollTabs;
-
-  const config = {
-    apiKey: 'AIzaSyA1r_PfVDCXfTgoUNisci5Ag2MKEEwsZCE',
-    databaseURL: "https://fulfillment-deco-step-2020.firebaseio.com",
-    projectId: "fulfillment-deco-step-2020",
-  };
-  firebase.initializeApp(config);
 
   require.config({ paths: {'vs': 'https://unpkg.com/monaco-editor@latest/min/vs'}});
   require(['vs/editor/editor.main'], function() {
@@ -153,8 +197,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
-
-  document.getElementById("downloadLink").href = `downloadWorkspace?workspaceID=${getParam("workspaceID")}`;
 });
 
 window.onresize = () => {
@@ -186,5 +228,22 @@ async function filesUploaded() { // jshint ignore:line
 }
 
 function downloadFiles() {
-  document.getElementById("downloadLink").click();
+  const downloadButton = document.getElementById("downloadButton");
+  downloadButton.classList.add("download-in-progress");
+  downloadButton.disabled = true;
+  getToken().then(tok => {
+    fetch(`/workspace/queueDownload?workspaceID=${getParam("workspaceID")}&idToken=${tok}`)
+    .then(resp => resp.text()).then(downloadID => {
+      getFirebaseRef().child("downloads").child(downloadID).on("value", snap => {
+        if (snap.val() !== null) {
+          const downloadLink = document.getElementById("downloadLink");
+          downloadLink.href = `/workspace/downloadWorkspace?filename=${snap.val()}`;
+          downloadLink.click();
+          getFirebaseRef().child("downloads").child(downloadID).off("value");
+          downloadButton.classList.remove("download-in-progress");
+          downloadButton.disabled = false;
+        }
+      });
+    });
+  });
 }
