@@ -44,19 +44,21 @@ public class QueueDownloadTest {
 
   @Captor ArgumentCaptor<Task> taskCaptor;
 
+  private final String WORKSPACE_ID = "WORKSPACE_ID";
+  private final String DOWNLOAD_ID = "DOWNLOAD_ID";
+
+  private final String PROJECT_ID = "PROJECT_ID";
+  private final String LOCATION = "LOCATION";
+  private final String QUEUE_NAME = "QUEUE_NAME";
+  private final String ID_TOKEN = "ID_TOKEN";
+  private final String UID = "UID";
+  private final String BAD_UID = "BAD_UID";
+
   @Test
   public void doGetTestStudent() throws Exception {
     QueueDownload servlet = spy(new QueueDownload(workspaceFactory, auth));
     FirebaseToken tok = mock(FirebaseToken.class);
-
-    final String WORKSPACE_ID = "WORKSPACE_ID";
-    final String DOWNLOAD_ID = "DOWNLOAD_ID";
-
-    final String PROJECT_ID = "PROJECT_ID";
-    final String LOCATION = "LOCATION";
-    final String QUEUE_NAME = "QUEUE_NAME";
-    final String ID_TOKEN = "ID_TOKEN";
-    final String UID = "UID";
+    
     final CompletableFuture<String> future = new CompletableFuture<>();
     future.complete(UID);
 
@@ -97,15 +99,6 @@ public class QueueDownloadTest {
     QueueDownload servlet = spy(new QueueDownload(workspaceFactory, auth));
     FirebaseToken tok = mock(FirebaseToken.class);
 
-    final String WORKSPACE_ID = "WORKSPACE_ID";
-    final String DOWNLOAD_ID = "DOWNLOAD_ID";
-
-    final String PROJECT_ID = "PROJECT_ID";
-    final String LOCATION = "LOCATION";
-    final String QUEUE_NAME = "QUEUE_NAME";
-    final String ID_TOKEN = "ID_TOKEN";
-    final String UID = "UID";
-    final String BAD_UID = "BAD_UID";
     final CompletableFuture<String> studentFuture = new CompletableFuture<>();
     studentFuture.complete(BAD_UID);
     final CompletableFuture<String> taFuture = new CompletableFuture<>();
@@ -168,10 +161,6 @@ public class QueueDownloadTest {
   public void authFailWrongUID() throws Exception {
     FirebaseToken tok = mock(FirebaseToken.class);
 
-    final String WORKSPACE_ID = "WORKSPACE_ID";
-    final String ID_TOKEN = "ID_TOKEN";
-    final String UID = "UID";
-    final String BAD_UID = "BAD_UID";
     final CompletableFuture<String> future = new CompletableFuture<>();
     future.complete(UID);
 
