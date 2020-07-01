@@ -10,4 +10,8 @@
   <manual-scaling>
    <instances>1</instances>
   </manual-scaling>
+  <env-variables>
+    <env-var name="DOWNLOAD_QUEUE_ID" value="download-queue" />
+    <env-var name="LOCATION_ID" value="us-central1" />
+  </env-variables>
 </appengine-web-app>

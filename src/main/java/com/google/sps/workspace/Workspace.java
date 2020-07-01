@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
@@ -97,6 +98,15 @@ public class Workspace {
             });
 
     return future;
+  }
+
+  public String newDownloadID() {
+    return reference.child("downloads").push().getKey();
+  }
+
+  public void updateDownloadName(String downloadID, String name)
+      throws InterruptedException, ExecutionException {
+    reference.child("downloads").child(downloadID).setValueAsync(name).get();
   }
 
   /** @return the workspaceID */

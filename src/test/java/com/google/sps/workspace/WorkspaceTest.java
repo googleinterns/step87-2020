@@ -29,6 +29,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class WorkspaceTest {
   @Mock DatabaseReference reference;
 
+  @Mock ApiFuture<Void> apiFuture;
+
   @Mock ApiFuture<Void> apiFutureStudent;
 
   @Mock ApiFuture<Void> apiFutureTA;
@@ -42,6 +44,10 @@ public class WorkspaceTest {
   @Mock DataSnapshot snap;
 
   @Mock DatabaseReference historyRef;
+
+  @Mock DatabaseReference downloadsRef;
+
+  @Mock DatabaseReference newDownloadRef;
 
   @Captor ArgumentCaptor<ValueEventListener> listenerCaptor;
 
@@ -179,5 +185,31 @@ public class WorkspaceTest {
     when(reference.getKey()).thenReturn(WORKSPACE_ID);
 
     assertEquals(WORKSPACE_ID, new Workspace(reference).getWorkspaceID());
+  }
+
+  @Test
+  public void newDownloadTest() {
+    final String DOWNLOAD_ID = "DOWNLOAD_ID";
+
+    when(reference.child(eq("downloads"))).thenReturn(downloadsRef);
+    when(downloadsRef.push()).thenReturn(newDownloadRef);
+    when(newDownloadRef.getKey()).thenReturn(DOWNLOAD_ID);
+
+    assertEquals(DOWNLOAD_ID, new Workspace(reference).newDownloadID());
+  }
+
+  @Test
+  public void updateDownloadName() throws Exception {
+    final String DOWNLOAD_ID = "DOWNLOAD_ID";
+    final String FILENAME = "FILENAME";
+
+    when(reference.child(eq("downloads"))).thenReturn(downloadsRef);
+    when(downloadsRef.child(eq(DOWNLOAD_ID))).thenReturn(newDownloadRef);
+    when(newDownloadRef.setValueAsync(eq(FILENAME))).thenReturn(apiFuture);
+
+    new Workspace(reference).updateDownloadName(DOWNLOAD_ID, FILENAME);
+
+    verify(newDownloadRef, times(1)).setValueAsync(eq("FILENAME"));
+    verify(apiFuture, times(1)).get();
   }
 }
