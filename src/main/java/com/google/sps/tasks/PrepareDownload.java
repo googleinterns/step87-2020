@@ -6,6 +6,7 @@ import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.sps.workspace.Workspace;
+import com.google.sps.workspace.WorkspaceArchive;
 import com.google.sps.workspace.WorkspaceFactory;
 import java.io.IOException;
 import java.nio.channels.Channels;
@@ -49,7 +50,8 @@ public class PrepareDownload extends HttpServlet {
     GcsOutputChannel outputChannel = instance.createOrReplace(filename, options);
 
     try {
-      w.getArchive().archive(Channels.newOutputStream(outputChannel));
+      w.getArchive()
+          .archive(Channels.newOutputStream(outputChannel), WorkspaceArchive.ArchiveType.ZIP);
 
       w.updateDownloadName(downloadID, filename.getObjectName());
     } catch (InterruptedException | ExecutionException e) {
