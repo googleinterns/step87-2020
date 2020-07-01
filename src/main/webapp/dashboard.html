@@ -14,9 +14,16 @@
     <title>Capstone</title>
     <link rel="stylesheet" href="dashboard.css">
     <script src="dashboard.js"></script>
+
+    <script>
+      function setRedirect(){
+          var params = window.location.search;
+          document.getElementById("redirect").href = "/queue/ta.html" + params;
+      }
+    </script>
   </head>
 
-  <body>
+  <body onload = "setRedirect()"">
     
     <!--Contains the TA email form-->
     <div class="left">
@@ -40,6 +47,7 @@
     <div class="right">
       <h1>Site Statistics</h1>
       <div id="bar-chart" style="width: 900px; height: 500px"></div>
+      <a href="" id = "redirect" style="text-decoration: none;">go to queue</a>
     </div>
 
   </body>
