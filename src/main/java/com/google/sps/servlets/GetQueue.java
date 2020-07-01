@@ -23,9 +23,9 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/get-queue")
 public class GetQueue extends HttpServlet {
-  FirebaseAuth authInstance;
-  DatastoreService datastore;
-  Gson gson;
+  private FirebaseAuth authInstance;
+  private DatastoreService datastore;
+  private Gson gson;
 
   @Override
   public void init(ServletConfig config) throws ServletException {

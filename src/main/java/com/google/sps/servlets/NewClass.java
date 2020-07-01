@@ -26,8 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 /** Servlet that creates a new class Datastore. */
 @WebServlet("/newclass")
 public class NewClass extends HttpServlet {
-  FirebaseAuth authInstance;
-  DatastoreService datastore;
+  private FirebaseAuth authInstance;
+  private DatastoreService datastore;
 
   @Override
   public void init(ServletConfig config) throws ServletException {

@@ -26,8 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/notify-student")
 public class NotifyStudent extends HttpServlet {
-  FirebaseAuth authInstance;
-  DatastoreService datastore;
+  private FirebaseAuth authInstance;
+  private DatastoreService datastore;
 
   @Override
   public void init(ServletConfig config) throws ServletException {

@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/visits")
 public class Visits extends HttpServlet {
 
-  FirebaseAuth authInstance;
+  private FirebaseAuth authInstance;
 
   // Get the current session
   @Override
