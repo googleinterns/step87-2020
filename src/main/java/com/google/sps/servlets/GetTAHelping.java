@@ -24,9 +24,9 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/get-ta")
 public class GetTAHelping extends HttpServlet {
-  FirebaseAuth authInstance;
-  DatastoreService datastore;
-  Gson gson;
+  private FirebaseAuth authInstance;
+  private DatastoreService datastore;
+  private Gson gson;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -58,12 +58,19 @@ public class GetTAHelping extends HttpServlet {
       EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
       String taID = (String) beingHelped.getProperty(studentID);
 
-      // Get TA email
-      UserRecord userRecord = authInstance.getUser(taID);
-      String taEmail = userRecord.getEmail();
+      // if interaction ended
+      if (taID == null) {
+        response.setContentType("application/json;");
+        response.getWriter().print(gson.toJson("null"));
 
-      response.setContentType("application/json;");
-      response.getWriter().print(gson.toJson(taEmail));
+      } else {
+        // Get TA email
+        UserRecord userRecord = authInstance.getUser(taID);
+        String taEmail = userRecord.getEmail();
+
+        response.setContentType("application/json;");
+        response.getWriter().print(gson.toJson(taEmail));
+      }
 
     } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);

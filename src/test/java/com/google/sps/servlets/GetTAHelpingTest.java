@@ -94,4 +94,37 @@ public class GetTAHelpingTest {
 
     assertEquals("taEmail", stringWriter.toString());
   }
+
+  @Test
+  public void doneHelped() throws Exception {
+    Entity init = new Entity("Class");
+    ArrayList<String> setQueue = new ArrayList<String>(Arrays.asList("uID1", "uID2"));
+
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("studentQueue", setQueue);
+
+    EmbeddedEntity beingHelped = new EmbeddedEntity();
+    beingHelped.setProperty("test1", "taID");
+    init.setProperty("beingHelped", beingHelped);
+
+    datastore.put(init);
+
+    when(httpRequest.getParameter("studentToken")).thenReturn("testID");
+    FirebaseToken mockToken = mock(FirebaseToken.class);
+    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
+    when(mockToken.getUid()).thenReturn("dne");
+
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter writer = new PrintWriter(stringWriter);
+    when(httpResponse.getWriter()).thenReturn(writer);
+
+    when(gson.toJson("null")).thenReturn("null");
+
+    getTA.doGet(httpRequest, httpResponse);
+
+    assertEquals("null", stringWriter.toString());
+  }
 }
