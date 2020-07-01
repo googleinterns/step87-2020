@@ -83,6 +83,9 @@ public class NewClass extends HttpServlet {
         updateClassEntity.setProperty("visitKey", KeyFactory.keyToString(visitEntity.getKey()));
         datastore.put(updateClassEntity);
 
+        response.sendRedirect(
+            "/dashboard.html?classCode=" + KeyFactory.keyToString(classEntity.getKey()));
+
       } else {
         response.sendError(HttpServletResponse.SC_FORBIDDEN);
       }
