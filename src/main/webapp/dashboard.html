@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+
     <!-- Firebase App (the core Firebase SDK) must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/7.15.1/firebase-app.js"></script>
 
@@ -8,20 +9,29 @@
     <script src="https://www.gstatic.com/firebasejs/7.15.1/firebase-auth.js"></script>
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+
+    <title>Capstone</title>
+
+    <!-- Firebase UIs-->
     <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
     <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
+
+    <!--Google Charts-->
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <meta charset="UTF-8">
-    <title>Capstone</title>
+
     <link rel="stylesheet" href="dashboard.css">
     <script src="dashboard.js"></script>
+    <script src="/script/auth.js"></script>
+
   </head>
 
-  <body onload="auth()">
+  <body>
     
     <!--Contains the TA email form-->
     <div class="left">
       <h1>Admin Dashboard</h1>
+
       <div class="centered">
         <div class="ta-form">
           <form>
@@ -35,6 +45,7 @@
           </form>
         </div>
       </div>
+      
     </div>
 
     <!--Contains the statistics charts-->

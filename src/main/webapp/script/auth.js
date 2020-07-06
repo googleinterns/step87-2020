@@ -5,6 +5,7 @@ const config = {
 };
 firebase.initializeApp(config);
 
+// If user is not logged in, redirect to the home page
 firebase.auth().onAuthStateChanged(function(user) {
   if (!user) {
     window.location.href = "/";
