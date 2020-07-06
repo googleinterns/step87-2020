@@ -10,6 +10,9 @@ firebase.auth().onAuthStateChanged(function(user) {
   if (!user) {
     window.location.href = "/";
   }
+  else {
+    console.log("User is signed in.");
+  }
 });
 
 // Obtain the current user token for verification
