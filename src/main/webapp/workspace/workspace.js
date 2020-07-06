@@ -175,6 +175,7 @@ function addJitsiWindow() { // jshint ignore:line
   jitsiJoin.onclick = () => api.executeCommand('hangup'); 
 
   api.addEventListener("videoConferenceLeft", leftJitsi);
+  api.executeCommand("displayName", firebase.auth().currentUser.displayName);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
