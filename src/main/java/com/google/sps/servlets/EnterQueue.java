@@ -7,6 +7,12 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.CompositeFilter;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.TransactionOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -14,6 +20,9 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import javax.servlet.ServletConfig;
@@ -27,11 +36,13 @@ import javax.servlet.http.HttpServletResponse;
 public final class EnterQueue extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
+  private Clock clock;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
     try {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
+      clock = Clock.systemUTC();
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -61,12 +72,56 @@ public final class EnterQueue extends HttpServlet {
             Key classKey = KeyFactory.stringToKey(classCode);
             Entity classEntity = datastore.get(txn, classKey);
 
-            ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
+            // Get date in mm/dd/yyyy format
+            DateTimeFormatter FOMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+            LocalDate localDate = LocalDate.now(clock);
+            String currDate = FOMATTER.format(localDate);
 
-            String visitCode = (String) classEntity.getProperty("visitKey");
-            Entity visitEntity = datastore.get(txn, KeyFactory.stringToKey(visitCode));
+            Filter classVisitFilter =
+                new FilterPredicate("classCode", FilterOperator.EQUAL, classCode);
 
+            Filter dateVisitFilter = new FilterPredicate("date", FilterOperator.EQUAL, currDate);
+
+            CompositeFilter visitFilter =
+                CompositeFilterOperator.and(dateVisitFilter, classVisitFilter);
+
+            int retries2 = 10;
+            while (true) {
+              Transaction txn2 = datastore.beginTransaction();
+              try {
+                Query checkAddNew = new Query("Visit").setFilter(visitFilter);
+
+                if (datastore.prepare(checkAddNew).countEntities() == 0) {
+                  Entity newVisitEntity = new Entity("Visit");
+
+                  newVisitEntity.setProperty("classCode", classCode);
+                  newVisitEntity.setProperty("date", currDate);
+                  newVisitEntity.setProperty("numVisits", 0);
+
+                  datastore.put(txn2, newVisitEntity);
+                }
+
+                txn2.commit();
+                break;
+              } catch (ConcurrentModificationException e) {
+                if (retries2 == 0) {
+                  throw e;
+                }
+                // Allow retry to occur
+                --retries2;
+              } finally {
+                if (txn2.isActive()) {
+                  txn2.rollback();
+                }
+              }
+            }
+
+            Query query = new Query("Visit").setFilter(visitFilter);
+
+            Entity visitEntity = datastore.prepare(query).asSingleEntity();
             Long numVisits = (Long) visitEntity.getProperty("numVisits");
+
+            ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
 
             if (!updatedQueue.contains(uID)) {
               updatedQueue.add(uID);
