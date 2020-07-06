@@ -9,7 +9,8 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
+import com.google.gson.Gson;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,15 +21,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/check-student")
-public class CheckStudentStatus extends HttpServlet {
+@WebServlet("/get-queue")
+public class GetQueue extends HttpServlet {
   FirebaseAuth authInstance;
   DatastoreService datastore;
+  Gson gson;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
     try {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
+      gson = new Gson();
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -41,22 +44,24 @@ public class CheckStudentStatus extends HttpServlet {
         DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
 
     try {
-      // Find user ID
-      String studentToken = request.getParameter("studentToken");
-      FirebaseToken decodedToken = authInstance.verifyIdToken(studentToken);
-      String studentID = decodedToken.getUid();
-
-      // Retrive entity
+      // Retrive class entity
       String classCode = request.getParameter("classCode").trim();
       Key classKey = KeyFactory.stringToKey(classCode);
       Entity classEntity = datastore.get(classKey);
 
-      // Find position in queue
-      ArrayList<String> queue = (ArrayList) classEntity.getProperty("studentQueue");
-      int studentPosition = queue.indexOf(studentID) + 1;
+      // Get queue
+      ArrayList<String> uidQueue = (ArrayList) classEntity.getProperty("studentQueue");
+
+      // Reconstruct queue using names
+      ArrayList<String> queue = new ArrayList<String>();
+      for (String uid : uidQueue) {
+        UserRecord userRecord = authInstance.getUser(uid);
+        String studentName = userRecord.getEmail();
+        queue.add(studentName);
+      }
 
       response.setContentType("application/json;");
-      response.getWriter().print(studentPosition);
+      response.getWriter().print(gson.toJson(queue));
 
     } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);

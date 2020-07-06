@@ -3,7 +3,13 @@ package com.google.sps.servlets;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
@@ -44,18 +50,47 @@ public class NewClass extends HttpServlet {
     try {
       String className = request.getParameter("className").trim();
 
-      String idToken = request.getParameter("idToken");
-      FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
+      // prevents creating duplicate classes
+      Query query =
+          new Query("Class")
+              .setFilter(new FilterPredicate("name", FilterOperator.EQUAL, className));
 
-      Entity classEntity = new Entity("Class");
-      classEntity.setProperty("owner", decodedToken.getUid());
-      classEntity.setProperty("name", className);
-      classEntity.setProperty("beingHelped", "");
-      classEntity.setProperty("studentQueue", Collections.emptyList());
+      if (datastore.prepare(query).countEntities() == 0) {
+        String idToken = request.getParameter("idToken");
+        FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
 
-      datastore.put(classEntity);
+        Entity classEntity = new Entity("Class");
+        classEntity.setProperty("owner", decodedToken.getUid());
+        classEntity.setProperty("name", className);
+
+        EmbeddedEntity beingHelped = new EmbeddedEntity();
+        classEntity.setProperty("beingHelped", beingHelped);
+
+        classEntity.setProperty("studentQueue", Collections.emptyList());
+        classEntity.setProperty("taList", Collections.emptyList());
+        classEntity.setProperty("visitKey", "");
+
+        datastore.put(classEntity);
+
+        Entity visitEntity = new Entity("Visit");
+        visitEntity.setProperty("classKey", KeyFactory.keyToString(classEntity.getKey()));
+        visitEntity.setProperty("numVisits", 0);
+        visitEntity.setProperty("className", className);
+
+        datastore.put(visitEntity);
+
+        Entity updateClassEntity = datastore.get(classEntity.getKey());
+        updateClassEntity.setProperty("visitKey", KeyFactory.keyToString(visitEntity.getKey()));
+        datastore.put(updateClassEntity);
+
+      } else {
+        response.sendError(HttpServletResponse.SC_FORBIDDEN);
+      }
+
     } catch (FirebaseAuthException e) {
       response.sendError(HttpServletResponse.SC_FORBIDDEN);
+    } catch (EntityNotFoundException e) {
+      response.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
   }
 }

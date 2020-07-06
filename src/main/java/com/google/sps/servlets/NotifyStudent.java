@@ -3,15 +3,16 @@ package com.google.sps.servlets;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Transaction;
-import com.google.appengine.api.datastore.TransactionOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,8 +24,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/enterqueue")
-public final class EnterQueue extends HttpServlet {
+@WebServlet("/notify-student")
+public class NotifyStudent extends HttpServlet {
   FirebaseAuth authInstance;
   DatastoreService datastore;
 
@@ -40,6 +41,7 @@ public final class EnterQueue extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form.
+    // navigate to /_ah/admin to view Datastore
 
     datastore = DatastoreServiceFactory.getDatastoreService();
     System.setProperty(
@@ -47,57 +49,49 @@ public final class EnterQueue extends HttpServlet {
 
     try {
       String classCode = request.getParameter("classCode").trim();
+      String taToken = request.getParameter("taToken");
+      FirebaseToken decodedToken = authInstance.verifyIdToken(taToken);
+      String taID = decodedToken.getUid();
 
-      String idToken = request.getParameter("idToken");
-      FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
-      String uID = decodedToken.getUid();
+      int retries = 10;
+      while (true) {
+        Transaction txn = datastore.beginTransaction();
+        try {
+          // Retrive class entity
+          Key classKey = KeyFactory.stringToKey(classCode);
+          Entity classEntity = datastore.get(txn, classKey);
 
-      if (request.getParameter("enterTA") == null) {
-        int retries = 10;
-        while (true) {
-          TransactionOptions options = TransactionOptions.Builder.withXG(true);
-          Transaction txn = datastore.beginTransaction(options);
-          try {
-            Key classKey = KeyFactory.stringToKey(classCode);
-            Entity classEntity = datastore.get(txn, classKey);
+          // Get studentID from studentEmail
+          String studentEmail = request.getParameter("studentEmail");
+          UserRecord userRecord = authInstance.getUserByEmail(studentEmail);
+          String studentID = userRecord.getUid();
 
-            ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
+          // Update queue
+          ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
+          updatedQueue.remove(studentID);
 
-            String visitCode = (String) classEntity.getProperty("visitKey");
-            Entity visitEntity = datastore.get(txn, KeyFactory.stringToKey(visitCode));
+          // Update beingHelped
+          EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
+          beingHelped.setProperty(studentID, taID);
 
-            Long numVisits = (Long) visitEntity.getProperty("numVisits");
+          classEntity.setProperty("studentQueue", updatedQueue);
+          classEntity.setProperty("beingHelped", beingHelped);
+          datastore.put(txn, classEntity);
 
-            if (!updatedQueue.contains(uID)) {
-              updatedQueue.add(uID);
-              numVisits++;
-            }
-
-            visitEntity.setProperty("numVisits", numVisits);
-            datastore.put(txn, visitEntity);
-
-            classEntity.setProperty("studentQueue", updatedQueue);
-            datastore.put(txn, classEntity);
-
-            txn.commit();
-            break;
-          } catch (ConcurrentModificationException e) {
-            if (retries == 0) {
-              throw e;
-            }
-            // Allow retry to occur
-            --retries;
-          } finally {
-            if (txn.isActive()) {
-              txn.rollback();
-            }
+          txn.commit();
+          break;
+        } catch (ConcurrentModificationException e) {
+          if (retries == 0) {
+            throw e;
+          }
+          // Allow retry to occur
+          --retries;
+        } finally {
+          if (txn.isActive()) {
+            txn.rollback();
           }
         }
-        response.sendRedirect("/queue/student.html?classCode=" + classCode);
-      } else {
-        response.sendRedirect("/queue/ta.html?classCode=" + classCode);
       }
-
     } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
     } catch (IllegalArgumentException e) {

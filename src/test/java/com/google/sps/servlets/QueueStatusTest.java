@@ -66,7 +66,7 @@ public class QueueStatusTest {
     datastore.put(init);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
-    when(httpRequest.getParameter("userToken")).thenReturn("testID");
+    when(httpRequest.getParameter("studentToken")).thenReturn("testID");
 
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
@@ -95,7 +95,7 @@ public class QueueStatusTest {
     datastore.put(init);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
-    when(httpRequest.getParameter("userToken")).thenReturn("testID");
+    when(httpRequest.getParameter("studentToken")).thenReturn("testID");
 
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
@@ -124,7 +124,7 @@ public class QueueStatusTest {
     datastore.put(init);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
-    when(httpRequest.getParameter("userToken")).thenReturn("testID");
+    when(httpRequest.getParameter("studentToken")).thenReturn("testID");
 
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);

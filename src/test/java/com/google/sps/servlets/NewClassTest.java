@@ -3,10 +3,12 @@ package com.google.sps.servlets;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
@@ -16,7 +18,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
@@ -28,7 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EnterClassTest {
+public class NewClassTest {
 
   private final LocalServiceTestHelper helper =
       new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
@@ -43,8 +44,6 @@ public class EnterClassTest {
 
   @InjectMocks NewClass addNew;
 
-  @InjectMocks EnterQueue addFirst;
-
   @Before
   public void setUp() {
     helper.setUp();
@@ -57,7 +56,7 @@ public class EnterClassTest {
   }
 
   @Test
-  public void addNewClass() throws Exception {
+  public void addUniqueClass() throws Exception {
     when(httpRequest.getParameter("className")).thenReturn("testClass");
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
 
@@ -67,43 +66,43 @@ public class EnterClassTest {
 
     addNew.doPost(httpRequest, httpResponse);
 
-    Entity testEntity = datastore.prepare(new Query("Class")).asSingleEntity();
+    Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
+    Entity testVisitEntity = datastore.prepare(new Query("Visit")).asSingleEntity();
 
-    assertEquals(testEntity.getProperty("owner"), "ownerID");
-    assertEquals(testEntity.getProperty("name"), "testClass");
-    assertEquals(testEntity.getProperty("beingHelped"), "");
+    assertEquals(
+        testVisitEntity.getProperty("classKey"), KeyFactory.keyToString(testClassEntity.getKey()));
+    assertEquals(testVisitEntity.getProperty("numVisits"), (long) 0);
+    assertEquals(testVisitEntity.getProperty("className"), "testClass");
 
-    ArrayList<String> testQueue = (ArrayList<String>) testEntity.getProperty("studentQueue");
+    assertEquals(testClassEntity.getProperty("owner"), "ownerID");
+    assertEquals(testClassEntity.getProperty("name"), "testClass");
+    assertEquals(testClassEntity.getProperty("beingHelped"), new EmbeddedEntity());
+    assertEquals(
+        testClassEntity.getProperty("visitKey"), KeyFactory.keyToString(testVisitEntity.getKey()));
+
+    ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
     assertTrue(testQueue.isEmpty());
+
+    ArrayList<String> taList = (ArrayList<String>) testClassEntity.getProperty("taList");
+    assertTrue(taList.isEmpty());
   }
 
   @Test
-  public void addFirstToQueue() throws Exception {
+  public void addDuplicateClass() throws Exception {
     Entity init = new Entity("Class");
-    List<String> emptyQueue = Collections.emptyList();
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", "");
-    init.setProperty("studentQueue", emptyQueue);
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("studentQueue", Collections.emptyList());
+    init.setProperty("taList", Collections.emptyList());
+    init.setProperty("visitKey", "visitKey");
 
     datastore.put(init);
 
-    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
-    when(httpRequest.getParameter("idToken")).thenReturn("testID");
+    when(httpRequest.getParameter("className")).thenReturn("testClass");
+    addNew.doPost(httpRequest, httpResponse);
 
-    FirebaseToken mockToken = mock(FirebaseToken.class);
-    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
-    when(mockToken.getUid()).thenReturn("uID");
-
-    addFirst.doPost(httpRequest, httpResponse);
-
-    Entity testEntity = datastore.prepare(new Query("Class")).asSingleEntity();
-
-    ArrayList<String> testQueue = (ArrayList<String>) testEntity.getProperty("studentQueue");
-    assertEquals(
-        KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testEntity.getKey()));
-    assertEquals(1, testQueue.size());
-    assertEquals("uID", testQueue.get(0));
+    verify(httpResponse).sendError(HttpServletResponse.SC_FORBIDDEN);
   }
 }

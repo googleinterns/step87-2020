@@ -3,16 +3,19 @@ package com.google.sps.servlets;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.Transaction;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,8 +23,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/check-student")
-public class CheckStudentStatus extends HttpServlet {
+@WebServlet("/end-help")
+public class EndHelp extends HttpServlet {
   FirebaseAuth authInstance;
   DatastoreService datastore;
 
@@ -35,29 +38,54 @@ public class CheckStudentStatus extends HttpServlet {
   }
 
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    // Get the input from the form.
+    // navigate to /_ah/admin to view Datastore
+
     datastore = DatastoreServiceFactory.getDatastoreService();
     System.setProperty(
         DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
 
     try {
-      // Find user ID
-      String studentToken = request.getParameter("studentToken");
-      FirebaseToken decodedToken = authInstance.verifyIdToken(studentToken);
-      String studentID = decodedToken.getUid();
-
-      // Retrive entity
       String classCode = request.getParameter("classCode").trim();
-      Key classKey = KeyFactory.stringToKey(classCode);
-      Entity classEntity = datastore.get(classKey);
+      String taToken = request.getParameter("taToken");
+      FirebaseToken decodedToken = authInstance.verifyIdToken(taToken);
+      String taID = decodedToken.getUid();
 
-      // Find position in queue
-      ArrayList<String> queue = (ArrayList) classEntity.getProperty("studentQueue");
-      int studentPosition = queue.indexOf(studentID) + 1;
+      int retries = 10;
+      while (true) {
+        Transaction txn = datastore.beginTransaction();
+        try {
+          // Retrive class entity
+          Key classKey = KeyFactory.stringToKey(classCode);
+          Entity classEntity = datastore.get(txn, classKey);
 
-      response.setContentType("application/json;");
-      response.getWriter().print(studentPosition);
+          // Get studentID from studentEmail
+          String studentEmail = request.getParameter("studentEmail");
+          UserRecord userRecord = authInstance.getUserByEmail(studentEmail);
+          String studentID = userRecord.getUid();
 
+          // Update beingHelped
+          EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
+          beingHelped.removeProperty(studentID);
+
+          classEntity.setProperty("beingHelped", beingHelped);
+          datastore.put(txn, classEntity);
+
+          txn.commit();
+          break;
+        } catch (ConcurrentModificationException e) {
+          if (retries == 0) {
+            throw e;
+          }
+          // Allow retry to occur
+          --retries;
+        } finally {
+          if (txn.isActive()) {
+            txn.rollback();
+          }
+        }
+      }
     } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
     } catch (IllegalArgumentException e) {

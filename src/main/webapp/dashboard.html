@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Firebase App (the core Firebase SDK) must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.15.1/firebase-app.js"></script>
+    <!-- Add Firebase Authentication -->
+    <script src="https://www.gstatic.com/firebasejs/7.15.1/firebase-auth.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <meta charset="UTF-8">
+    <title>Capstone</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="dashboard.js"></script>
+  </head>
+
+  <body>
+    
+    <!--Contains the TA email form-->
+    <div class="left">
+      <h1>Admin Dashboard</h1>
+      <div class="centered">
+        <div class="ta-form">
+          <form>
+            <fieldset><legend>Add a TA by Email</legend>
+              <label for="TAemail">
+                <span>Email <span class="required">*</span></span>
+                <input type="text" class="input-field" name="taEmail" value="" /></br>
+                <input id="submitButton" type="submit" value="Submit">
+              </label>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!--Contains the statistics charts-->
+    <div class="right">
+      <h1>Site Statistics</h1>
+      <div id="bar-chart" style="width: 900px; height: 500px"></div>
+    </div>
+
+  </body>
+</html>
