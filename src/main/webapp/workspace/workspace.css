@@ -1,3 +1,13 @@
+:root {
+  --background-color: #031430;
+  --active-tab-color: black;
+  --inactive-tab-color: #031430;
+  --tab-hover-color: #154085; 
+  --text-color: #D4D4D4;
+  --permanent-tab-color: #154085;
+  --permanent-tab-hover: #2457AA;
+}
+
 html {
   height: 100%;
   width: 100%;
@@ -8,7 +18,7 @@ body {
   height: 100%;
   width: 100%;
   overflow: hidden;
-  background-color: #333333;
+  background-color: var(--background-color);
 }
 
 .firepad-container {
@@ -57,38 +67,38 @@ body {
 .tab {
   border: none;
   height: 40px;
-  color: #b5b5b5;
+  color: var(--text-color);
   float: left;
   padding: 0px 15px;
   display: flex;
   align-items: center;
 
   border-right-style: solid;
-  border-color: #1e1e1e;
+  border-color: var(--active-tab-color);
   border-width: 1px;
 
   flex-shrink: 0;
 }
 
 .active-tab {
-  background-color: #1e1e1e;
+  background-color: var(--active-tab-color);
 }
 
 .inactive-tab {
-  background-color: #333333;
+  background-color: var(--inactive-tab-color);
 }
 
 .permanent-tab {
-  background-color: #0077ff;
-  color: white;
+  background-color: var(--permanent-tab-color);
+  color: var(--text-color);
 }
 
 .permanent-tab:hover {
-  background-color: #3392ff;
+  background-color: var(--permanent-tab-hover);
 }
 
 .active-tab:hover, .inactive-tab:hover {
-  background-color: #555555;
+  background-color: var(--tab-hover-color);
 }
 
 .tab:focus {
@@ -106,9 +116,9 @@ body {
 }
 
 @keyframes downloading {
-  0% {background-color: #0077ff;}
-  50% {background-color: #333333;}
-  100% {background-color: #0077ff;}
+  0% {background-color: var(--permanent-tab-color);}
+  50% {background-color: var(--background-color);}
+  100% {background-color: var(--permanent-tab-color);}
 }
 
 #jitsi-container {
@@ -121,12 +131,12 @@ body {
 .jitsi-button {
   height: 30px;
   border: none;
-  background-color: #0077ff;
-  color: white;
+  background-color: var(--permanent-tab-color);
+  color: var(--text-color);
 }
 
 .jitsi-button:hover {
-  background-color: #3392ff;
+  background-color: var(--permanent-tab-hover);
 }
 
 .jitsi-button:focus {
