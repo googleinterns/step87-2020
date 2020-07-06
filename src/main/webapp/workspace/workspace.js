@@ -2,6 +2,21 @@ let tabs = {};
 let currentTab;
 let jitsiVisible = false;
 
+/* jshint ignore:start */
+function defineTheme() {
+  monaco.editor.defineTheme('dark-mode', {
+    base: 'vs-dark', // can also be vs-dark or hc-black
+    inherit: true, // can also be false to completely replace the builtin rules
+    rules: [
+      { token: '', foreground: 'D4D4D4', background: '000000' }
+    ],
+    colors: {
+      "editor.background": '#000000',
+      "editor.foreground": '#D4D4D4' 
+    }
+  });
+}
+
 /**
  * Gets the base firebase reference for this workspace.
  */
@@ -98,7 +113,7 @@ function createNewTab(filename, contents) {
 
     const editor = monaco.editor.create(firepadContainer, {
       language: language,
-      theme: "vs-dark"
+      theme: "dark-mode"
     });
 
     //Use LF
@@ -188,6 +203,8 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let e of hiddenElements) {
       e.classList.remove("initially-hidden");
     }
+
+    defineTheme();
 
     getFirebaseRef().child("files").on("child_added", (snapshot) => {
       const filename = decodeFileName(snapshot.key);
