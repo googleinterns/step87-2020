@@ -1,6 +1,7 @@
 package com.google.sps.servlets;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -8,14 +9,23 @@ import static org.mockito.Mockito.when;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.CompositeFilter;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,7 +55,12 @@ public class EnterQueueTest {
 
   @Mock FirebaseAuth authInstance;
 
+  @Mock Clock clock;
+
   @InjectMocks EnterQueue addFirst;
+
+  private Clock fixedClock;
+  private static final LocalDate LOCAL_DATE = LocalDate.of(2020, 07, 06);
 
   @Before
   public void setUp() {
@@ -53,6 +68,12 @@ public class EnterQueueTest {
     datastore = DatastoreServiceFactory.getDatastoreService();
     System.setProperty(
         DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
+
+    fixedClock =
+        Clock.fixed(
+            LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
+    doReturn(fixedClock.instant()).when(clock).instant();
+    doReturn(fixedClock.getZone()).when(clock).getZone();
   }
 
   @After
@@ -72,41 +93,38 @@ public class EnterQueueTest {
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", Collections.emptyList());
+    init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
-    init.setProperty("visitKey", "visitKey");
+    init.setProperty("taList", Collections.emptyList());
 
     datastore.put(init);
 
-    Entity visitInit = new Entity("Visit", "visitKey");
-
-    visitInit.setProperty("classKey", "ownerID");
-    visitInit.setProperty("numVisits", 0);
-
-    datastore.put(visitInit);
-
-    Entity updateClassEntity = datastore.get(init.getKey());
-    updateClassEntity.setProperty("visitKey", KeyFactory.keyToString(visitInit.getKey()));
-    datastore.put(updateClassEntity);
-
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
-    when(httpRequest.getParameter("idToken")).thenReturn("testID");
+    when(httpRequest.getParameter("idToken")).thenReturn("token");
 
     FirebaseToken mockToken = mock(FirebaseToken.class);
-    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
-    when(mockToken.getUid()).thenReturn("uID");
+    when(authInstance.verifyIdToken("token")).thenReturn(mockToken);
+    when(mockToken.getUid()).thenReturn("studentID");
 
     addFirst.doPost(httpRequest, httpResponse);
 
     Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
-    Entity testVisitEntity = datastore.prepare(new Query("Visit")).asSingleEntity();
-
     ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
-    assertEquals(
-        KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
-    assertEquals((long) 1, testVisitEntity.getProperty("numVisits"));
     assertEquals(1, testQueue.size());
-    assertEquals("uID", testQueue.get(0));
+    assertEquals("studentID", testQueue.get(0));
+
+    Filter classVisitFilter =
+        new FilterPredicate(
+            "classCode", FilterOperator.EQUAL, KeyFactory.keyToString(init.getKey()));
+
+    Filter dateVisitFilter = new FilterPredicate("date", FilterOperator.EQUAL, "07/06/2020");
+
+    CompositeFilter visitFilter = CompositeFilterOperator.and(dateVisitFilter, classVisitFilter);
+
+    Entity testVisitEntity =
+        datastore.prepare(new Query("Visit").setFilter(visitFilter)).asSingleEntity();
+    assertEquals(1, (long) testVisitEntity.getProperty("numVisits"));
+    assertEquals("07/06/2020", (String) testVisitEntity.getProperty("date"));
   }
 
   @Test
@@ -117,23 +135,18 @@ public class EnterQueueTest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
     init.setProperty("studentQueue", new ArrayList(Arrays.asList("test1")));
-    init.setProperty("visitKey", "visitKey");
 
     datastore.put(init);
 
     Entity visitInit = new Entity("Visit");
 
-    visitInit.setProperty("classKey", "ownerID");
+    visitInit.setProperty("classCode", KeyFactory.keyToString(init.getKey()));
+    visitInit.setProperty("date", "07/06/2020");
     visitInit.setProperty("numVisits", 1);
 
     datastore.put(visitInit);
 
-    Entity updateClassEntity = datastore.get(init.getKey());
-    updateClassEntity.setProperty("visitKey", KeyFactory.keyToString(visitInit.getKey()));
-    datastore.put(updateClassEntity);
-
     when(httpRequest.getParameter("enterTA")).thenReturn(null);
-
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
 
@@ -144,14 +157,25 @@ public class EnterQueueTest {
     addFirst.doPost(httpRequest, httpResponse);
 
     Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
-    Entity testVisitEntity = datastore.prepare(new Query("Visit")).asSingleEntity();
 
     ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
     assertEquals(
         KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
     assertEquals(2, testQueue.size());
     assertEquals("uID", testQueue.get(1));
-    assertEquals((long) 2, (long) testVisitEntity.getProperty("numVisits"));
+
+    Filter classVisitFilter =
+        new FilterPredicate(
+            "classCode", FilterOperator.EQUAL, KeyFactory.keyToString(init.getKey()));
+
+    Filter dateVisitFilter = new FilterPredicate("date", FilterOperator.EQUAL, "07/06/2020");
+
+    CompositeFilter visitFilter = CompositeFilterOperator.and(dateVisitFilter, classVisitFilter);
+
+    Entity testVisitEntity =
+        datastore.prepare(new Query("Visit").setFilter(visitFilter)).asSingleEntity();
+    assertEquals(2, (long) testVisitEntity.getProperty("numVisits"));
+    assertEquals("07/06/2020", (String) testVisitEntity.getProperty("date"));
   }
 
   @Test
@@ -168,8 +192,9 @@ public class EnterQueueTest {
 
     Entity visitInit = new Entity("Visit");
 
-    visitInit.setProperty("classKey", "ownerID");
-    visitInit.setProperty("numVisits", 0);
+    visitInit.setProperty("classCode", KeyFactory.keyToString(init.getKey()));
+    visitInit.setProperty("date", "07/06/2020");
+    visitInit.setProperty("numVisits", 1);
 
     datastore.put(visitInit);
 
@@ -185,14 +210,25 @@ public class EnterQueueTest {
     addFirst.doPost(httpRequest, httpResponse);
 
     Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
-    Entity testVisitEntity = datastore.prepare(new Query("Visit")).asSingleEntity();
 
     ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
     assertEquals(
         KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
     assertEquals(1, testQueue.size());
     assertEquals("uID", testQueue.get(0));
-    assertEquals((long) 0, (long) testVisitEntity.getProperty("numVisits"));
+
+    Filter classVisitFilter =
+        new FilterPredicate(
+            "classCode", FilterOperator.EQUAL, KeyFactory.keyToString(init.getKey()));
+
+    Filter dateVisitFilter = new FilterPredicate("date", FilterOperator.EQUAL, "07/06/2020");
+
+    CompositeFilter visitFilter = CompositeFilterOperator.and(dateVisitFilter, classVisitFilter);
+
+    Entity testVisitEntity =
+        datastore.prepare(new Query("Visit").setFilter(visitFilter)).asSingleEntity();
+    assertEquals(1, (long) testVisitEntity.getProperty("numVisits"));
+    assertEquals("07/06/2020", (String) testVisitEntity.getProperty("date"));
   }
 
   @Test
