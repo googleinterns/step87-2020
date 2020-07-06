@@ -5,7 +5,6 @@ import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
@@ -80,8 +79,6 @@ public class NewClass extends HttpServlet {
 
     } catch (FirebaseAuthException e) {
       response.sendError(HttpServletResponse.SC_FORBIDDEN);
-    } catch (EntityNotFoundException e) {
-      response.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
   }
 }

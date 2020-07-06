@@ -10,7 +10,6 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
@@ -67,18 +66,10 @@ public class NewClassTest {
     addNew.doPost(httpRequest, httpResponse);
 
     Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
-    Entity testVisitEntity = datastore.prepare(new Query("Visit")).asSingleEntity();
-
-    assertEquals(
-        testVisitEntity.getProperty("classKey"), KeyFactory.keyToString(testClassEntity.getKey()));
-    assertEquals(testVisitEntity.getProperty("numVisits"), (long) 0);
-    assertEquals(testVisitEntity.getProperty("className"), "testClass");
 
     assertEquals(testClassEntity.getProperty("owner"), "ownerID");
     assertEquals(testClassEntity.getProperty("name"), "testClass");
     assertEquals(testClassEntity.getProperty("beingHelped"), new EmbeddedEntity());
-    assertEquals(
-        testClassEntity.getProperty("visitKey"), KeyFactory.keyToString(testVisitEntity.getKey()));
 
     ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
     assertTrue(testQueue.isEmpty());
@@ -96,7 +87,6 @@ public class NewClassTest {
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
     init.setProperty("taList", Collections.emptyList());
-    init.setProperty("visitKey", "visitKey");
 
     datastore.put(init);
 
