@@ -1,13 +1,15 @@
-package com.google.sps.servlets;
-
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
+import java.util.ArrayList;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,8 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 // Once class owner submits a TA email, retrieve that user and add them as a TA to the class
 @WebServlet("/add-ta")
 public class AddTA extends HttpServlet {
-  private FirebaseAuth authInstance;
-
+  FirebaseAuth authInstance;
   // Get the current session
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -29,31 +30,42 @@ public class AddTA extends HttpServlet {
       throw new ServletException(e);
     }
   }
-
   // Add a TA to the datastore
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-
     try {
       // Obtain the teaching assistant email and search for the user
       String teachingAssistantEmail = request.getParameter("taEmail").trim();
       UserRecord userRecord = authInstance.getUserByEmail(teachingAssistantEmail);
 
+      // Find the corresponding Class Entity
       String classCode = request.getParameter("classCode").trim();
+      Key classKey = KeyFactory.stringToKey(classCode);
+      Entity classEntity = datastore.get(classKey);
 
       // Create a TA entity with both a user ID and a class ID
       Entity taEntity = new Entity("TA");
       taEntity.setProperty("userKey", userRecord.getUid());
       taEntity.setProperty("classKey", classCode);
+      // Get the list of TAs
+      ArrayList<String> listOfClassTAs = (ArrayList) classEntity.getProperty("taList");
 
       datastore.put(taEntity); // Store the new TA with their class code
+      // Update the class's TA list to include the new TA
+      listOfClassTAs.add(teachingAssistantEmail);
+      classEntity.setProperty("taList", listOfClassTAs);
+      datastore.put(classEntity);
+
+      // Redirect to the class dashboard page
+      response.sendRedirect("/dashboard.html?classCode=" + classCode);
 
     } catch (FirebaseAuthException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
     } catch (IllegalArgumentException e) {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+    } catch (EntityNotFoundException e) {
+      response.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
   }
 }
