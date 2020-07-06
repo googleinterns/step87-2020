@@ -1,3 +1,5 @@
+package com.google.sps.servlets;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -44,14 +46,9 @@ public class AddTA extends HttpServlet {
       Key classKey = KeyFactory.stringToKey(classCode);
       Entity classEntity = datastore.get(classKey);
 
-      // Create a TA entity with both a user ID and a class ID
-      Entity taEntity = new Entity("TA");
-      taEntity.setProperty("userKey", userRecord.getUid());
-      taEntity.setProperty("classKey", classCode);
       // Get the list of TAs
       ArrayList<String> listOfClassTAs = (ArrayList) classEntity.getProperty("taList");
 
-      datastore.put(taEntity); // Store the new TA with their class code
       // Update the class's TA list to include the new TA
       listOfClassTAs.add(teachingAssistantEmail);
       classEntity.setProperty("taList", listOfClassTAs);

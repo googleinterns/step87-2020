@@ -1,5 +1,6 @@
 google.charts.load('current', {packages: ['corechart', 'bar']});
 
+// Render a chart visual on dashboard page for tracking class visits
 function drawBasic() {
 
   // Set up the data table to have a class name and visits associated w/ that specific class
@@ -9,7 +10,6 @@ function drawBasic() {
       
   fetch(`/visits`).then(response => response.json()).then(visits=> {
 
-      // Temporary values for class and visit lists
     var classes = visits.listOfClassNames;
     var numVisits = visits.visitsPerClass;
 
@@ -63,3 +63,9 @@ function setRedirect(){
   document.getElementById("redirect").href = "/queue/ta.html" + params;
   document.getElementById("classCode").innerText =  params.slice(11);
 }
+
+// Obtain the class's specific code from URL parameter
+function getClassCode() {
+  document.getElementById("hiddenClassCode").value = getParam("classCode");
+  return true;
+} 
