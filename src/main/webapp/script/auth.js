@@ -12,6 +12,7 @@ firebase.auth().onAuthStateChanged(function(user) {
   }
 });
 
+// Obtain the current user token for verification
 function getToken() {
   return firebase.auth().currentUser.getIdToken();
 }
