@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.List;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -61,7 +62,7 @@ public final class EnterQueue extends HttpServlet {
 
       String idToken = request.getParameter("idToken");
       FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
-      String uID = decodedToken.getUid();
+      String userID = decodedToken.getUid();
 
       if (request.getParameter("enterTA") == null) {
         int retries = 10;
@@ -123,8 +124,8 @@ public final class EnterQueue extends HttpServlet {
 
             ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
 
-            if (!updatedQueue.contains(uID)) {
-              updatedQueue.add(uID);
+            if (!updatedQueue.contains(userID)) {
+              updatedQueue.add(userID);
               numVisits++;
             }
 
@@ -150,7 +151,16 @@ public final class EnterQueue extends HttpServlet {
         }
         response.sendRedirect("/queue/student.html?classCode=" + classCode);
       } else {
-        response.sendRedirect("/queue/ta.html?classCode=" + classCode);
+        Key classKey = KeyFactory.stringToKey(classCode);
+        Entity classEntity = datastore.get(classKey);
+
+        List<String> taList = (List<String>) classEntity.getProperty("taList");
+
+        if (taList.contains(userID)) {
+          response.sendRedirect("/queue/ta.html?classCode=" + classCode);
+        } else {
+          response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        }
       }
 
     } catch (EntityNotFoundException e) {

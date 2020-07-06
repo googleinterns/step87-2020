@@ -134,7 +134,8 @@ public class EnterQueueTest {
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
-    init.setProperty("studentQueue", new ArrayList(Arrays.asList("test1")));
+    init.setProperty("studentQueue", Arrays.asList("test1"));
+    init.setProperty("taList", Collections.emptyList());
 
     datastore.put(init);
 
@@ -185,8 +186,8 @@ public class EnterQueueTest {
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
-    init.setProperty("studentQueue", new ArrayList(Arrays.asList("uID")));
-    init.setProperty("visitKey", "visitKey");
+    init.setProperty("studentQueue", Arrays.asList("uID"));
+    init.setProperty("taList", Collections.emptyList());
 
     datastore.put(init);
 
@@ -232,9 +233,19 @@ public class EnterQueueTest {
   }
 
   @Test
-  public void redirectTA() throws Exception {
+  public void redirectVerifiedTA() throws Exception {
+    Entity init = new Entity("Class");
+
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", Collections.emptyList());
+    init.setProperty("studentQueue", Collections.emptyList());
+    init.setProperty("taList", Arrays.asList("uID"));
+
+    datastore.put(init);
+
     when(httpRequest.getParameter("enterTA")).thenReturn("isTA");
-    when(httpRequest.getParameter("classCode")).thenReturn("code");
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
 
     FirebaseToken mockToken = mock(FirebaseToken.class);
@@ -243,6 +254,32 @@ public class EnterQueueTest {
 
     addFirst.doPost(httpRequest, httpResponse);
 
-    verify(httpResponse).sendRedirect("/queue/ta.html?classCode=code");
+    verify(httpResponse)
+        .sendRedirect("/queue/ta.html?classCode=" + KeyFactory.keyToString(init.getKey()));
+  }
+
+  @Test
+  public void redirectUnverifiedTA() throws Exception {
+    Entity init = new Entity("Class");
+
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", Collections.emptyList());
+    init.setProperty("studentQueue", Collections.emptyList());
+    init.setProperty("taList", Arrays.asList("taID"));
+
+    datastore.put(init);
+
+    when(httpRequest.getParameter("enterTA")).thenReturn("isTA");
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn("testID");
+
+    FirebaseToken mockToken = mock(FirebaseToken.class);
+    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
+    when(mockToken.getUid()).thenReturn("uID");
+
+    addFirst.doPost(httpRequest, httpResponse);
+
+    verify(httpResponse).sendError(403);
   }
 }
