@@ -30,9 +30,13 @@
       var user = firebase.auth().currentUser;
       firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
+          console.log("User is signed in");
           user.getIdToken().then((token) => setToken(token));
-        } else {
-            console.log("user not logged in");
+        } 
+        // Redirect to home page if not logged in
+        else {
+          console.log("User is not logged in");
+          window.location.href = "/";
         }
       });
     }

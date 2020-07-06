@@ -10,6 +10,7 @@
   </head>
 
   <script>
+
     function getToken() {
       var firebaseConfig = {
         apiKey: "AIzaSyA1r_PfVDCXfTgoUNisci5Ag2MKEEwsZCE",
@@ -24,12 +25,14 @@
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
 
+      // Logged out users cannot have access to app features
       var user = firebase.auth().currentUser;
       firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
           user.getIdToken().then((token) => setToken(token));
         } else {
-            console.log("user not logged in");
+          console.log("User not logged in, redirecting to sign in page");
+          window.location.href = "/index.html";
         }
       });
     }
@@ -38,6 +41,7 @@
       let forms = document.getElementsByName("idToken");
       forms.forEach((form) => form.value = token);
     }
+    
   </script>
 
   <body onload="getToken()">
@@ -59,6 +63,7 @@
       <input type="hidden" name="idToken" value=""/>
       <input type="submit" value="create a new class!"/>
     </form>
+    
   </body>
 </html>
 
