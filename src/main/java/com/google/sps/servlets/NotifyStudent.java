@@ -14,9 +14,11 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
+import com.google.sps.workspace.WorkspaceFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.concurrent.ExecutionException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -26,13 +28,15 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/notify-student")
 public class NotifyStudent extends HttpServlet {
-  FirebaseAuth authInstance;
-  DatastoreService datastore;
+  private FirebaseAuth authInstance;
+  private DatastoreService datastore;
+  private WorkspaceFactory factory;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
     try {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
+      factory = WorkspaceFactory.getInstance();
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -70,9 +74,17 @@ public class NotifyStudent extends HttpServlet {
           ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
           updatedQueue.remove(studentID);
 
+          // Get workspace ID
+          String workspaceID = factory.fromStudentAndTA(studentID, taID).getWorkspaceID();
+
           // Update beingHelped
           EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
-          beingHelped.setProperty(studentID, taID);
+
+          EmbeddedEntity queueInfo = new EmbeddedEntity();
+          queueInfo.setProperty("taID", taID);
+          queueInfo.setProperty("workspaceID", workspaceID);
+
+          beingHelped.setProperty(studentID, queueInfo);
 
           classEntity.setProperty("studentQueue", updatedQueue);
           classEntity.setProperty("beingHelped", beingHelped);
@@ -98,6 +110,10 @@ public class NotifyStudent extends HttpServlet {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
     } catch (FirebaseAuthException e) {
       response.sendError(HttpServletResponse.SC_FORBIDDEN);
+    } catch (InterruptedException e) {
+      response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+    } catch (ExecutionException e) {
+      response.sendError(HttpServletResponse.SC_BAD_REQUEST);
     }
   }
 }

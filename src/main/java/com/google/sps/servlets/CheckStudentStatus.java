@@ -22,8 +22,8 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/check-student")
 public class CheckStudentStatus extends HttpServlet {
-  FirebaseAuth authInstance;
-  DatastoreService datastore;
+  private FirebaseAuth authInstance;
+  private DatastoreService datastore;
 
   @Override
   public void init(ServletConfig config) throws ServletException {

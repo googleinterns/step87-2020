@@ -3,17 +3,18 @@ package com.google.sps.servlets;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.gson.Gson;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
-import java.util.ArrayList;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -21,8 +22,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/get-queue")
-public class GetQueue extends HttpServlet {
+@WebServlet("/get-ta")
+public class GetTAHelping extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
   private Gson gson;
@@ -49,19 +50,29 @@ public class GetQueue extends HttpServlet {
       Key classKey = KeyFactory.stringToKey(classCode);
       Entity classEntity = datastore.get(classKey);
 
-      // Get queue
-      ArrayList<String> uidQueue = (ArrayList) classEntity.getProperty("studentQueue");
+      String studentToken = request.getParameter("studentToken");
+      FirebaseToken decodedToken = authInstance.verifyIdToken(studentToken);
+      String studentID = decodedToken.getUid();
 
-      // Reconstruct queue using names
-      ArrayList<String> queue = new ArrayList<String>();
-      for (String uid : uidQueue) {
-        UserRecord userRecord = authInstance.getUser(uid);
-        String studentName = userRecord.getEmail();
-        queue.add(studentName);
+      EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
+      EmbeddedEntity queueInfo = (EmbeddedEntity) beingHelped.getProperty(studentID);
+
+      // if interaction ended
+      if (queueInfo == null) {
+        response.setContentType("application/json;");
+        response.getWriter().print(gson.toJson("null"));
+
+      } else {
+        // Get TA id
+        String taID = (String) queueInfo.getProperty("taID");
+
+        // Get TA email
+        UserRecord userRecord = authInstance.getUser(taID);
+        String taEmail = userRecord.getEmail();
+
+        response.setContentType("application/json;");
+        response.getWriter().print(gson.toJson(taEmail));
       }
-
-      response.setContentType("application/json;");
-      response.getWriter().print(gson.toJson(queue));
 
     } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
