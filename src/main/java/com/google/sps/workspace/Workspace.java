@@ -4,6 +4,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.google.sps.workspace.WorkspaceArchive.ArchiveType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -114,7 +115,7 @@ public class Workspace {
     return reference.getKey();
   }
 
-  public WorkspaceArchive getArchive() {
-    return new WorkspaceArchive(this);
+  public WorkspaceArchive getArchive(ArchiveType type) {
+    return new WorkspaceArchive(this, type);
   }
 }
