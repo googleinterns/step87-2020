@@ -8,6 +8,11 @@ body {
   margin: 0 auto;
 }
 
+#bar-chart2{
+  display: inline-block;
+  margin: 0 auto;
+}
+
 .left {
   height: 100%;
   width: 20%;
