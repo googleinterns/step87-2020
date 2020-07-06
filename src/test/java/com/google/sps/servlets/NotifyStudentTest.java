@@ -18,6 +18,8 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
+import com.google.sps.workspace.Workspace;
+import com.google.sps.workspace.WorkspaceFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +48,10 @@ public class NotifyStudentTest {
 
   @Mock FirebaseAuth authInstance;
 
+  @Mock WorkspaceFactory factory;
+
+  @Mock Workspace workspace;
+
   @InjectMocks NotifyStudent alertStudent;
 
   @Before
@@ -73,9 +79,17 @@ public class NotifyStudentTest {
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", new ArrayList(Arrays.asList("test1", "test2")));
+    init.setProperty("studentQueue", new ArrayList(Arrays.asList("studentID", "test2")));
     init.setProperty("visitKey", "visitKey");
+
+    EmbeddedEntity queueInfo = new EmbeddedEntity();
+    queueInfo.setProperty("taID", "taID");
+    queueInfo.setProperty("workspaceID", "workspaceID");
+
+    EmbeddedEntity beingHelped = new EmbeddedEntity();
+    beingHelped.setProperty("studentID", queueInfo);
+
+    init.setProperty("beingHelped", beingHelped);
 
     datastore.put(init);
 
@@ -90,7 +104,10 @@ public class NotifyStudentTest {
 
     UserRecord mockUser = mock(UserRecord.class);
     when(authInstance.getUserByEmail("test@google.com")).thenReturn(mockUser);
-    when(mockUser.getUid()).thenReturn("test1");
+    when(mockUser.getUid()).thenReturn("studentID");
+
+    when(factory.fromStudentAndTA("studentID", "taID")).thenReturn(workspace);
+    when(workspace.getWorkspaceID()).thenReturn("workspaceID");
 
     alertStudent.doPost(httpRequest, httpResponse);
 
@@ -98,7 +115,12 @@ public class NotifyStudentTest {
 
     ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
     EmbeddedEntity got = (EmbeddedEntity) testClassEntity.getProperty("beingHelped");
-    assertThat((String) got.getProperty("test1")).named("got.test1").isEqualTo("taID");
+    EmbeddedEntity gotQueue = (EmbeddedEntity) got.getProperty("studentID");
+
+    assertThat((String) gotQueue.getProperty("taID")).named("got.taID").isEqualTo("taID");
+    assertThat((String) gotQueue.getProperty("workspaceID"))
+        .named("got.workspaceID")
+        .isEqualTo("workspaceID");
 
     assertEquals(
         KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
