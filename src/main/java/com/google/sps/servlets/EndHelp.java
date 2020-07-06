@@ -25,8 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/end-help")
 public class EndHelp extends HttpServlet {
-  FirebaseAuth authInstance;
-  DatastoreService datastore;
+  private FirebaseAuth authInstance;
+  private DatastoreService datastore;
 
   @Override
   public void init(ServletConfig config) throws ServletException {

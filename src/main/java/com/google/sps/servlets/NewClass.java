@@ -26,8 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 /** Servlet that creates a new class Datastore. */
 @WebServlet("/newclass")
 public class NewClass extends HttpServlet {
-  FirebaseAuth authInstance;
-  DatastoreService datastore;
+  private FirebaseAuth authInstance;
+  private DatastoreService datastore;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -82,6 +82,9 @@ public class NewClass extends HttpServlet {
         Entity updateClassEntity = datastore.get(classEntity.getKey());
         updateClassEntity.setProperty("visitKey", KeyFactory.keyToString(visitEntity.getKey()));
         datastore.put(updateClassEntity);
+
+        response.sendRedirect(
+            "/dashboard.html?classCode=" + KeyFactory.keyToString(classEntity.getKey()));
 
       } else {
         response.sendError(HttpServletResponse.SC_FORBIDDEN);

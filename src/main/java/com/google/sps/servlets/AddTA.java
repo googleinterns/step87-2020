@@ -18,8 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 // Once class owner submits a TA email, retrieve that user and add them as a TA to the class
 @WebServlet("/add-ta")
 public class AddTA extends HttpServlet {
-
-  FirebaseAuth authInstance;
+  private FirebaseAuth authInstance;
 
   // Get the current session
   @Override

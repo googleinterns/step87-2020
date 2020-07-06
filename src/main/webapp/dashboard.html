@@ -21,12 +21,19 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
     <link rel="stylesheet" href="dashboard.css">
-    <script src="dashboard.js"></script>
+    <script src="dashboard.js">
+      function setRedirect(){
+          var params = window.location.search;
+          document.getElementById("redirect").href = "/queue/ta.html" + params;
+          document.getElementById("classCode").innerText =  params.slice(11);
+      }
+    </script>
+
     <script src="/script/auth.js"></script>
 
   </head>
 
-  <body>
+  <body onload = "setRedirect()"">
     
     <!--Contains the TA email form-->
     <div class="left">
@@ -52,6 +59,9 @@
     <div class="right">
       <h1>Site Statistics</h1>
       <div id="bar-chart" style="width: 900px; height: 500px"></div>
+      <br>
+      <a href="" id = "redirect" style="text-decoration: none;">go to queue</a>
+      <h2 id = "classCode"> </h2>
     </div>
 
   </body>
