@@ -67,6 +67,78 @@ function decodeFileName(filename) {
   return decodeURIComponent(filename.replace(/%2E/g, "."));
 }
 
+function createTabButton(filename) {
+  const tab = document.createElement("button");
+  tab.classList.add("inactive-tab", "tab");
+  tab.innerText = filename;
+  tab.draggable = true;
+
+  tab.addEventListener("dragstart", (event) => {
+    switchTab(filename);
+
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData('text/plain', filename);
+  });
+
+  tab.addEventListener("dragover", (event) => {
+    if (event.preventDefault) {
+      event.preventDefault();
+    }
+
+    event.dataTransfer.dropEffect = "move";
+
+    return false;
+  });
+
+  tab.addEventListener("dragenter", (event) => {
+    tab.classList.add("dragOver");
+  });
+
+  tab.addEventListener("dragleave", (event) => {
+    tab.classList.remove("dragOver");
+  });
+
+  tab.addEventListener("dragend", (event) => {
+    const dragOverEles = document.getElementsByClassName("dragOver");
+    for (var i = 0; i < dragOverEles.length; i++) {
+      dragOverEles[i].classList.remove("dragOver");
+    }
+  });
+
+  tab.addEventListener("drop", (event) => {
+    if(event.stopPropagation) {
+      event.stopPropagation();
+    }
+
+    const otherFilename = event.dataTransfer.getData('text/plain');
+
+    if (otherFilename !== filename) {
+      const otherTab = tabs[otherFilename].tabButton;
+      const tabsContiner = document.getElementById("tabs-container");
+      const thisIndex = Array.from(tabsContiner.children).indexOf(tab);
+      const otherIndex = Array.from(tabsContiner.children).indexOf(otherTab);
+
+      if(otherIndex < thisIndex) {
+        // Insert after this tab
+        otherTab.remove();
+        tabsContiner.insertBefore(otherTab, tab.nextSibling);
+      } else {
+        // Insert before this tab
+        otherTab.remove();
+        tabsContiner.insertBefore(otherTab, tab);
+      }
+    }
+
+    return false;
+  });
+
+  tab.onclick = (event) => {
+    switchTab(filename);
+  };
+
+  return tab;
+}
+
 /**
  * Creates a new tab with the given filename and the given contents.
  * @param {String} filename The filename for the tab.
@@ -79,13 +151,7 @@ function createNewTab(filename, contents) {
     // twice in the firebase child_added callback.
     tabs[filename] = {};
 
-    const tab = document.createElement("button");
-    tab.classList.add("inactive-tab", "tab");
-    tab.innerText = filename;
-
-    tab.onclick = (event) => {
-      switchTab(filename);
-    };
+    const tab = createTabButton(filename);
 
     const firepadContainer = document.createElement("div");
     firepadContainer.classList.add("hidden", "firepad-container");

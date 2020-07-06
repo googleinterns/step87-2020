@@ -87,7 +87,7 @@ body {
   background-color: #3392ff;
 }
 
-.active-tab:hover, .inactive-tab:hover {
+.active-tab:hover, .inactive-tab:hover, .dragOver {
   background-color: #555555;
 }
 
