@@ -68,20 +68,8 @@ public class NewClass extends HttpServlet {
 
         classEntity.setProperty("studentQueue", Collections.emptyList());
         classEntity.setProperty("taList", Collections.emptyList());
-        classEntity.setProperty("visitKey", "");
 
         datastore.put(classEntity);
-
-        Entity visitEntity = new Entity("Visit");
-        visitEntity.setProperty("classKey", KeyFactory.keyToString(classEntity.getKey()));
-        visitEntity.setProperty("numVisits", 0);
-        visitEntity.setProperty("className", className);
-
-        datastore.put(visitEntity);
-
-        Entity updateClassEntity = datastore.get(classEntity.getKey());
-        updateClassEntity.setProperty("visitKey", KeyFactory.keyToString(visitEntity.getKey()));
-        datastore.put(updateClassEntity);
 
         response.sendRedirect(
             "/dashboard.html?classCode=" + KeyFactory.keyToString(classEntity.getKey()));
