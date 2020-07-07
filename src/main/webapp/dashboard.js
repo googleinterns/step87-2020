@@ -61,6 +61,10 @@ google.charts.load('current', {packages: ['corechart', 'line']});
 // Render a chart visual on dashboard page for tracking class visits
 function drawBasic2() {
 
+//   var classCode = getParam("classCode");
+//   fetch(`/visit-date?classCode=` + classCode).then(response => response.json()).then(visits=> {
+//   });
+
   // Set up the data table to have a class name and visits associated w/ that specific class
   var data = new google.visualization.DataTable();
   data.addColumn('date', 'Date');
