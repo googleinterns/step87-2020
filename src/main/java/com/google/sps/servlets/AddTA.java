@@ -22,7 +22,9 @@ import javax.servlet.http.HttpServletResponse;
 // Once class owner submits a TA email, retrieve that user and add them as a TA to the class
 @WebServlet("/add-ta")
 public class AddTA extends HttpServlet {
+
   FirebaseAuth authInstance;
+
   // Get the current session
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -32,10 +34,13 @@ public class AddTA extends HttpServlet {
       throw new ServletException(e);
     }
   }
+
   // Add a TA to the datastore
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    
     try {
       // Obtain the teaching assistant email and search for the user
       String teachingAssistantEmail = request.getParameter("taEmail").trim();
