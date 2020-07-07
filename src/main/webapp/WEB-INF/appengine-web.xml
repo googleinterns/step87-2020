@@ -14,6 +14,7 @@
 	</basic-scaling>
   <env-variables>
     <env-var name="DOWNLOAD_QUEUE_ID" value="download-queue" />
+    <env-var name="EXECUTION_QUEUE_ID" value="execution-queue" />
     <env-var name="LOCATION_ID" value="us-central1" />
     <env-var name="DOCKER_HOST" value="tcp://10.128.0.38:2376" />
     <env-var name="DOCKER_TLS_VERIFY" value="false" />
