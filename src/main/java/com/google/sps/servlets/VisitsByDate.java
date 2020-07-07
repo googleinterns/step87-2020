@@ -40,14 +40,26 @@ public class VisitsByDate extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
     ArrayList<Date> dates = new ArrayList<Date>();
-    ArrayList<Long> visitsForThisClass = new ArrayList<Long>();
-    
+    ArrayList<Long> classVisits = new ArrayList<Long>();
+
+    // The class filter will be the unique class's key
+    String classCode = request.getParameter("classCode").trim();
+    Key classKey = KeyFactory.stringToKey(classCode);
+
     // Obtain visits from datastore and filter them into results query
-    Query query = new Query("Visit");
+    Query query = new Query("Visit")
+        .addSort("date", SortDirection.DESCENDING)
+        .setFilter(classKey);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
 
-    
+    // Store the date and number of visits into two separate lists
+    for (Entity entity : results.asIterable()) {
+      Date date = (Date) entity.getProperty("date");
+      long visitsForThisDate = (long) entity.getProperty("numVisits");
 
+      dates.add(date);
+      classVisits.add(visitsForThisDate);
+    }
   }
 }
