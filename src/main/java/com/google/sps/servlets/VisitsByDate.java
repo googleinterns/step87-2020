@@ -61,5 +61,7 @@ public class VisitsByDate extends HttpServlet {
       dates.add(date);
       classVisits.add(visitsForThisDate);
     }
+
+    
   }
 }
