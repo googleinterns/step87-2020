@@ -67,21 +67,34 @@
 
       fetch(request).then(response => response.json()).then((helpedBy) => {
         if (helpedBy == "null"){
-            document.getElementById("beingHelped").innerText = "You are done being helped."
+            document.getElementById("beingHelped").innerText = "You are done being helped.";
+            clearInterval(repeat);
 
-        } else{
+        } else {
             document.getElementById("beingHelped").innerText = "You are being helped by " + helpedBy;
-
+            getWorkspace(params);
         }
-        
       });
+    }
 
+    function getWorkspace(params){
+      const request = new Request("/get-student-workspace" + params, {method: "GET"});
+      fetch(request).then(response => response.json()).then((link) => {
+        if (link == "null") {
+          document.getElementById("workspaceRedirect").href = "";
+          document.getElementById("workspaceRedirect").innerText = "";
+        } else {
+          document.getElementById("workspaceRedirect").href = link;
+          document.getElementById("workspaceRedirect").innerText = "go to workspace";
+        }
+      });
     }
 
   </script>
 
   <body onload="getToken()">
     <h1 id = "beingHelped"> </h1>
+    <a href="" id = "workspaceRedirect" style="text-decoration: none;"></a>
 
     <div id="queue_status">
       <h1>you are</h1>
