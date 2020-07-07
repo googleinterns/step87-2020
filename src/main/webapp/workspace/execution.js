@@ -3,6 +3,9 @@ outputVisible = false;
 getFirebaseRef().child("environment").on("value", snap => {
   if (snap.val() !== null) {
     document.getElementById("executeButton").classList.remove("hidden");
+    if (!outputVisible) {
+      toggleOutput();
+    }
   }
 });
 
