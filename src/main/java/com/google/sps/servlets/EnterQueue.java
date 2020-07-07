@@ -7,6 +7,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.CompositeFilter;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
@@ -85,23 +86,23 @@ public final class EnterQueue extends HttpServlet {
             Filter dateVisitFilter = new FilterPredicate("date", FilterOperator.EQUAL, currDate);
             CompositeFilter visitFilter =
                 CompositeFilterOperator.and(dateVisitFilter, classVisitFilter);
-            Query query = new Query("Visit").setFilter(visitFilter);
+            PreparedQuery query = datastore.prepare(new Query("Visit").setFilter(visitFilter));
 
             // Get visit entity for particular day
             Entity visitEntity;
-            if (datastore.prepare(query).countEntities() == 0) {
+            if (query.countEntities() == 0) {
               visitEntity = new Entity("Visit");
               visitEntity.setProperty("classKey", classKey);
               visitEntity.setProperty("date", currDate);
               visitEntity.setProperty("numVisits", (long) 0);
             } else {
-              visitEntity = datastore.prepare(query).asSingleEntity();
+              visitEntity = query.asSingleEntity();
             }
 
             long numVisits = (long) visitEntity.getProperty("numVisits");
             ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
 
-            //Update studentQueue and numVisit properties
+            // Update studentQueue and numVisit properties
             if (!updatedQueue.contains(userID)) {
               updatedQueue.add(userID);
               numVisits++;
