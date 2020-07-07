@@ -106,6 +106,8 @@ public class ExecuteCode extends HttpServlet {
                         }
                       });
 
+          // Without this sometimes the adapter will complete with out eny output.
+          // This may be because the container is started before the adapter is added.
           Thread.sleep(100);
           docker.startContainerCmd(container.getId()).exec();
 
