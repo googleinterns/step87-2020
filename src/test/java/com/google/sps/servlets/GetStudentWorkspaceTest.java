@@ -58,7 +58,7 @@ public class GetStudentWorkspaceTest {
   }
 
   @Test
-  public void helpedBy() throws Exception {
+  public void getLink() throws Exception {
     Entity init = new Entity("Class");
     ArrayList<String> setQueue = new ArrayList<String>(Arrays.asList("uID1", "uID2"));
 
