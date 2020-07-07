@@ -9,6 +9,10 @@ import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.sps.workspace.Workspace;
 import com.google.sps.workspace.WorkspaceArchive.ArchiveType;
 import com.google.sps.workspace.WorkspaceFactory;
@@ -50,10 +54,16 @@ public class ExecuteCode extends HttpServlet {
     String args[] = body.split(",");
 
     String workspaceID = args[0];
-    String image = args[1];
-    String executionID = args[2];
+    String executionID = args[1];
 
     try {
+      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+      Workspace w = workspaceFactory.fromWorkspaceID(workspaceID);
+      String image =
+          (String)
+              datastore.get(KeyFactory.stringToKey(w.getEnvironment().get())).getProperty("image");
+
       if (docker
           .pullImageCmd(image)
           .exec(new ResultCallback.Adapter<>())
@@ -71,7 +81,6 @@ public class ExecuteCode extends HttpServlet {
           PipedOutputStream tarOut = new PipedOutputStream();
           PipedInputStream tarIn = new PipedInputStream(tarOut);
 
-          Workspace w = workspaceFactory.fromWorkspaceID(workspaceID);
           w.getArchive(ArchiveType.TAR).archive(tarOut);
 
           docker.copyArchiveToContainerCmd(container.getId()).withTarInputStream(tarIn).exec();
@@ -115,7 +124,7 @@ public class ExecuteCode extends HttpServlet {
       } else {
         resp.sendError(HttpServletResponse.SC_REQUEST_TIMEOUT);
       }
-    } catch (InterruptedException e) {
+    } catch (InterruptedException | EntityNotFoundException | ExecutionException e) {
       resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
   }
