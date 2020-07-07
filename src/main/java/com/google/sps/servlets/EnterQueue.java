@@ -22,9 +22,10 @@ import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.Date;
 import java.util.List;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -73,57 +74,34 @@ public final class EnterQueue extends HttpServlet {
             Key classKey = KeyFactory.stringToKey(classCode);
             Entity classEntity = datastore.get(txn, classKey);
 
-            // Get date in mm/dd/yyyy format
-            DateTimeFormatter FOMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+            // Get date
             LocalDate localDate = LocalDate.now(clock);
-            String currDate = FOMATTER.format(localDate);
+            ZoneId defaultZoneId = ZoneId.systemDefault();
+            Date currDate = Date.from(localDate.atStartOfDay(defaultZoneId).toInstant());
 
+            // Query visit entity for particular day
             Filter classVisitFilter =
-                new FilterPredicate("classCode", FilterOperator.EQUAL, classCode);
-
+                new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
             Filter dateVisitFilter = new FilterPredicate("date", FilterOperator.EQUAL, currDate);
-
             CompositeFilter visitFilter =
                 CompositeFilterOperator.and(dateVisitFilter, classVisitFilter);
-
-            int retries2 = 10;
-            while (true) {
-              Transaction txn2 = datastore.beginTransaction();
-              try {
-                Query checkAddNew = new Query("Visit").setFilter(visitFilter);
-
-                if (datastore.prepare(checkAddNew).countEntities() == 0) {
-                  Entity newVisitEntity = new Entity("Visit");
-
-                  newVisitEntity.setProperty("classCode", classCode);
-                  newVisitEntity.setProperty("date", currDate);
-                  newVisitEntity.setProperty("numVisits", 0);
-
-                  datastore.put(txn2, newVisitEntity);
-                }
-
-                txn2.commit();
-                break;
-              } catch (ConcurrentModificationException e) {
-                if (retries2 == 0) {
-                  throw e;
-                }
-                // Allow retry to occur
-                --retries2;
-              } finally {
-                if (txn2.isActive()) {
-                  txn2.rollback();
-                }
-              }
-            }
-
             Query query = new Query("Visit").setFilter(visitFilter);
 
-            Entity visitEntity = datastore.prepare(query).asSingleEntity();
-            Long numVisits = (Long) visitEntity.getProperty("numVisits");
+            // Get visit entity for particular day
+            Entity visitEntity;
+            if (datastore.prepare(query).countEntities() == 0) {
+              visitEntity = new Entity("Visit");
+              visitEntity.setProperty("classKey", classKey);
+              visitEntity.setProperty("date", currDate);
+              visitEntity.setProperty("numVisits", (long) 0);
+            } else {
+              visitEntity = datastore.prepare(query).asSingleEntity();
+            }
 
+            long numVisits = (long) visitEntity.getProperty("numVisits");
             ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
 
+            //Update studentQueue and numVisit properties
             if (!updatedQueue.contains(userID)) {
               updatedQueue.add(userID);
               numVisits++;

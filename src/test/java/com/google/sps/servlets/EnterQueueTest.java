@@ -29,6 +29,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
@@ -61,6 +62,14 @@ public class EnterQueueTest {
 
   private Clock fixedClock;
   private static final LocalDate LOCAL_DATE = LocalDate.of(2020, 07, 06);
+  private static final Date DATE =
+      Date.from(LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+  private Filter classVisitFilter;
+  private Filter dateVisitFilter;
+  private CompositeFilter visitFilter;
+  private Query visitQuery;
+  private Entity init;
 
   @Before
   public void setUp() {
@@ -74,6 +83,14 @@ public class EnterQueueTest {
             LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
     doReturn(fixedClock.instant()).when(clock).instant();
     doReturn(fixedClock.getZone()).when(clock).getZone();
+
+    init = new Entity("Class");
+
+    classVisitFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, init.getKey());
+    dateVisitFilter = new FilterPredicate("date", FilterOperator.EQUAL, DATE);
+    visitFilter = CompositeFilterOperator.and(dateVisitFilter, classVisitFilter);
+
+    visitQuery = new Query("Visit").setFilter(visitFilter);
   }
 
   @After
@@ -89,8 +106,6 @@ public class EnterQueueTest {
 
   @Test
   public void addFirstStudentToQueue() throws Exception {
-    Entity init = new Entity("Class");
-
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
@@ -113,24 +128,13 @@ public class EnterQueueTest {
     assertEquals(1, testQueue.size());
     assertEquals("studentID", testQueue.get(0));
 
-    Filter classVisitFilter =
-        new FilterPredicate(
-            "classCode", FilterOperator.EQUAL, KeyFactory.keyToString(init.getKey()));
-
-    Filter dateVisitFilter = new FilterPredicate("date", FilterOperator.EQUAL, "07/06/2020");
-
-    CompositeFilter visitFilter = CompositeFilterOperator.and(dateVisitFilter, classVisitFilter);
-
-    Entity testVisitEntity =
-        datastore.prepare(new Query("Visit").setFilter(visitFilter)).asSingleEntity();
+    Entity testVisitEntity = datastore.prepare(visitQuery).asSingleEntity();
     assertEquals(1, (long) testVisitEntity.getProperty("numVisits"));
-    assertEquals("07/06/2020", (String) testVisitEntity.getProperty("date"));
+    assertEquals(DATE, (Date) testVisitEntity.getProperty("date"));
   }
 
   @Test
   public void addUniqueStudentToQueue() throws Exception {
-    Entity init = new Entity("Class");
-
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
@@ -141,13 +145,14 @@ public class EnterQueueTest {
 
     Entity visitInit = new Entity("Visit");
 
-    visitInit.setProperty("classCode", KeyFactory.keyToString(init.getKey()));
-    visitInit.setProperty("date", "07/06/2020");
+    visitInit.setProperty("classKey", init.getKey());
+    visitInit.setProperty("date", DATE);
     visitInit.setProperty("numVisits", 1);
 
     datastore.put(visitInit);
 
     when(httpRequest.getParameter("enterTA")).thenReturn(null);
+
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
 
@@ -165,24 +170,13 @@ public class EnterQueueTest {
     assertEquals(2, testQueue.size());
     assertEquals("uID", testQueue.get(1));
 
-    Filter classVisitFilter =
-        new FilterPredicate(
-            "classCode", FilterOperator.EQUAL, KeyFactory.keyToString(init.getKey()));
-
-    Filter dateVisitFilter = new FilterPredicate("date", FilterOperator.EQUAL, "07/06/2020");
-
-    CompositeFilter visitFilter = CompositeFilterOperator.and(dateVisitFilter, classVisitFilter);
-
-    Entity testVisitEntity =
-        datastore.prepare(new Query("Visit").setFilter(visitFilter)).asSingleEntity();
+    Entity testVisitEntity = datastore.prepare(visitQuery).asSingleEntity();
     assertEquals(2, (long) testVisitEntity.getProperty("numVisits"));
-    assertEquals("07/06/2020", (String) testVisitEntity.getProperty("date"));
+    assertEquals(DATE, (Date) testVisitEntity.getProperty("date"));
   }
 
   @Test
   public void addDuplicateStudentToQueue() throws Exception {
-    Entity init = new Entity("Class");
-
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
@@ -193,8 +187,8 @@ public class EnterQueueTest {
 
     Entity visitInit = new Entity("Visit");
 
-    visitInit.setProperty("classCode", KeyFactory.keyToString(init.getKey()));
-    visitInit.setProperty("date", "07/06/2020");
+    visitInit.setProperty("classKey", init.getKey());
+    visitInit.setProperty("date", DATE);
     visitInit.setProperty("numVisits", 1);
 
     datastore.put(visitInit);
@@ -218,18 +212,15 @@ public class EnterQueueTest {
     assertEquals(1, testQueue.size());
     assertEquals("uID", testQueue.get(0));
 
-    Filter classVisitFilter =
-        new FilterPredicate(
-            "classCode", FilterOperator.EQUAL, KeyFactory.keyToString(init.getKey()));
+    Filter classVisitFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, init.getKey());
 
-    Filter dateVisitFilter = new FilterPredicate("date", FilterOperator.EQUAL, "07/06/2020");
+    Filter dateVisitFilter = new FilterPredicate("date", FilterOperator.EQUAL, DATE);
 
     CompositeFilter visitFilter = CompositeFilterOperator.and(dateVisitFilter, classVisitFilter);
 
-    Entity testVisitEntity =
-        datastore.prepare(new Query("Visit").setFilter(visitFilter)).asSingleEntity();
+    Entity testVisitEntity = datastore.prepare(visitQuery).asSingleEntity();
     assertEquals(1, (long) testVisitEntity.getProperty("numVisits"));
-    assertEquals("07/06/2020", (String) testVisitEntity.getProperty("date"));
+    assertEquals(DATE, (Date) testVisitEntity.getProperty("date"));
   }
 
   @Test
