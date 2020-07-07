@@ -19,6 +19,7 @@ import com.google.appengine.api.datastore.TransactionOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.time.Clock;
@@ -135,7 +136,11 @@ public final class EnterQueue extends HttpServlet {
 
         List<String> taList = (List<String>) classEntity.getProperty("taList");
 
-        if (taList.contains(userID)) {
+        // Get user email
+        UserRecord userRecord = authInstance.getUser(userID);
+        String userEmail = userRecord.getEmail();
+
+        if (taList.contains(userEmail)) {
           response.sendRedirect("/queue/ta.html?classCode=" + classCode);
         } else {
           response.sendError(HttpServletResponse.SC_FORBIDDEN);
