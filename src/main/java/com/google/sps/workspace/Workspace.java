@@ -101,6 +101,32 @@ public class Workspace {
     return future;
   }
 
+  public Future<String> getEnvironment() {
+    CompletableFuture<String> future = new CompletableFuture<>();
+
+    reference
+        .child("environment")
+        .addListenerForSingleValueEvent(
+            new ValueEventListener() {
+
+              @Override
+              public void onDataChange(DataSnapshot snapshot) {
+                future.complete((String) snapshot.getValue());
+              }
+
+              @Override
+              public void onCancelled(DatabaseError error) {
+                future.completeExceptionally(error.toException());
+              }
+            });
+
+    return future;
+  }
+
+  public void setEnvironment(String envKey) throws InterruptedException, ExecutionException {
+    reference.child("environment").setValueAsync(envKey).get();
+  }
+
   public String newDownloadID() {
     return reference.child("downloads").push().getKey();
   }
