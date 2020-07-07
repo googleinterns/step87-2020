@@ -1,6 +1,6 @@
 body {
   text-align: center;
-  background-color: #ADDCF5;
+  background-color: #C2E1FF;
 }
 
 #bar-chart{
@@ -17,7 +17,7 @@ body {
   overflow-x: hidden;
   padding-top: 20px;
   left: 0;
-  background-color: #082f44;
+  background-color: #031430;
   color: white;
 }
 
@@ -30,7 +30,7 @@ body {
   overflow-x: hidden;
   padding-top: 20px;
   right: 0;
-  background-color: #bbe2f7;
+  background-color: #C2E1FF;
 }
 
 .centered {
@@ -54,7 +54,7 @@ body {
 .ta-form label > span{
   float: left;
   width: 200px;
-  color: #082f44;
+  color: #031430;
   font-weight: bold;
   font-size: 15px;
   text-shadow: 1px 1px 1px #fff;
@@ -63,54 +63,55 @@ body {
 .ta-form fieldset{
   border-radius: 10px;
   margin: 0px 0px 10px 0px;
-  border: 1px solid #e8f5fc;
+  border: 1px solid #C2E1FF;
   padding: 20px;
-  background: #bbe2f7;
-  box-shadow: inset 0px 0px 15px #e8f5fc;
+  color: #C2E1FF;
+  background: #2457AA;
+  box-shadow: inset 0px 0px 15px #C2E1FF;
 }
 
 /* "Add a TA by Email" */
 .ta-form fieldset legend{
-  color: #082f44;
-  border-top: 1px solid #e8f5fc;
-  border-left: 1px solid #e8f5fc;
-  border-right: 1px solid #e8f5fc;
+  color: #C2E1FF;
+  border-top: 1px solid #C2E1FF;
+  border-left: 1px solid #C2E1FF;
+  border-right: 1px solid #C2E1FF;
   border-radius: 5px 5px 0px 0px;
-  background: #bbe2f7;
+  background: #2457AA;
   padding: 0px 8px 3px 8px;
-  box-shadow: -0px -1px 2px #e8f5fc;
+  box-shadow: -0px -1px 2px #C2E1FF;
   font-weight: normal;
   font-size: 14px;
 }
 
 .ta-form textarea{
-  width:350px;
-  height:100px;
+  width: 350px;
+  height: 100px;
 }
 
 .ta-form input[type=text],
 /* Area for entering the email */
 .ta-form textarea{
   border-radius: 3px;
-  border: 1px solid #e8f5fc;
+  border: 1px solid #C2E1FF;
   outline: none;
-  color: #082f44;
+  color: #C2E1FF;
   padding: 5px 8px 5px 8px;
-  box-shadow: inset 1px 1px 4px #e8f5fc;
-  background: white;
+  box-shadow: inset 1px 1px 4px #C2E1FF;
+  background: #C2E1FF;
   width:85%;
 }
 
 .ta-form  input[type=submit],
 
 .required{
-  color: red;
+  color: #E68A75;
   font-weight: normal;
 }
 
 #submitButton {
-  background-color: #082f44;
-  color: white;
+  background-color: #031430;
+  color: #C2E1FF;
   margin-top: 10px;
   font-size: 14px;
 }
