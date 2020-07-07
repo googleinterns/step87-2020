@@ -34,5 +34,20 @@ public class VisitsByDate extends HttpServlet {
       throw new ServletException(e);
     }
   }
-  
+
+  // Obtain a query of class visits, filter by unique class, and store the visits by date
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+    ArrayList<Date> dates = new ArrayList<Date>();
+    ArrayList<Long> visitsForThisClass = new ArrayList<Long>();
+    
+    // Obtain visits from datastore and filter them into results query
+    Query query = new Query("Visit");
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery results = datastore.prepare(query);
+
+    
+
+  }
 }
