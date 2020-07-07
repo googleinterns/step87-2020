@@ -30,9 +30,13 @@
       var user = firebase.auth().currentUser;
       firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
+          console.log("User is signed in");
           user.getIdToken().then((token) => setToken(token));
-        } else {
-            console.log("user not logged in");
+        } 
+        // Redirect to home page if not logged in
+        else {
+          console.log("User is not logged in");
+          window.location.href = "/";
         }
       });
     }
@@ -45,10 +49,10 @@
     function getQueue() {
       var params = window.location.search;
       const request = new Request("/get-queue" + params, {method: "GET"});
-      document.getElementById('queue').innerHTML = "";
 
       fetch(request).then(response => response.json()).then((queue) => {
         const queueListElement = document.getElementById('queue');
+        queueListElement.innerText = "";
         queue.forEach((studentEmail) => {
           queueListElement.appendChild(createListElement(studentEmail));
         })
@@ -68,7 +72,7 @@
     function endHelp(studentEmail){
       var params = window.location.search + "&studentEmail=" + studentEmail + "&taToken=" + taToken;
       const request = new Request("/end-help" + params, {method: "POST"});
-      document.getElementById('beingHelped').innerHTML = "";
+      document.getElementById('beingHelped').innerText = "";
       
       fetch(request);
 

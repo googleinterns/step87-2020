@@ -70,15 +70,24 @@ public class EndHelpTest {
   @Test
   public void doneHelping() throws Exception {
     Entity init = new Entity("Class");
+    ArrayList<String> setQueue = new ArrayList<String>(Arrays.asList("uID1", "uID2"));
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
-    init.setProperty("studentQueue", new ArrayList(Arrays.asList("test2")));
-    init.setProperty("visitKey", "visitKey");
+    init.setProperty("studentQueue", setQueue);
+
+    EmbeddedEntity queueInfo = new EmbeddedEntity();
+    queueInfo.setProperty("taID", "taID");
+    queueInfo.setProperty("workspaceID", "workspaceID");
+
+    EmbeddedEntity queueInfo2 = new EmbeddedEntity();
+    queueInfo2.setProperty("taID", "ta3ID");
+    queueInfo2.setProperty("workspaceID", "workspaceID");
 
     EmbeddedEntity beingHelped = new EmbeddedEntity();
-    beingHelped.setProperty("test1", "taID");
-    beingHelped.setProperty("test3", "ta3ID");
+    beingHelped.setProperty("test1", queueInfo);
+    beingHelped.setProperty("test3", queueInfo2);
+
     init.setProperty("beingHelped", beingHelped);
 
     datastore.put(init);
@@ -103,11 +112,10 @@ public class EndHelpTest {
     ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
     assertEquals(
         KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
-    assertEquals(1, testQueue.size());
-    assertEquals("test2", testQueue.get(0));
+    assertEquals(2, testQueue.size());
 
     EmbeddedEntity got = (EmbeddedEntity) testClassEntity.getProperty("beingHelped");
-    assertThat((String) got.getProperty("test1")).named("got.test1").isNull();
-    assertThat((String) got.getProperty("test3")).named("got.test3").isNotNull();
+    assertThat((EmbeddedEntity) got.getProperty("test1")).isNull();
+    assertThat((EmbeddedEntity) got.getProperty("test3")).isNotNull();
   }
 }

@@ -13,6 +13,7 @@ import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.sps.workspace.Workspace;
 import com.google.sps.workspace.WorkspaceArchive;
+import com.google.sps.workspace.WorkspaceArchive.ArchiveType;
 import com.google.sps.workspace.WorkspaceFactory;
 import java.io.BufferedReader;
 import java.io.OutputStream;
@@ -55,7 +56,7 @@ public class PrepareDownloadTest {
     when(workspaceFactory.fromWorkspaceID(eq(workspaceID))).thenReturn(workspace);
     when(instance.createOrReplace(any(GcsFilename.class), any(GcsFileOptions.class)))
         .thenReturn(outputChannel);
-    when(workspace.getArchive()).thenReturn(archive);
+    when(workspace.getArchive(ArchiveType.ZIP)).thenReturn(archive);
 
     servlet.doPost(req, resp);
 

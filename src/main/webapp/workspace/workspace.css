@@ -97,7 +97,7 @@ body {
   background-color: var(--permanent-tab-hover);
 }
 
-.active-tab:hover, .inactive-tab:hover {
+.active-tab:hover, .inactive-tab:hover, .dragOver {
   background-color: var(--tab-hover-color);
 }
 

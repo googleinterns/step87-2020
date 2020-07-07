@@ -30,9 +30,13 @@
       var user = firebase.auth().currentUser;
       firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
+          console.log("User is signed in");
           user.getIdToken().then((token) => setToken(token));
-        } else {
-            console.log("user not logged in");
+        } 
+        // Redirect to home page if not logged in
+        else {
+          console.log("User is not logged in");
+          window.location.href = "/";
         }
       });
     }
@@ -50,7 +54,6 @@
           document.getElementById("queue_status").innerText = "";
           getTA();
       
-      fetch(request);
         } 
         else {
             document.getElementById("studentPosition").innerText = "#" + studentPosition;
@@ -63,7 +66,14 @@
       const request = new Request("/get-ta" + params, {method: "GET"});
 
       fetch(request).then(response => response.json()).then((helpedBy) => {
-        document.getElementById("beingHelped").innerText = "You are being helped by " + helpedBy;
+        if (helpedBy == "null"){
+            document.getElementById("beingHelped").innerText = "You are done being helped."
+
+        } else{
+            document.getElementById("beingHelped").innerText = "You are being helped by " + helpedBy;
+
+        }
+        
       });
 
     }
