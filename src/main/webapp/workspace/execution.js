@@ -3,11 +3,23 @@ outputVisible = false;
 getFirebaseRef().child("environment").on("value", snap => {
   if (snap.val() !== null) {
     document.getElementById("executeButton").classList.remove("hidden");
-    if (!outputVisible) {
-      toggleOutput();
-    }
   }
 });
+
+
+function toggleOutput() {
+  document.getElementById("output-container").classList.toggle("hidden");
+  
+  if(outputVisible) {
+    document.getElementById("output-minimize-button").innerText = String.fromCodePoint(0x25B2);
+  } else {
+    document.getElementById("output-minimize-button").innerText = String.fromCodePoint(0x25BC);
+  }
+
+  outputVisible = !outputVisible;
+
+  tabs[currentTab].editor.layout();
+}
 
 function executeCode() {
   const executeButton = document.getElementById("executeButton");
@@ -28,22 +40,12 @@ function executeCode() {
             executeButton.disabled = false;
             executeButton.classList.remove("download-in-progress");
             getFirebaseRef().child("executions").child(execID).off("value");
+            
+            if (!outputVisible) {
+              toggleOutput();
+            }        
           }
         });
       });
   });
-}
-
-function toggleOutput() {
-  document.getElementById("output-container").classList.toggle("hidden");
-  
-  if(outputVisible) {
-    document.getElementById("output-minimize-button").innerText = String.fromCodePoint(0x25B2);
-  } else {
-    document.getElementById("output-minimize-button").innerText = String.fromCodePoint(0x25BC);
-  }
-
-  outputVisible = !outputVisible;
-
-  tabs[currentTab].editor.layout();
 }
