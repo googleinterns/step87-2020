@@ -66,7 +66,7 @@ public class GetStudentWorkspace extends HttpServlet {
         String workspaceID = (String) queueInfo.getProperty("workspaceID");
 
         // Build workspace link
-        String workspaceLink = "/workspace?workspaceID=" + workspaceID;
+        String workspaceLink = "/workspace/?workspaceID=" + workspaceID;
 
         response.setContentType("application/json;");
         response.getWriter().print(gson.toJson(workspaceLink));

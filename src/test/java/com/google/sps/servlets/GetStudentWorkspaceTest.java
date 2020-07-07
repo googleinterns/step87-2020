@@ -88,11 +88,11 @@ public class GetStudentWorkspaceTest {
     PrintWriter writer = new PrintWriter(stringWriter);
     when(httpResponse.getWriter()).thenReturn(writer);
 
-    when(gson.toJson("/workspace?workspaceID=workspaceID"))
-        .thenReturn("/workspace?workspaceID=workspaceID");
+    when(gson.toJson("/workspace/?workspaceID=workspaceID"))
+        .thenReturn("/workspace/?workspaceID=workspaceID");
 
     getWorkspace.doGet(httpRequest, httpResponse);
 
-    assertEquals("/workspace?workspaceID=workspaceID", stringWriter.toString());
+    assertEquals("/workspace/?workspaceID=workspaceID", stringWriter.toString());
   }
 }
