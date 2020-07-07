@@ -41,6 +41,8 @@ public final class EnterQueue extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
   private Clock clock;
+  public static final String TA_QUEUE = "/queue/ta.html?classCode=";
+  public static final String STUDENT_QUEUE = "/queue/student.html?classCode=";
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -129,7 +131,7 @@ public final class EnterQueue extends HttpServlet {
             }
           }
         }
-        response.sendRedirect("/queue/student.html?classCode=" + classCode);
+        response.sendRedirect(STUDENT_QUEUE + classCode);
       } else {
         Key classKey = KeyFactory.stringToKey(classCode);
         Entity classEntity = datastore.get(classKey);
@@ -141,7 +143,7 @@ public final class EnterQueue extends HttpServlet {
         String userEmail = userRecord.getEmail();
 
         if (taList.contains(userEmail)) {
-          response.sendRedirect("/queue/ta.html?classCode=" + classCode);
+          response.sendRedirect(TA_QUEUE + classCode);
         } else {
           response.sendError(HttpServletResponse.SC_FORBIDDEN);
         }

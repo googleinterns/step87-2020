@@ -26,6 +26,7 @@ public class GetTAWorkspace extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
   private Gson gson;
+  public static final String WORKSPACE = "/workspace/?workspaceID=";
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -61,7 +62,7 @@ public class GetTAWorkspace extends HttpServlet {
       String workspaceID = (String) queueInfo.getProperty("workspaceID");
 
       // Build workspace link
-      String workspaceLink = "/workspace/?workspaceID=" + workspaceID;
+      String workspaceLink = WORKSPACE + workspaceID;
 
       response.setContentType("application/json;");
       response.getWriter().print(gson.toJson(workspaceLink));
