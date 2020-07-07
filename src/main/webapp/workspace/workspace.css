@@ -132,3 +132,8 @@ body {
 .jitsi-button:focus {
   outline: none;
 }
+
+#output-container {
+  height: 300px;
+  flex-shrink: 0;
+}
