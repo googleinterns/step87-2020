@@ -17,8 +17,14 @@
         ".read": "root.child($workspaceID).child('student').val() === auth.uid || root.child($workspaceID).child('ta').val() === auth.uid",
         ".write": "root.child($workspaceID).child('student').val() === auth.uid || root.child($workspaceID).child('ta').val() === auth.uid"
       },
-      // Downloads are read-only by clients.
+      // Downloads, executions, and environment are read-only by clients.
       "downloads": {
+        ".read": "root.child($workspaceID).child('student').val() === auth.uid || root.child($workspaceID).child('ta').val() === auth.uid"
+      },
+      "executions": {
+        ".read": "root.child($workspaceID).child('student').val() === auth.uid || root.child($workspaceID).child('ta').val() === auth.uid"
+      },
+      "environment": {
         ".read": "root.child($workspaceID).child('student').val() === auth.uid || root.child($workspaceID).child('ta').val() === auth.uid"
       }
     }
