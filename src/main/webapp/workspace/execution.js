@@ -1,3 +1,5 @@
+outputVisible = false;
+
 getFirebaseRef().child("environment").on("value", snap => {
   if (snap.val() !== null) {
     document.getElementById("executeButton").classList.remove("hidden");
@@ -27,4 +29,18 @@ function executeCode() {
         });
       });
   });
+}
+
+function toggleOutput() {
+  document.getElementById("output-container").classList.toggle("hidden");
+  
+  if(outputVisible) {
+    document.getElementById("output-minimize-button").innerText = String.fromCodePoint(0x25B2);
+  } else {
+    document.getElementById("output-minimize-button").innerText = String.fromCodePoint(0x25BC);
+  }
+
+  outputVisible = !outputVisible;
+
+  tabs[currentTab].editor.layout();
 }
