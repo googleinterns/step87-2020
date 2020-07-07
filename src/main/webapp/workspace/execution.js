@@ -13,8 +13,15 @@ function executeCode() {
       .then(resp => resp.text()).then(execID => {
         getFirebaseRef().child("executions").child(execID).on("value", snap => {
           if (snap.val() !== null) {
-            console.log(snap.val());
+            const pre = document.createElement("pre");
+            pre.innerText = snap.val();
 
+            const outputContainer = document.getElementById("output-container");
+            outputContainer.innerHTML = "";
+            outputContainer.appendChild(pre);
+
+            executeButton.disabled = false;
+            executeButton.classList.remove("download-in-progress");
             getFirebaseRef().child("executions").child(execID).off("value");
           }
         });

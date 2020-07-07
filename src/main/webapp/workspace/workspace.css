@@ -146,4 +146,6 @@ body {
 #output-container {
   height: 300px;
   flex-shrink: 0;
+  overflow: scroll;
+  color: var(--text-color);
 }
