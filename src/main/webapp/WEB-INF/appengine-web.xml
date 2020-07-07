@@ -15,5 +15,10 @@
   <env-variables>
     <env-var name="DOWNLOAD_QUEUE_ID" value="download-queue" />
     <env-var name="LOCATION_ID" value="us-central1" />
+    <env-var name="DOCKER_HOST" value="tcp://10.128.0.38:2376" />
+    <env-var name="DOCKER_TLS_VERIFY" value="false" />
   </env-variables>
+  <vpc-access-connector>
+    <name>projects/fulfillment-deco-step-2020/locations/us-central1/connectors/appengine-connector</name>
+  </vpc-access-connector>
 </appengine-web-app>
