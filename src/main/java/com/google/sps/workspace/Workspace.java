@@ -110,6 +110,15 @@ public class Workspace {
     reference.child("downloads").child(downloadID).setValueAsync(name).get();
   }
 
+  public String newExecutionID() {
+    return reference.child("executions").push().getKey();
+  }
+
+  public void updateExecutionOutput(String executionID, String output)
+      throws InterruptedException, ExecutionException {
+    reference.child("executions").child(executionID).setValueAsync(output).get();
+  }
+
   /** @return the workspaceID */
   public String getWorkspaceID() {
     return reference.getKey();
