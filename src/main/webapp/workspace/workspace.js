@@ -2,6 +2,21 @@ let tabs = {};
 let currentTab;
 let jitsiVisible = false;
 
+/* jshint ignore:start */
+function defineTheme() {
+  monaco.editor.defineTheme('dark-mode', {
+    base: 'vs-dark', // can also be vs-dark or hc-black
+    inherit: true, // can also be false to completely replace the builtin rules
+    rules: [
+      { token: '', foreground: 'D4D4D4', background: '000000' }
+    ],
+    colors: {
+      "editor.background": '#000000',
+      "editor.foreground": '#D4D4D4' 
+    }
+  });
+}
+
 /**
  * Gets the base firebase reference for this workspace.
  */
@@ -67,6 +82,78 @@ function decodeFileName(filename) {
   return decodeURIComponent(filename.replace(/%2E/g, "."));
 }
 
+function createTabButton(filename) {
+  const tab = document.createElement("button");
+  tab.classList.add("inactive-tab", "tab");
+  tab.innerText = filename;
+  tab.draggable = true;
+
+  tab.addEventListener("dragstart", (event) => {
+    switchTab(filename);
+
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData('text/plain', filename);
+  });
+
+  tab.addEventListener("dragover", (event) => {
+    if (event.preventDefault) {
+      event.preventDefault();
+    }
+
+    event.dataTransfer.dropEffect = "move";
+
+    return false;
+  });
+
+  tab.addEventListener("dragenter", (event) => {
+    tab.classList.add("dragOver");
+  });
+
+  tab.addEventListener("dragleave", (event) => {
+    tab.classList.remove("dragOver");
+  });
+
+  tab.addEventListener("dragend", (event) => {
+    const dragOverEles = document.getElementsByClassName("dragOver");
+    for (var i = 0; i < dragOverEles.length; i++) {
+      dragOverEles[i].classList.remove("dragOver");
+    }
+  });
+
+  tab.addEventListener("drop", (event) => {
+    if(event.stopPropagation) {
+      event.stopPropagation();
+    }
+
+    const otherFilename = event.dataTransfer.getData('text/plain');
+
+    if (otherFilename !== filename) {
+      const otherTab = tabs[otherFilename].tabButton;
+      const tabsContiner = document.getElementById("tabs-container");
+      const thisIndex = Array.from(tabsContiner.children).indexOf(tab);
+      const otherIndex = Array.from(tabsContiner.children).indexOf(otherTab);
+
+      if(otherIndex < thisIndex) {
+        // Insert after this tab
+        otherTab.remove();
+        tabsContiner.insertBefore(otherTab, tab.nextSibling);
+      } else {
+        // Insert before this tab
+        otherTab.remove();
+        tabsContiner.insertBefore(otherTab, tab);
+      }
+    }
+
+    return false;
+  });
+
+  tab.onclick = (event) => {
+    switchTab(filename);
+  };
+
+  return tab;
+}
+
 /**
  * Creates a new tab with the given filename and the given contents.
  * @param {String} filename The filename for the tab.
@@ -79,13 +166,7 @@ function createNewTab(filename, contents) {
     // twice in the firebase child_added callback.
     tabs[filename] = {};
 
-    const tab = document.createElement("button");
-    tab.classList.add("inactive-tab", "tab");
-    tab.innerText = filename;
-
-    tab.onclick = (event) => {
-      switchTab(filename);
-    };
+    const tab = createTabButton(filename);
 
     const firepadContainer = document.createElement("div");
     firepadContainer.classList.add("hidden", "firepad-container");
@@ -98,7 +179,7 @@ function createNewTab(filename, contents) {
 
     const editor = monaco.editor.create(firepadContainer, {
       language: language,
-      theme: "vs-dark"
+      theme: "dark-mode"
     });
 
     //Use LF
@@ -127,56 +208,6 @@ function createNewTab(filename, contents) {
 
 }
 
-function leftJitsi() {
-  document.getElementById("jitsi-window").innerHTML = "";
-  document.getElementById("jitsi-container").classList.add("hidden");
-
-  const button = document.getElementById("jitsi-join");
-  button.innerText = "Join Meeting";
-  button.onclick = addJitsiWindow;
-
-  jitsiVisible = false;
-}
-
-function toggleJitsi() {
-  const button = document.getElementById("toggleJitsiButton");
-  const jitsiWindow = document.getElementById("jitsi-window");
-
-  if (jitsiVisible) {
-    jitsiWindow.classList.add("hidden");
-    button.innerText = "Show Jitsi";
-  } else {
-    jitsiWindow.classList.remove("hidden");
-    button.innerText = "Hide Jitsi";
-  }
-
-  jitsiVisible = !jitsiVisible;
-}
-
-function addJitsiWindow() { // jshint ignore:line
-  jitsiVisible = true;
-
-  const jitsiJoin = document.getElementById("jitsi-join");
-  const jitsiShow = document.getElementById("toggleJitsiButton");
-  document.getElementById("jitsi-container").classList.remove("hidden");
-
-  jitsiShow.innerText = "Hide Jitsi";
-  jitsiJoin.innerText = "Leave Meeting";
-
-  const parent = document.getElementById("jitsi-window");
-
-  const api = new JitsiMeetExternalAPI("meet.jit.si", {
-    roomName: getParam("workspaceID"),
-    height: 300,
-    width: 500,
-    parentNode: parent
-  });
-
-  jitsiJoin.onclick = () => api.executeCommand('hangup'); 
-
-  api.addEventListener("videoConferenceLeft", leftJitsi);
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("tabs-container").onwheel = scrollTabs;
 
@@ -188,6 +219,8 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let e of hiddenElements) {
       e.classList.remove("initially-hidden");
     }
+
+    defineTheme();
 
     getFirebaseRef().child("files").on("child_added", (snapshot) => {
       const filename = decodeFileName(snapshot.key);
