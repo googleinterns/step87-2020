@@ -40,7 +40,7 @@ public class AddTA extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    
+
     try {
       // Obtain the teaching assistant email and search for the user
       String teachingAssistantEmail = request.getParameter("taEmail").trim();
