@@ -49,10 +49,10 @@ public class VisitsByDate extends HttpServlet {
       ArrayList<Long> classVisits = new ArrayList<Long>();
 
       // The class filter will be the unique class's key
-      String classCode = request.getParameter("classCode").trim();
+      String classCode = request.getParameter("classCode").trim(); // Need to send in hidden parameter!!!
       Key classKey = KeyFactory.stringToKey(classCode);
 
-      Filter classFilter = new FilterPredicate("classCode", FilterOperator.EQUAL, classCode);
+      Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
 
       // Obtain visits from datastore and filter them into results query
       Query query =
