@@ -11,17 +11,18 @@ import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.sps.workspace.Workspace;
 import com.google.sps.workspace.WorkspaceArchive.ArchiveType;
 import com.google.sps.workspace.WorkspaceFactory;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -60,73 +61,75 @@ public class ExecuteCode extends HttpServlet {
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
       Workspace w = workspaceFactory.fromWorkspaceID(workspaceID);
-      String image =
-          (String)
-              datastore.get(KeyFactory.stringToKey(w.getEnvironment().get())).getProperty("image");
+      Entity env =
+          datastore.get(KeyFactory.stringToKey(w.getEnvironment().get(10, TimeUnit.SECONDS)));
+      String image = (String) env.getProperty("image");
+      String tag = (String) env.getProperty("tag");
 
-      if (docker
-          .pullImageCmd(image)
-          .exec(new ResultCallback.Adapter<>())
-          .awaitCompletion(5, TimeUnit.MINUTES)) {
+      CreateContainerResponse container =
+          docker
+              .createContainerCmd(image + ':' + tag)
+              .withAttachStdout(true)
+              .withAttachStderr(true)
+              // .withHostConfig(HostConfig.newHostConfig().withAutoRemove(true))
+              .exec();
 
-        CreateContainerResponse container =
+      try {
+        ByteArrayOutputStream tarOut = new ByteArrayOutputStream();
+
+        w.getArchive(ArchiveType.TAR).archive(tarOut);
+
+        ByteArrayInputStream tarIn = new ByteArrayInputStream(tarOut.toByteArray());
+
+        docker
+            .copyArchiveToContainerCmd(container.getId())
+            .withTarInputStream(tarIn)
+            .withRemotePath("/workspace")
+            .exec();
+
+        ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
+
+        ResultCallback.Adapter<Frame> adapter =
             docker
-                .createContainerCmd(image)
-                .withAttachStdout(true)
-                .withAttachStderr(true)
-                // .withHostConfig(HostConfig.newHostConfig().withAutoRemove(true))
-                .exec();
-
-        try {
-          PipedOutputStream tarOut = new PipedOutputStream();
-          PipedInputStream tarIn = new PipedInputStream(tarOut);
-
-          w.getArchive(ArchiveType.TAR).archive(tarOut);
-
-          docker.copyArchiveToContainerCmd(container.getId()).withTarInputStream(tarIn).exec();
-
-          ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
-
-          ResultCallback.Adapter<Frame> adapter =
-              docker
-                  .attachContainerCmd(container.getId())
-                  .withStdOut(true)
-                  .withStdErr(true)
-                  .withFollowStream(true)
-                  .exec(
-                      new ResultCallback.Adapter<Frame>() {
-                        @Override
-                        public void onNext(Frame object) {
-                          try {
-                            stdOut.write(object.getPayload());
-                            stdOut.flush();
-                          } catch (IOException e) {
-                            onError(e);
-                          }
+                .attachContainerCmd(container.getId())
+                .withStdOut(true)
+                .withStdErr(true)
+                .withFollowStream(true)
+                .exec(
+                    new ResultCallback.Adapter<Frame>() {
+                      @Override
+                      public void onNext(Frame object) {
+                        try {
+                          stdOut.write(object.getPayload());
+                          stdOut.flush();
+                        } catch (IOException e) {
+                          onError(e);
                         }
-                      });
+                      }
+                    });
 
-          // Without this sometimes the adapter will complete with out eny output.
-          // This may be because the container is started before the adapter is added.
-          Thread.sleep(100);
-          docker.startContainerCmd(container.getId()).exec();
+        // Without this sometimes the adapter will complete with out eny output.
+        // This may be because the container is started before the adapter is added.
+        Thread.sleep(100);
+        docker.startContainerCmd(container.getId()).exec();
 
-          if (adapter.awaitCompletion(5, TimeUnit.MINUTES)) {
-            w.updateExecutionOutput(executionID, stdOut.toString());
-            resp.getWriter().println(executionID);
-            resp.getWriter().println(stdOut.toString());
-          } else {
-            docker.killContainerCmd(container.getId()).exec();
-            resp.sendError(HttpServletResponse.SC_REQUEST_TIMEOUT);
-          }
-        } catch (InterruptedException | ExecutionException e) {
+        if (adapter.awaitCompletion(5, TimeUnit.MINUTES)) {
+          w.updateExecutionOutput(executionID, stdOut.toString());
+          resp.getWriter().println(executionID);
+          resp.getWriter().println(stdOut.toString());
+        } else {
           docker.killContainerCmd(container.getId()).exec();
-          resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+          resp.sendError(HttpServletResponse.SC_REQUEST_TIMEOUT);
         }
-      } else {
-        resp.sendError(HttpServletResponse.SC_REQUEST_TIMEOUT);
+      } catch (InterruptedException | ExecutionException e) {
+        docker.killContainerCmd(container.getId()).exec();
+        resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        throw new RuntimeException(e);
       }
-    } catch (InterruptedException | EntityNotFoundException | ExecutionException e) {
+    } catch (InterruptedException
+        | EntityNotFoundException
+        | ExecutionException
+        | TimeoutException e) {
       resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
   }
