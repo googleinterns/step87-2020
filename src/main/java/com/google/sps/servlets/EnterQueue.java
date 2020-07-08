@@ -19,6 +19,7 @@ import com.google.appengine.api.datastore.TransactionOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.time.Clock;
@@ -40,6 +41,8 @@ public final class EnterQueue extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
   private Clock clock;
+  private static final String TA_QUEUE = "/queue/ta.html?classCode=";
+  private static final String STUDENT_QUEUE = "/queue/student.html?classCode=";
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -128,15 +131,19 @@ public final class EnterQueue extends HttpServlet {
             }
           }
         }
-        response.sendRedirect("/queue/student.html?classCode=" + classCode);
+        response.sendRedirect(STUDENT_QUEUE + classCode);
       } else {
         Key classKey = KeyFactory.stringToKey(classCode);
         Entity classEntity = datastore.get(classKey);
 
         List<String> taList = (List<String>) classEntity.getProperty("taList");
 
-        if (taList.contains(userID)) {
-          response.sendRedirect("/queue/ta.html?classCode=" + classCode);
+        // Get user email
+        UserRecord userRecord = authInstance.getUser(userID);
+        String userEmail = userRecord.getEmail();
+
+        if (taList.contains(userEmail)) {
+          response.sendRedirect(TA_QUEUE + classCode);
         } else {
           response.sendError(HttpServletResponse.SC_FORBIDDEN);
         }

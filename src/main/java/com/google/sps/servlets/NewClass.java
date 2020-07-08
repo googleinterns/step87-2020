@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 public class NewClass extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
+  private static final String DASHBOARD = "/dashboard.html?classCode=";
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -70,8 +71,7 @@ public class NewClass extends HttpServlet {
 
         datastore.put(classEntity);
 
-        response.sendRedirect(
-            "/dashboard.html?classCode=" + KeyFactory.keyToString(classEntity.getKey()));
+        response.sendRedirect(DASHBOARD + KeyFactory.keyToString(classEntity.getKey()));
 
       } else {
         response.sendError(HttpServletResponse.SC_FORBIDDEN);

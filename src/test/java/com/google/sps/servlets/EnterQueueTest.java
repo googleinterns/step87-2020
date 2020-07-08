@@ -23,6 +23,7 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -231,7 +232,7 @@ public class EnterQueueTest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
     init.setProperty("studentQueue", Collections.emptyList());
-    init.setProperty("taList", Arrays.asList("uID"));
+    init.setProperty("taList", Arrays.asList("taEmail"));
 
     datastore.put(init);
 
@@ -242,6 +243,10 @@ public class EnterQueueTest {
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("uID");
+
+    UserRecord mockTA = mock(UserRecord.class);
+    when(authInstance.getUser("uID")).thenReturn(mockTA);
+    when(mockTA.getEmail()).thenReturn("taEmail");
 
     addFirst.doPost(httpRequest, httpResponse);
 
@@ -257,7 +262,7 @@ public class EnterQueueTest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
     init.setProperty("studentQueue", Collections.emptyList());
-    init.setProperty("taList", Arrays.asList("taID"));
+    init.setProperty("taList", Arrays.asList("taEmail"));
 
     datastore.put(init);
 
@@ -268,6 +273,10 @@ public class EnterQueueTest {
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("uID");
+
+    UserRecord mockTA = mock(UserRecord.class);
+    when(authInstance.getUser("uID")).thenReturn(mockTA);
+    when(mockTA.getEmail()).thenReturn("dne");
 
     addFirst.doPost(httpRequest, httpResponse);
 
