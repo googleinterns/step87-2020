@@ -69,7 +69,6 @@ public class QueueEnvPull extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
     String classID = req.getParameter("classID");
-    String registry = req.getParameter("registry");
     String image = req.getParameter("image");
     String tag = req.getParameter("tag");
 
@@ -89,7 +88,7 @@ public class QueueEnvPull extends HttpServlet {
                   AppEngineHttpRequest.newBuilder()
                       .setBody(
                           ByteString.copyFrom(
-                              String.join(",", envID, classID, registry, image, tag),
+                              String.join(",", envID, classID, image, tag),
                               Charset.defaultCharset()))
                       .setRelativeUri("/tasks/pullEnv")
                       .setHttpMethod(HttpMethod.POST)

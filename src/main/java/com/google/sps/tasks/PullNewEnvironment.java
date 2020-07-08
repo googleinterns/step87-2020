@@ -45,9 +45,8 @@ public class PullNewEnvironment extends HttpServlet {
 
     String entityID = args[0];
     String classID = args[1];
-    String registry = args[2];
-    String image = args[3];
-    String tag = args[4];
+    String image = args[2];
+    String tag = args[3];
 
     String dockerSafeClassID = classID.replace("-", "").toLowerCase();
 
@@ -56,9 +55,7 @@ public class PullNewEnvironment extends HttpServlet {
     try {
       try {
         if (docker
-            .pullImageCmd(image)
-            .withTag(tag)
-            .withRegistry(registry)
+            .pullImageCmd(image + ":" + tag)
             .exec(new ResultCallback.Adapter<>())
             .awaitCompletion(5, TimeUnit.MINUTES)) {
 
