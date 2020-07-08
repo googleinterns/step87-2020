@@ -1,4 +1,4 @@
-package com.google.sps;
+package com.google.sps.servlets;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -49,7 +49,7 @@ public class VisitsByDate extends HttpServlet {
       ArrayList<Long> classVisits = new ArrayList<Long>();
 
       // The class filter will be the unique class's key
-      String classCode = request.getParameter("classCode").trim(); // Need to send in hidden parameter!!!
+      String classCode = request.getParameter("classCode").trim(); // Hidden parameter
       Key classKey = KeyFactory.stringToKey(classCode);
 
       Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
@@ -66,6 +66,12 @@ public class VisitsByDate extends HttpServlet {
         long visitsForThisDate = (long) entity.getProperty("numVisits");
 
         dates.add(date);
+        // ------------------
+        // String pattern = "MM/dd/yyyy HH:mm:ss";
+        // DateFormat df = new SimpleDateFormat(pattern);
+        // String todayAsString = df.format(date);
+        // tempDates.add(todayAsString);
+        // ------------------
         classVisits.add(visitsForThisDate);
       }
 
