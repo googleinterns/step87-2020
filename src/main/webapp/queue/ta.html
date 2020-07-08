@@ -71,8 +71,8 @@
       getQueue();
     }
 
-    function getWorkspace(params){
-      const request = new Request("/get-TA-workspace" + params, {method: "GET"});
+    function getWorkspace(params){ //params include student email and TA token 
+      const request = new Request("/get-workspace" + params, {method: "GET"});
       fetch(request).then(response => response.json()).then((link) => {
         document.getElementById("workspaceRedirect").href = link;
         document.getElementById("workspaceRedirect").innerText = "go to workspace";

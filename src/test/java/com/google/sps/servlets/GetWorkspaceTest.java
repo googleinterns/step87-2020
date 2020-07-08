@@ -12,6 +12,7 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.gson.Gson;
 import java.io.PrintWriter;
@@ -29,7 +30,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GetTAWorkspaceTest {
+public class GetWorkspaceTest {
 
   private final LocalServiceTestHelper helper =
       new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
@@ -44,7 +45,7 @@ public class GetTAWorkspaceTest {
 
   @Mock Gson gson;
 
-  @InjectMocks GetTAWorkspace getWorkspace;
+  @InjectMocks GetWorkspace getWorkspace;
 
   @Before
   public void setUp() {
@@ -58,7 +59,7 @@ public class GetTAWorkspaceTest {
   }
 
   @Test
-  public void getLink() throws Exception {
+  public void getTALink() throws Exception {
     Entity init = new Entity("Class");
     ArrayList<String> setQueue = new ArrayList<String>(Arrays.asList("uID1", "uID2"));
 
@@ -83,6 +84,45 @@ public class GetTAWorkspaceTest {
     UserRecord mockUser = mock(UserRecord.class);
     when(authInstance.getUserByEmail("test@google.com")).thenReturn(mockUser);
     when(mockUser.getUid()).thenReturn("studentID");
+
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter writer = new PrintWriter(stringWriter);
+    when(httpResponse.getWriter()).thenReturn(writer);
+
+    when(gson.toJson("/workspace/?workspaceID=workspaceID"))
+        .thenReturn("/workspace/?workspaceID=workspaceID");
+
+    getWorkspace.doGet(httpRequest, httpResponse);
+
+    assertEquals("/workspace/?workspaceID=workspaceID", stringWriter.toString());
+  }
+
+  @Test
+  public void getStudentLink() throws Exception {
+    Entity init = new Entity("Class");
+    ArrayList<String> setQueue = new ArrayList<String>(Arrays.asList("uID1", "uID2"));
+
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("studentQueue", setQueue);
+
+    EmbeddedEntity queueInfo = new EmbeddedEntity();
+    queueInfo.setProperty("taID", "taID");
+    queueInfo.setProperty("workspaceID", "workspaceID");
+
+    EmbeddedEntity beingHelped = new EmbeddedEntity();
+    beingHelped.setProperty("studentID", queueInfo);
+
+    init.setProperty("beingHelped", beingHelped);
+
+    datastore.put(init);
+
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+
+    when(httpRequest.getParameter("studentToken")).thenReturn("testID");
+    FirebaseToken mockToken = mock(FirebaseToken.class);
+    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
+    when(mockToken.getUid()).thenReturn("studentID");
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);

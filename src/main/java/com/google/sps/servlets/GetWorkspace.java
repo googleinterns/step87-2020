@@ -11,6 +11,7 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
 import com.google.gson.Gson;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
@@ -21,8 +22,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/get-student-workspace")
-public class GetStudentWorkspace extends HttpServlet {
+@WebServlet("/get-workspace")
+public class GetWorkspace extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
   private Gson gson;
@@ -50,28 +51,30 @@ public class GetStudentWorkspace extends HttpServlet {
       Key classKey = KeyFactory.stringToKey(classCode);
       Entity classEntity = datastore.get(classKey);
 
-      String studentToken = request.getParameter("studentToken");
-      FirebaseToken decodedToken = authInstance.verifyIdToken(studentToken);
-      String studentID = decodedToken.getUid();
+      String studentID;
+      if (request.getParameter("studentToken") == null) {
+        // Get studentID from studentEmail
+        String studentEmail = request.getParameter("studentEmail");
+        UserRecord userRecord = authInstance.getUserByEmail(studentEmail);
+        studentID = userRecord.getUid();
+      } else {
+        // Get studentID from studentToken
+        String studentToken = request.getParameter("studentToken");
+        FirebaseToken decodedToken = authInstance.verifyIdToken(studentToken);
+        studentID = decodedToken.getUid();
+      }
 
       EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
       EmbeddedEntity queueInfo = (EmbeddedEntity) beingHelped.getProperty(studentID);
 
-      // if interaction ended
-      if (queueInfo == null) {
-        response.setContentType("application/json;");
-        response.getWriter().print(gson.toJson("null"));
+      // Get workspace id
+      String workspaceID = (String) queueInfo.getProperty("workspaceID");
 
-      } else {
-        // Get workspace id
-        String workspaceID = (String) queueInfo.getProperty("workspaceID");
+      // Build workspace link
+      String workspaceLink = WORKSPACE + workspaceID;
 
-        // Build workspace link
-        String workspaceLink = WORKSPACE + workspaceID;
-
-        response.setContentType("application/json;");
-        response.getWriter().print(gson.toJson(workspaceLink));
-      }
+      response.setContentType("application/json;");
+      response.getWriter().print(gson.toJson(workspaceLink));
 
     } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
