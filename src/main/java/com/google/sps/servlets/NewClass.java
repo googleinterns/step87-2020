@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 public class NewClass extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
-  public static final String DASHBOARD = "/dashboard.html?classCode=";
+  private static final String DASHBOARD = "/dashboard.html?classCode=";
 
   @Override
   public void init(ServletConfig config) throws ServletException {

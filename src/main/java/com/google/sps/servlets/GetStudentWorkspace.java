@@ -26,7 +26,7 @@ public class GetStudentWorkspace extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
   private Gson gson;
-  public static final String WORKSPACE = "/workspace/?workspaceID=";
+  private static final String WORKSPACE = "/workspace/?workspaceID=";
 
   @Override
   public void init(ServletConfig config) throws ServletException {

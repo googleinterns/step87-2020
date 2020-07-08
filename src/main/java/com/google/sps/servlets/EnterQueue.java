@@ -41,8 +41,8 @@ public final class EnterQueue extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
   private Clock clock;
-  public static final String TA_QUEUE = "/queue/ta.html?classCode=";
-  public static final String STUDENT_QUEUE = "/queue/student.html?classCode=";
+  private static final String TA_QUEUE = "/queue/ta.html?classCode=";
+  private static final String STUDENT_QUEUE = "/queue/student.html?classCode=";
 
   @Override
   public void init(ServletConfig config) throws ServletException {
