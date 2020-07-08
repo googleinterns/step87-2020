@@ -10,10 +10,7 @@ import com.google.cloud.tasks.v2.HttpMethod;
 import com.google.cloud.tasks.v2.QueueName;
 import com.google.cloud.tasks.v2.Task;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.protobuf.ByteString;
-import com.google.sps.firebase.FirebaseAppManager;
-import com.google.sps.workspace.WorkspaceFactory;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import javax.servlet.ServletException;
@@ -24,26 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/queueEnvPull")
 public class QueueEnvPull extends HttpServlet {
-  private WorkspaceFactory workspaceFactory;
-  private FirebaseAuth auth;
-
-  public QueueEnvPull() {}
-
-  protected QueueEnvPull(WorkspaceFactory workspaceFactory, FirebaseAuth auth) {
-    this.workspaceFactory = workspaceFactory;
-    this.auth = auth;
-  }
-
-  @Override
-  public void init() throws ServletException {
-    super.init();
-    workspaceFactory = WorkspaceFactory.getInstance();
-    try {
-      auth = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
-    } catch (IOException e) {
-      throw new ServletException(e);
-    }
-  }
 
   @VisibleForTesting
   protected CloudTasksClient getClient() throws IOException {
