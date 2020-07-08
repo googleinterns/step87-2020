@@ -1,9 +1,10 @@
 body {
   text-align: center;
   background-color: #C2E1FF;
+  font-family: 'Noto Sans', sans-serif;
 }
 
-#bar-chart{
+#line-chart{
   display: inline-block;
   margin: 0 auto;
 }
@@ -43,7 +44,7 @@ body {
 
 .ta-form{
   max-width: 400px;
-  font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+  font-family: 'Noto Sans', sans-serif;
 }
 
 .ta-form label{
@@ -54,10 +55,11 @@ body {
 .ta-form label > span{
   float: left;
   width: 200px;
-  color: #031430;
+  color: #C2E1FF;
   font-weight: bold;
   font-size: 15px;
   text-shadow: 1px 1px 1px #fff;
+  font-family: 'Noto Sans', sans-serif;
 }
 
 .ta-form fieldset{
@@ -68,6 +70,7 @@ body {
   color: #C2E1FF;
   background: #2457AA;
   box-shadow: inset 0px 0px 15px #C2E1FF;
+  font-family: 'Noto Sans', sans-serif;
 }
 
 /* "Add a TA by Email" */
@@ -82,6 +85,7 @@ body {
   box-shadow: -0px -1px 2px #C2E1FF;
   font-weight: normal;
   font-size: 14px;
+  font-family: 'Noto Sans', sans-serif;
 }
 
 .ta-form textarea{
@@ -95,11 +99,12 @@ body {
   border-radius: 3px;
   border: 1px solid #C2E1FF;
   outline: none;
-  color: #C2E1FF;
+  color: #2457AA;
   padding: 5px 8px 5px 8px;
-  box-shadow: inset 1px 1px 4px #C2E1FF;
+  box-shadow: inset 1px 1px 4px #2457AA;
   background: #C2E1FF;
   width:85%;
+  font-family: 'Noto Sans', sans-serif;
 }
 
 .ta-form  input[type=submit],
@@ -114,6 +119,7 @@ body {
   color: #C2E1FF;
   margin-top: 10px;
   font-size: 14px;
+  font-family: 'Noto Sans', sans-serif;
 }
 
 .hidden {
