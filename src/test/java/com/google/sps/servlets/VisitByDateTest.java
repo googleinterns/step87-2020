@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
@@ -19,6 +20,8 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -62,21 +65,25 @@ public class VisitByDateTest {
     ArrayList<Date> listOfDates = new ArrayList<Date>();
     ArrayList<Long> visitsPerClass = new ArrayList<Long>();
 
+    Entity init = new Entity("Class");
+
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("taList", Collections.emptyList());
+    init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
+
+    datastore.put(init);
+
     // Create a test entity in Visits
     Entity visitEntity = new Entity("Visit");
-    // visitEntity.setProperty("classKey", KeyFactory.keyToString(visitEntity.getKey()));
-    visitEntity.setProperty("classKey", visitEntity.getKey());
-    visitEntity.setProperty("numVisits", 15);
-    visitEntity.setProperty("className", "exampleClassName");
+    visitEntity.setProperty("classKey", init.getKey());
+    visitEntity.setProperty("numVisits", 3);
     visitEntity.setProperty("date", new Date(2020, 1, 1));
 
     datastore.put(visitEntity);
 
-    // when(httpRequest.getParameter("classCode"))
-    //     .thenReturn(KeyFactory.keyToString(visitEntity.getKey()));
-
-    when(httpRequest.getParameter("classCode"))
-        .thenReturn(KeyFactory.keyToString(visitEntity.getKey()));
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
 
     // Obtain visits from datastore and filter them into results query
     Query query = new Query("Visit");
@@ -97,7 +104,7 @@ public class VisitByDateTest {
     System.out.println(" ----- ");
 
     assertEquals((Date) new Date(2020, 1, 1), (Date) listOfDates.get(0));
-    assertEquals((long) 15, (long) visitsPerClass.get(0));
+    assertEquals((long) 3, (long) visitsPerClass.get(0));
     assertTrue(listOfDates.size() == 1);
 
     StringWriter stringWriter = new StringWriter();
@@ -105,32 +112,52 @@ public class VisitByDateTest {
     when(httpResponse.getWriter()).thenReturn(writer);
 
     checkVisits.doGet(httpRequest, httpResponse);
-    // assertTrue(stringWriter.toString().contains("2020-01-01T00:00:00+00:00")); // Failed
-    // assertTrue(stringWriter.toString().contains("15")); // Failed
-    assertEquals("15", stringWriter.toString());
+    System.out.println(stringWriter.toString());
+    assertTrue(stringWriter.toString().contains("Feb 1, 3920, 12:00:00 AM"));
+    assertTrue(stringWriter.toString().contains("3"));
   }
 
+  // --------------------------------------------------------------------------------------------
   @Test
   //
   public void multipleClasses() throws Exception {
     ArrayList<Date> listOfDates = new ArrayList<Date>();
     ArrayList<Long> visitsPerClass = new ArrayList<Long>();
 
+    Entity init = new Entity("Class");
+
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("taList", Collections.emptyList());
+    init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
+
+    Entity init2 = new Entity("Class2");
+
+    init2.setProperty("owner", "ownerID");
+    init2.setProperty("name", "testClass2");
+    init2.setProperty("beingHelped", new EmbeddedEntity());
+    init2.setProperty("taList", Collections.emptyList());
+    init2.setProperty("studentQueue", Collections.emptyList());
+
+    datastore.put(init);
+    datastore.put(init2);
+
     // Class 1 with 15 visits on 1/1/2020
     Entity visitEntity = new Entity("Visit");
-    visitEntity.setProperty("classKey", visitEntity.getKey());
+    visitEntity.setProperty("classKey", init.getKey());
     visitEntity.setProperty("numVisits", 15);
     visitEntity.setProperty("date", new Date(2020, 2, 1));
 
     // Class 1 with 7 visits on 1/5/2020
     Entity visitEntity2 = new Entity("Visit");
-    visitEntity2.setProperty("classKey", visitEntity.getKey());
+    visitEntity2.setProperty("classKey", init.getKey());
     visitEntity2.setProperty("numVisits", 7);
     visitEntity2.setProperty("date", new Date(2020, 1, 5));
 
     // Class 2 with 20 visits on 5/1/2020
     Entity visitEntity3 = new Entity("Visit");
-    visitEntity3.setProperty("classKey", visitEntity3.getKey());
+    visitEntity3.setProperty("classKey", init2.getKey());
     visitEntity3.setProperty("numVisits", 20);
     visitEntity3.setProperty("date", new Date(2020, 5, 1));
 
@@ -138,11 +165,9 @@ public class VisitByDateTest {
     datastore.put(visitEntity2);
     datastore.put(visitEntity3);
 
-    when(httpRequest.getParameter("classCode"))
-        .thenReturn(KeyFactory.keyToString(visitEntity.getKey()));
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
 
-    Filter classFilter =
-        new FilterPredicate("classKey", FilterOperator.EQUAL, visitEntity.getKey());
+    Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, init.getKey());
 
     // Obtain visits from datastore and filter them into results query
     Query query =
@@ -164,20 +189,16 @@ public class VisitByDateTest {
     System.out.println(" ----- ");
     System.out.println("The date is: " + (Date) listOfDates.get(1));
 
-    // assertEquals((Date) new Date(2020, 1, 5), (Date) listOfDates.get(0));
-    // assertEquals((Date) new Date(2020, 2, 1), (Date) listOfDates.get(1));
-    // assertEquals((long) 7, (long) visitsPerClass.get(0));
-    // assertEquals((long) 15, (long) visitsPerClass.get(1));
-    // assertTrue(listOfDates.size() == 2);
-    // assertTrue(visitsPerClass.size() == 2);
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter writer = new PrintWriter(stringWriter);
+    when(httpResponse.getWriter()).thenReturn(writer);
 
-    // StringWriter stringWriter = new StringWriter();
-    // PrintWriter writer = new PrintWriter(stringWriter);
-    // when(httpResponse.getWriter()).thenReturn(writer);
+    checkVisits.doGet(httpRequest, httpResponse);
 
-    // checkVisits.doGet(httpRequest, httpResponse);
-    // // assertTrue(stringWriter.toString().contains("2020-01-01T00:00:00+00:00")); // Failed
-    // // assertTrue(stringWriter.toString().contains("15")); // Failed
-    // assertEquals("15", stringWriter.toString());
+    System.out.println(stringWriter.toString());
+    assertTrue(stringWriter.toString().contains("Feb 5, 3920, 12:00:00 AM"));
+    assertTrue(stringWriter.toString().contains("Mar 1, 3920, 12:00:00 AM"));
+    assertTrue(stringWriter.toString().contains("15"));
+    assertTrue(stringWriter.toString().contains("7"));
   }
 }

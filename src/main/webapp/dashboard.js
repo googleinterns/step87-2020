@@ -9,8 +9,9 @@ function drawBasic2() {
   data.addColumn('number', 'Visits');
 
   fetch(`/visit-date?classCode=` + getParam("classCode")).then(response => response.json()).then(visits=> {
-    var dates = visits.classDates;
-    var numVisits = visits.visitsPerClass;
+    
+    var dates = visits.dates;
+    var numVisits = visits.classVisits;
 
     var tempDataHolder = []; // To be pushed into datatable after updating
 
