@@ -47,9 +47,9 @@ public class PrepareDownloadTest {
 
   @Test
   public void doPostTest() throws Exception {
-    final String workspaceID = "WORKSPACE_ID";
-    final String downloadID = "DOWNLOAD_ID";
-    final Stream<String> lines = Arrays.asList(workspaceID + ',' + downloadID).stream();
+    String workspaceID = "WORKSPACE_ID";
+    String downloadID = "DOWNLOAD_ID";
+    Stream<String> lines = Arrays.asList(workspaceID + ',' + downloadID).stream();
 
     when(req.getReader()).thenReturn(reader);
     when(reader.lines()).thenReturn(lines);

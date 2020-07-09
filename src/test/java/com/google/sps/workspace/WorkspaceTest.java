@@ -28,35 +28,30 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class WorkspaceTest {
   @Mock DatabaseReference reference;
-
   @Mock ApiFuture<Void> apiFuture;
-
   @Mock ApiFuture<Void> apiFutureStudent;
-
   @Mock ApiFuture<Void> apiFutureTA;
-
   @Mock DatabaseReference studentRef;
-
   @Mock DatabaseReference taRef;
-
   @Mock DatabaseReference filesRef;
-
   @Mock DataSnapshot snap;
-
   @Mock DatabaseReference historyRef;
-
   @Mock DatabaseReference downloadsRef;
-
   @Mock DatabaseReference newDownloadRef;
+  @Mock DatabaseReference environmentRef;
+  @Mock DatabaseReference executionsRef;
+  @Mock DatabaseReference newExecutionRef;
 
   @Captor ArgumentCaptor<ValueEventListener> listenerCaptor;
 
   @Mock DatabaseError error;
   @Mock DatabaseException exception;
 
+  String STUDENT = "STUDENT";
+  String TA = "TA";
+
   @Test
   public void getStudentID() throws Exception {
-    final String STUDENT = "STUDENT";
 
     when(reference.child(eq("student"))).thenReturn(studentRef);
     when(snap.getValue()).thenReturn(STUDENT);
@@ -76,7 +71,6 @@ public class WorkspaceTest {
 
   @Test(expected = ExecutionException.class)
   public void getStudentIDException() throws Exception {
-    final String STUDENT = "STUDENT";
 
     when(reference.child(eq("student"))).thenReturn(studentRef);
     when(error.toException()).thenReturn(exception);
@@ -96,7 +90,6 @@ public class WorkspaceTest {
 
   @Test
   public void getTaID() throws Exception {
-    final String TA = "TA";
 
     when(reference.child(eq("ta"))).thenReturn(taRef);
     when(snap.getValue()).thenReturn(TA);
@@ -116,7 +109,6 @@ public class WorkspaceTest {
 
   @Test(expected = ExecutionException.class)
   public void getTaIDException() throws Exception {
-    final String TA = "TA";
 
     when(reference.child(eq("ta"))).thenReturn(taRef);
     when(error.toException()).thenReturn(exception);
@@ -136,7 +128,7 @@ public class WorkspaceTest {
 
   @Test
   public void getFiles() throws Exception {
-    final int NUM_FILES = 3;
+    int NUM_FILES = 3;
     ArrayList<DataSnapshot> files = new ArrayList<>();
     for (int i = 0; i < NUM_FILES; i++) {
       files.add(snap);
@@ -181,7 +173,7 @@ public class WorkspaceTest {
 
   @Test
   public void getWorkspaceID() {
-    final String WORKSPACE_ID = "ID";
+    String WORKSPACE_ID = "ID";
     when(reference.getKey()).thenReturn(WORKSPACE_ID);
 
     assertEquals(WORKSPACE_ID, new Workspace(reference).getWorkspaceID());
@@ -189,7 +181,7 @@ public class WorkspaceTest {
 
   @Test
   public void newDownloadTest() {
-    final String DOWNLOAD_ID = "DOWNLOAD_ID";
+    String DOWNLOAD_ID = "DOWNLOAD_ID";
 
     when(reference.child(eq("downloads"))).thenReturn(downloadsRef);
     when(downloadsRef.push()).thenReturn(newDownloadRef);
@@ -200,8 +192,8 @@ public class WorkspaceTest {
 
   @Test
   public void updateDownloadName() throws Exception {
-    final String DOWNLOAD_ID = "DOWNLOAD_ID";
-    final String FILENAME = "FILENAME";
+    String DOWNLOAD_ID = "DOWNLOAD_ID";
+    String FILENAME = "FILENAME";
 
     when(reference.child(eq("downloads"))).thenReturn(downloadsRef);
     when(downloadsRef.child(eq(DOWNLOAD_ID))).thenReturn(newDownloadRef);
@@ -210,6 +202,45 @@ public class WorkspaceTest {
     new Workspace(reference).updateDownloadName(DOWNLOAD_ID, FILENAME);
 
     verify(newDownloadRef, times(1)).setValueAsync(eq("FILENAME"));
+    verify(apiFuture, times(1)).get();
+  }
+
+  @Test
+  public void setEnvironment() throws Exception {
+    String ENV_KEY = "ENV_KEY";
+
+    when(reference.child(eq("environment"))).thenReturn(environmentRef);
+    when(environmentRef.setValueAsync(eq(ENV_KEY))).thenReturn(apiFuture);
+
+    new Workspace(reference).setEnvironment(ENV_KEY);
+
+    verify(environmentRef, times(1)).setValueAsync(eq(ENV_KEY));
+    verify(apiFuture, times(1)).get();
+  }
+
+  @Test
+  public void newExecutionID() throws Exception {
+    String EXEC_KEY = "EXEC_KEY";
+
+    when(reference.child(eq("executions"))).thenReturn(executionsRef);
+    when(executionsRef.push()).thenReturn(newExecutionRef);
+    when(newExecutionRef.getKey()).thenReturn(EXEC_KEY);
+
+    assertEquals(EXEC_KEY, new Workspace(reference).newExecutionID());
+  }
+
+  @Test
+  public void updateExecutionOutput() throws Exception {
+    String EXEC_ID = "EXEC_ID";
+    String OUTPUT = "OUTPUT";
+
+    when(reference.child(eq("executions"))).thenReturn(executionsRef);
+    when(executionsRef.child(eq(EXEC_ID))).thenReturn(newExecutionRef);
+    when(newExecutionRef.setValueAsync(eq(OUTPUT))).thenReturn(apiFuture);
+
+    new Workspace(reference).updateExecutionOutput(EXEC_ID, OUTPUT);
+
+    verify(newExecutionRef, times(1)).setValueAsync(eq(OUTPUT));
     verify(apiFuture, times(1)).get();
   }
 }

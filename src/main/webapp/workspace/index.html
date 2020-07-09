@@ -22,6 +22,7 @@
     <script src="/script/auth.js"></script>
     <script src="/script/util.js"></script>
     <script src="workspace.js"></script>
+    <script src="execution.js"></script>
     <script src="jitsi.js"></script>
 
     <link rel="stylesheet" href="workspace.css" />
@@ -40,6 +41,8 @@
           <button class="permanent-tab tab" id="downloadButton" onclick="downloadFiles()">Download</button>
           <a class="hidden" id="downloadLink" download="workspace.zip">Download</a>
 
+          <button class="permanent-tab tab hidden" id="executeButton" onclick="executeCode()">Execute</button>
+
           <button class="permanent-tab tab" id="jitsi-join" onclick="addJitsiWindow()">Join Meeting</button>
         </div>
       </div>
@@ -49,6 +52,8 @@
           <div id="jitsi-window"></div>
         </div>
       </div>
+      <button id="output-minimize-button" onclick="toggleOutput()">&#9650;</button>
+      <div id="output-container" class="hidden"></div>
     </div>
   </body>
 </html>

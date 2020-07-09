@@ -29,7 +29,7 @@ public class DownloadWorkspaceTest {
   public void doGet() throws Exception {
     BlobKey blobKey = mock(BlobKey.class);
 
-    final String filename = "FILENAME";
+    String filename = "FILENAME";
     when(req.getParameter(eq("filename"))).thenReturn(filename);
     when(blobstoreService.createGsBlobKey(anyString())).thenReturn(blobKey);
 

@@ -30,6 +30,8 @@ body {
   height: 100%;
   width: 100%;
   flex: 1;
+  flex-shrink: 1;
+  overflow: hidden;
 }
 
 .column {
@@ -93,7 +95,7 @@ body {
   color: var(--text-color);
 }
 
-.permanent-tab:hover {
+.permanent-tab:hover, .jitsi-button:hover, #output-minimize-button:hover {
   background-color: var(--permanent-tab-hover);
 }
 
@@ -135,10 +137,21 @@ body {
   color: var(--text-color);
 }
 
-.jitsi-button:hover {
-  background-color: var(--permanent-tab-hover);
+.jitsi-button:focus, #output-minimize-button:focus {
+  outline: none;
 }
 
-.jitsi-button:focus {
-  outline: none;
+#output-container {
+  height: 300px;
+  flex-shrink: 0;
+  overflow: scroll;
+  color: var(--text-color);
+  flex-shrink: 0;
+}
+
+#output-minimize-button {
+  border: none;
+  background-color: var(--permanent-tab-color);
+  color: var(--text-color);
+  flex-shrink: 0;
 }
