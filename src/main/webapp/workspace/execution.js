@@ -44,6 +44,8 @@ function executeCode() {
             if (!outputVisible) {
               toggleOutput();
             }        
+
+            outputContainer.scrollTop = outputContainer.scrollHeight;
           }
         });
       });
