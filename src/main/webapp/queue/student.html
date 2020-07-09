@@ -16,6 +16,7 @@
     let iidToken;
     let notifyBool = true; 
     const SERVER_KEY = "AAAAAasd75g:APA91bGfddnjqVWJxOtnGQLMnJi4D8tnJUwP3ce04qB0GfUI3piA2lf3EGHPL86FfVyrWKayIXFCLqrrzthb_2i8ZjC9_xa3Hq-j0EXkp8HUpnMN7am3luEjkf56jM8K7zAQ7Edg6n4j";
+    const VAPID_KEY = "BATH4W6KjVLUSE-tGXhgBbFr6BINlPDO0gf4L9NB8F8qCLStYVzIvYpH4m32Yzlit26G0f4ofC2Zr044t1-hxHk";
 
     let firebaseConfig = {
       apiKey: "AIzaSyA1r_PfVDCXfTgoUNisci5Ag2MKEEwsZCE",
@@ -32,7 +33,7 @@
 
     //Retrieve Firebase Messaging object 
     const messaging = firebase.messaging();
-    messaging.usePublicVapidKey('BATH4W6KjVLUSE-tGXhgBbFr6BINlPDO0gf4L9NB8F8qCLStYVzIvYpH4m32Yzlit26G0f4ofC2Zr044t1-hxHk');
+    messaging.usePublicVapidKey(VAPID_KEY);
     
     //Ask user for permission to send notifications
     messaging
