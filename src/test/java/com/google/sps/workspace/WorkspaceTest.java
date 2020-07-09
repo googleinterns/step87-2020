@@ -49,6 +49,11 @@ public class WorkspaceTest {
 
   @Mock DatabaseReference newDownloadRef;
 
+  @Mock DatabaseReference environmentRef;
+
+  @Mock DatabaseReference executionsRef;
+  @Mock DatabaseReference newExecutionRef;
+
   @Captor ArgumentCaptor<ValueEventListener> listenerCaptor;
 
   @Mock DatabaseError error;
@@ -210,6 +215,45 @@ public class WorkspaceTest {
     new Workspace(reference).updateDownloadName(DOWNLOAD_ID, FILENAME);
 
     verify(newDownloadRef, times(1)).setValueAsync(eq("FILENAME"));
+    verify(apiFuture, times(1)).get();
+  }
+
+  @Test
+  public void setEnvironment() throws Exception {
+    final String ENV_KEY = "ENV_KEY";
+
+    when(reference.child(eq("environment"))).thenReturn(environmentRef);
+    when(environmentRef.setValueAsync(eq(ENV_KEY))).thenReturn(apiFuture);
+
+    new Workspace(reference).setEnvironment(ENV_KEY);
+
+    verify(environmentRef, times(1)).setValueAsync(eq(ENV_KEY));
+    verify(apiFuture, times(1)).get();
+  }
+
+  @Test
+  public void newExecutionID() throws Exception {
+    String EXEC_KEY = "EXEC_KEY";
+
+    when(reference.child(eq("executions"))).thenReturn(executionsRef);
+    when(executionsRef.push()).thenReturn(newExecutionRef);
+    when(newExecutionRef.getKey()).thenReturn(EXEC_KEY);
+
+    assertEquals(EXEC_KEY, new Workspace(reference).newExecutionID());
+  }
+
+  @Test
+  public void updateExecutionOutput() throws Exception {
+    String EXEC_ID = "EXEC_ID";
+    String OUTPUT = "OUTPUT";
+
+    when(reference.child(eq("executions"))).thenReturn(executionsRef);
+    when(executionsRef.child(eq(EXEC_ID))).thenReturn(newExecutionRef);
+    when(newExecutionRef.setValueAsync(eq(OUTPUT))).thenReturn(apiFuture);
+
+    new Workspace(reference).updateExecutionOutput(EXEC_ID, OUTPUT);
+
+    verify(newExecutionRef, times(1)).setValueAsync(eq(OUTPUT));
     verify(apiFuture, times(1)).get();
   }
 }
