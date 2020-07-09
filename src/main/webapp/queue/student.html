@@ -2,31 +2,62 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Enter Class</title>
+    <title>Queue</title>
     <!-- Firebase App (the core Firebase SDK) must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/7.15.1/firebase-app.js"></script>
     <!-- Firebase Authentication -->
     <script src="https://www.gstatic.com/firebasejs/7.15.1/firebase-auth.js"></script>
+    <!-- Firebase Messaging -->
+    <script src="https://www.gstatic.com/firebasejs/7.15.1/firebase-messaging.js"></script>
   </head>
 
   <script>
-    var repeat = setInterval(makeRequest, 5000);
-    var studentToken;
+    let studentToken;
+    let iidToken;
+    let notifyBool = true; 
+    const SERVER_KEY = "AAAAAasd75g:APA91bGfddnjqVWJxOtnGQLMnJi4D8tnJUwP3ce04qB0GfUI3piA2lf3EGHPL86FfVyrWKayIXFCLqrrzthb_2i8ZjC9_xa3Hq-j0EXkp8HUpnMN7am3luEjkf56jM8K7zAQ7Edg6n4j";
+    const VAPID_KEY = "BATH4W6KjVLUSE-tGXhgBbFr6BINlPDO0gf4L9NB8F8qCLStYVzIvYpH4m32Yzlit26G0f4ofC2Zr044t1-hxHk";
+
+    let firebaseConfig = {
+      apiKey: "AIzaSyA1r_PfVDCXfTgoUNisci5Ag2MKEEwsZCE",
+      authDomain: "fulfillment-deco-step-2020.firebaseapp.com",
+      databaseURL: "https://fulfillment-deco-step-2020.firebaseio.com",
+      projectId: "fulfillment-deco-step-2020",
+      storageBucket: "fulfillment-deco-step-2020.appspot.com",
+      messagingSenderId: "7165833112",
+      appId: "1:7165833112:web:3b4af53c5de6aa73b7c5ed"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    //Retrieve Firebase Messaging object 
+    const messaging = firebase.messaging();
+    messaging.usePublicVapidKey(VAPID_KEY);
+    
+    //Ask user for permission to send notifications
+    messaging
+      .requestPermission()
+      .then(function () {
+        console.log("Notification permission granted.");
+            
+        // get the token in the form of promise
+        return messaging.getToken();
+      })
+      .then(function(token) {
+        iidToken = token;
+      })
+      .catch(function (err) {
+        console.log("Unable to get permission to notify.", err);
+      });
+
+    //If user on page, no notification sent
+    messaging.onMessage(function(payload) {
+      console.log("User on page- message received. ", payload);
+    });
 
     function getToken() {
-      var firebaseConfig = {
-        apiKey: "AIzaSyA1r_PfVDCXfTgoUNisci5Ag2MKEEwsZCE",
-        authDomain: "fulfillment-deco-step-2020.firebaseapp.com",
-        databaseURL: "https://fulfillment-deco-step-2020.firebaseio.com",
-        projectId: "fulfillment-deco-step-2020",
-        storageBucket: "fulfillment-deco-step-2020.appspot.com",
-        messagingSenderId: "7165833112",
-        appId: "1:7165833112:web:3b4af53c5de6aa73b7c5ed"
-      };
-
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
-
+      //Initialize user's Firebase token
       var user = firebase.auth().currentUser;
       firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
@@ -38,7 +69,7 @@
           console.log("User is not logged in");
           window.location.href = "/";
         }
-      });
+      }); 
     }
 
     function setToken(token){
@@ -46,6 +77,7 @@
       makeRequest();
     }
 
+    let repeat = setInterval(makeRequest, 5000);
     function makeRequest(){
       var params = window.location.search + "&studentToken=" + studentToken;
       const request = new Request("/check-student" + params, {method: "GET"});
@@ -53,7 +85,11 @@
         if (studentPosition == "0") {
           document.getElementById("queue_status").innerText = "";
           getTA();
-      
+
+          if (notifyBool) {
+            sendNotification();
+            notifyBool = false;
+          }    
         } 
         else {
             document.getElementById("studentPosition").innerText = "#" + studentPosition;
@@ -68,6 +104,8 @@
       fetch(request).then(response => response.json()).then((helpedBy) => {
         if (helpedBy == "null"){
             document.getElementById("beingHelped").innerText = "You are done being helped.";
+            document.getElementById("workspaceRedirect").href = "";
+            document.getElementById("workspaceRedirect").innerText = "";
             clearInterval(repeat);
 
         } else {
@@ -90,6 +128,30 @@
       });
     }
 
+    function sendNotification(){
+      var key = SERVER_KEY; 
+      var to = iidToken; 
+      var notification = {
+        'title': 'you were just taken off the queue!',
+        'body': 'navigate back to get the workspace link',
+      };
+
+      fetch('https://fcm.googleapis.com/fcm/send', {
+      'method': 'POST',
+      'headers': {
+        'Authorization': 'key=' + key,
+        'Content-Type': 'application/json'
+      },
+      'body': JSON.stringify({
+        'notification': notification,
+        'to': to
+      })
+      }).then(function(response) {
+        console.log(response);
+      }).catch(function(error) {
+        console.error(error);
+      })
+    }
   </script>
 
   <body onload="getToken()">
@@ -102,4 +164,5 @@
       <h1> on the queue</h1>
     </div>
   </body>
+
 </html>
