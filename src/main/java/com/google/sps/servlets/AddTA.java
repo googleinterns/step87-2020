@@ -6,12 +6,14 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.Transaction;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -23,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/add-ta")
 public class AddTA extends HttpServlet {
 
-  FirebaseAuth authInstance;
+  private FirebaseAuth authInstance;
 
   // Get the current session
   @Override
@@ -35,32 +37,56 @@ public class AddTA extends HttpServlet {
     }
   }
 
-  // Add a TA to the datastore
+  // Add a TA to the class datastore
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
+    int retries = 10;
+
     try {
-      // Obtain the teaching assistant email and search for the user
-      String teachingAssistantEmail = request.getParameter("taEmail").trim();
-      UserRecord userRecord = authInstance.getUserByEmail(teachingAssistantEmail);
+      while (true) {
+        Transaction txn = datastore.beginTransaction();
 
-      // Find the corresponding Class Entity
-      String classCode = request.getParameter("classCode").trim();
-      Key classKey = KeyFactory.stringToKey(classCode);
-      Entity classEntity = datastore.get(classKey);
+        try {
 
-      // Get the list of TAs
-      ArrayList<String> listOfClassTAs = (ArrayList) classEntity.getProperty("taList");
+          // Obtain the teaching assistant email and search for the user
+          String teachingAssistantEmail = request.getParameter("taEmail").trim();
+          UserRecord userRecord = authInstance.getUserByEmail(teachingAssistantEmail);
 
-      // Update the class's TA list to include the new TA
-      listOfClassTAs.add(teachingAssistantEmail);
-      classEntity.setProperty("taList", listOfClassTAs);
-      datastore.put(classEntity);
+          // Find the corresponding Class Entity
+          String classCode = request.getParameter("classCode").trim();
+          Key classKey = KeyFactory.stringToKey(classCode);
+          Entity classEntity = datastore.get(txn, classKey);
 
-      // Redirect to the class dashboard page
-      response.sendRedirect("/dashboard.html?classCode=" + classCode);
+          // Get the list of TAs
+          ArrayList<String> listOfClassTAs = (ArrayList) classEntity.getProperty("taList");
+
+          // Update the class's TA list to include the new TA
+          listOfClassTAs.add(teachingAssistantEmail);
+          classEntity.setProperty("taList", listOfClassTAs);
+          datastore.put(txn, classEntity);
+
+          // Redirect to the class dashboard page
+          response.sendRedirect("/dashboard.html?classCode=" + classCode);
+
+          txn.commit();
+          break;
+
+        } catch (ConcurrentModificationException e) {
+          if (retries == 0) {
+            throw e;
+          }
+
+          // Allow retry to occur
+          --retries;
+        } finally {
+          if (txn.isActive()) {
+            txn.rollback();
+          }
+        }
+      }
 
     } catch (FirebaseAuthException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);

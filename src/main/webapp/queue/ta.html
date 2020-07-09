@@ -66,13 +66,25 @@
       
       fetch(request);
 
+      getWorkspace(params);
+
       getQueue();
+    }
+
+    function getWorkspace(params){ //params include student email and TA token 
+      const request = new Request("/get-workspace" + params, {method: "GET"});
+      fetch(request).then(response => response.json()).then((link) => {
+        document.getElementById("workspaceRedirect").href = link;
+        document.getElementById("workspaceRedirect").innerText = "go to workspace";
+      });
     }
 
     function endHelp(studentEmail){
       var params = window.location.search + "&studentEmail=" + studentEmail + "&taToken=" + taToken;
       const request = new Request("/end-help" + params, {method: "POST"});
       document.getElementById('beingHelped').innerText = "";
+      document.getElementById("workspaceRedirect").href = "";
+      document.getElementById("workspaceRedirect").innerText = "";
       
       fetch(request);
 
@@ -120,6 +132,8 @@
     <h1>hello TA</h1>
 
     <div id = "beingHelped"></div>
+    <br>
+    <a href="" id = "workspaceRedirect" style="text-decoration: none;"></a>
 
     <div id="queue"></div>
   </body>

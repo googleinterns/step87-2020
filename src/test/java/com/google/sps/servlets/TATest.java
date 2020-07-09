@@ -54,7 +54,7 @@ public class TATest {
   }
 
   @Test
-  // Add one TA to an empty class TA list
+  // For a class with no current TAs, add one TA
   public void addOneTAEmptyList() throws Exception {
     Entity classEntity = new Entity("Class");
 
@@ -87,7 +87,7 @@ public class TATest {
   }
 
   @Test
-  // Add one TA to an empty class TA list
+  // Add one TA to a non-empty TA list
   public void addOneTA() throws Exception {
     Entity classEntity = new Entity("Class");
     List<String> taList = Arrays.asList("exTA1@google.com", "exTA2@google.com");
@@ -117,7 +117,7 @@ public class TATest {
   }
 
   @Test
-  // Add one TA to an empty class TA list
+  // Throw an exception if class key isn't correct
   public void keyUnavailable() throws Exception {
 
     // Create examples for the TA email and class code
@@ -130,7 +130,7 @@ public class TATest {
   }
 
   @Test
-  // Add one TA to an empty class TA list
+  // Throw an exception when the class doesn't exist
   public void taClassDoesNotExist() throws Exception {
 
     Entity classEntity = new Entity("Class");
@@ -148,7 +148,7 @@ public class TATest {
   }
 
   @Test
-  // Add one TA to an empty class TA list
+  // Check correct size update for a class with multiple TAs
   public void verifyListSize() throws Exception {
     Entity classEntity = new Entity("Class");
     List<String> taList =
