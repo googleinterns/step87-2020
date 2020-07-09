@@ -8,16 +8,16 @@ function drawBasic() {
   data.addColumn('date', 'Date');
   data.addColumn('number', 'Visits');
  
-  var dates = [new Date(2020, 7, 5), new Date(2020, 7, 9), new Date(2020, 7, 15),
+  let dates = [new Date(2020, 7, 5), new Date(2020, 7, 9), new Date(2020, 7, 15),
    new Date(2020, 7, 21), new Date(2020, 8, 5)];
-  var numVisits = [12, 1, 8, 9, 4];
+  let numVisits = [12, 1, 8, 9, 4];
     
  
-  var tempDataHolder = []; // To be pushed into datatable after updating
+  let tempDataHolder = []; // To be pushed into datatable after updating
  
   // Loop through both lists and add info sets for each class 
-  for (var i = 0; i < dates.length; i++) {
-    var temp = [];
+  for (let i = 0; i < dates.length; i++) {
+    let temp = [];
     temp.push(dates[i]);
     temp.push(numVisits[i]);
     tempDataHolder.push(temp);
@@ -25,7 +25,7 @@ function drawBasic() {
  
   data.addRows(tempDataHolder); // Populate datatable with final data
  
-  var options = {
+  let options = {
     title: 'Number of Visits per Day',
     hAxis: {title: 'Date'},
     vAxis: {title: 'Number of Visits'},
