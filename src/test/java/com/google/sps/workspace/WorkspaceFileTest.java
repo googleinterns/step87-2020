@@ -118,8 +118,8 @@ public class WorkspaceFileTest {
 
   @Test
   public void getFilename() {
-    final String FILENAME = "RequestHelper.java";
-    final String ENCODED_FILENAME = "RequestHelper%2Ejava";
+    String FILENAME = "RequestHelper.java";
+    String ENCODED_FILENAME = "RequestHelper%2Ejava";
 
     when(snap.hasChild(eq("checkpoint/id"))).thenReturn(false);
     when(snap.getKey()).thenReturn(ENCODED_FILENAME);

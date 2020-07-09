@@ -46,9 +46,9 @@ public class WorkspaceArchiveTest {
 
   @Test
   public void archiveTar() throws InterruptedException, ExecutionException, IOException {
-    final int NUM_FILES = 3;
-    final String FILENAME = "FILENAME";
-    final String CONTENTS = "CONTENTS";
+    int NUM_FILES = 3;
+    String FILENAME = "FILENAME";
+    String CONTENTS = "CONTENTS";
 
     List<WorkspaceFile> files = new ArrayList<>();
     for (int i = 0; i < NUM_FILES; i++) {
@@ -76,9 +76,9 @@ public class WorkspaceArchiveTest {
 
   @Test
   public void archiveZip() throws InterruptedException, ExecutionException, IOException {
-    final int NUM_FILES = 3;
-    final String FILENAME = "FILENAME";
-    final String CONTENTS = "CONTENTS";
+    int NUM_FILES = 3;
+    String FILENAME = "FILENAME";
+    String CONTENTS = "CONTENTS";
 
     List<WorkspaceFile> files = new ArrayList<>();
     for (int i = 0; i < NUM_FILES; i++) {

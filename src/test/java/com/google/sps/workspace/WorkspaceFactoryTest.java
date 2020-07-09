@@ -38,8 +38,8 @@ public class WorkspaceFactoryTest {
 
   @Test
   public void workspace() throws Exception {
-    final String STUDENT = "STUDENT";
-    final String TA = "TA";
+    String STUDENT = "STUDENT";
+    String TA = "TA";
 
     when(reference.child(eq("student"))).thenReturn(studentRef);
     when(reference.child(eq("ta"))).thenReturn(taRef);

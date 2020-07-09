@@ -59,7 +59,7 @@ public class QueueExecutionTest {
     QueueExecution servlet = spy(new QueueExecution(workspaceFactory, auth));
     FirebaseToken tok = mock(FirebaseToken.class);
 
-    final CompletableFuture<String> future = new CompletableFuture<>();
+    CompletableFuture<String> future = new CompletableFuture<>();
     future.complete(UID);
 
     when(req.getParameter(eq("workspaceID"))).thenReturn(WORKSPACE_ID);
@@ -99,9 +99,9 @@ public class QueueExecutionTest {
     QueueExecution servlet = spy(new QueueExecution(workspaceFactory, auth));
     FirebaseToken tok = mock(FirebaseToken.class);
 
-    final CompletableFuture<String> studentFuture = new CompletableFuture<>();
+    CompletableFuture<String> studentFuture = new CompletableFuture<>();
     studentFuture.complete(BAD_UID);
-    final CompletableFuture<String> taFuture = new CompletableFuture<>();
+    CompletableFuture<String> taFuture = new CompletableFuture<>();
     taFuture.complete(UID);
 
     when(req.getParameter(eq("workspaceID"))).thenReturn(WORKSPACE_ID);
@@ -161,7 +161,7 @@ public class QueueExecutionTest {
   public void authFailWrongUID() throws Exception {
     FirebaseToken tok = mock(FirebaseToken.class);
 
-    final CompletableFuture<String> future = new CompletableFuture<>();
+    CompletableFuture<String> future = new CompletableFuture<>();
     future.complete(UID);
 
     when(req.getParameter(eq("workspaceID"))).thenReturn(WORKSPACE_ID);

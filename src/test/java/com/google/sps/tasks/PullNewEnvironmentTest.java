@@ -67,10 +67,10 @@ public class PullNewEnvironmentTest {
 
   @Test
   public void doPostTest() throws Exception {
-    final String STATUS = "STATUS";
-    final String CLASS_ID = "CLASS_ID";
-    final String IMAGE = "IMAGE";
-    final String TAG = "TAG";
+    String STATUS = "STATUS";
+    String CLASS_ID = "CLASS_ID";
+    String IMAGE = "IMAGE";
+    String TAG = "TAG";
 
     Entity envEntity = new Entity("Environment");
     envEntity.setProperty("status", STATUS);
@@ -104,10 +104,10 @@ public class PullNewEnvironmentTest {
 
   @Test
   public void doPostTestTimeOut() throws Exception {
-    final String STATUS = "STATUS";
-    final String CLASS_ID = "CLASS_ID";
-    final String IMAGE = "IMAGE";
-    final String TAG = "TAG";
+    String STATUS = "STATUS";
+    String CLASS_ID = "CLASS_ID";
+    String IMAGE = "IMAGE";
+    String TAG = "TAG";
 
     Entity envEntity = new Entity("Environment");
     envEntity.setProperty("status", STATUS);
@@ -132,10 +132,10 @@ public class PullNewEnvironmentTest {
 
   @Test
   public void doPostTestFail() throws Exception {
-    final String STATUS = "STATUS";
-    final String CLASS_ID = "CLASS_ID";
-    final String IMAGE = "IMAGE";
-    final String TAG = "TAG";
+    String STATUS = "STATUS";
+    String CLASS_ID = "CLASS_ID";
+    String IMAGE = "IMAGE";
+    String TAG = "TAG";
 
     Entity envEntity = new Entity("Environment");
     envEntity.setProperty("status", STATUS);

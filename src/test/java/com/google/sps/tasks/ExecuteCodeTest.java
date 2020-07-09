@@ -94,21 +94,21 @@ public class ExecuteCodeTest {
 
   @Test
   public void doPostTest() throws Exception {
-    final String WORKSPACE_ID = "WORKSPACE_ID";
-    final String EXECUTION_ID = "EXECUTION_ID";
-    final String IMAGE = "IMAGE";
-    final String TAG = "TAG";
-    final byte[] tar = "TAR".getBytes();
-    final String CONTAINER_ID = "CONTAINER_ID";
+    String WORKSPACE_ID = "WORKSPACE_ID";
+    String EXECUTION_ID = "EXECUTION_ID";
+    String IMAGE = "IMAGE";
+    String TAG = "TAG";
+    byte[] tar = "TAR".getBytes();
+    String CONTAINER_ID = "CONTAINER_ID";
 
     Stream<String> lines = Arrays.asList(WORKSPACE_ID + "," + EXECUTION_ID).stream();
 
     Entity envEntity = new Entity("Environment");
     envEntity.setProperty("image", IMAGE);
     envEntity.setProperty("tag", TAG);
-    final String envID = KeyFactory.keyToString(datastore.put(envEntity));
+    String envID = KeyFactory.keyToString(datastore.put(envEntity));
 
-    final CompletableFuture<String> envIDFuture = new CompletableFuture<>();
+    CompletableFuture<String> envIDFuture = new CompletableFuture<>();
     envIDFuture.complete(envID);
 
     when(req.getReader()).thenReturn(reader);
@@ -173,21 +173,21 @@ public class ExecuteCodeTest {
 
   @Test
   public void doPostTestTimeOut() throws Exception {
-    final String WORKSPACE_ID = "WORKSPACE_ID";
-    final String EXECUTION_ID = "EXECUTION_ID";
-    final String IMAGE = "IMAGE";
-    final String TAG = "TAG";
-    final byte[] tar = "TAR".getBytes();
-    final String CONTAINER_ID = "CONTAINER_ID";
+    String WORKSPACE_ID = "WORKSPACE_ID";
+    String EXECUTION_ID = "EXECUTION_ID";
+    String IMAGE = "IMAGE";
+    String TAG = "TAG";
+    byte[] tar = "TAR".getBytes();
+    String CONTAINER_ID = "CONTAINER_ID";
 
     Stream<String> lines = Arrays.asList(WORKSPACE_ID + "," + EXECUTION_ID).stream();
 
     Entity envEntity = new Entity("Environment");
     envEntity.setProperty("image", IMAGE);
     envEntity.setProperty("tag", TAG);
-    final String envID = KeyFactory.keyToString(datastore.put(envEntity));
+    String envID = KeyFactory.keyToString(datastore.put(envEntity));
 
-    final CompletableFuture<String> envIDFuture = new CompletableFuture<>();
+    CompletableFuture<String> envIDFuture = new CompletableFuture<>();
     envIDFuture.complete(envID);
 
     when(req.getReader()).thenReturn(reader);
@@ -254,21 +254,21 @@ public class ExecuteCodeTest {
 
   @Test
   public void doPostTestFail() throws Exception {
-    final String WORKSPACE_ID = "WORKSPACE_ID";
-    final String EXECUTION_ID = "EXECUTION_ID";
-    final String IMAGE = "IMAGE";
-    final String TAG = "TAG";
-    final byte[] tar = "TAR".getBytes();
-    final String CONTAINER_ID = "CONTAINER_ID";
+    String WORKSPACE_ID = "WORKSPACE_ID";
+    String EXECUTION_ID = "EXECUTION_ID";
+    String IMAGE = "IMAGE";
+    String TAG = "TAG";
+    byte[] tar = "TAR".getBytes();
+    String CONTAINER_ID = "CONTAINER_ID";
 
     Stream<String> lines = Arrays.asList(WORKSPACE_ID + "," + EXECUTION_ID).stream();
 
     Entity envEntity = new Entity("Environment");
     envEntity.setProperty("image", IMAGE);
     envEntity.setProperty("tag", TAG);
-    final String envID = KeyFactory.keyToString(datastore.put(envEntity));
+    String envID = KeyFactory.keyToString(datastore.put(envEntity));
 
-    final CompletableFuture<String> envIDFuture = new CompletableFuture<>();
+    CompletableFuture<String> envIDFuture = new CompletableFuture<>();
     envIDFuture.complete(envID);
 
     when(req.getReader()).thenReturn(reader);

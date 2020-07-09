@@ -45,7 +45,7 @@ public class GetEnvStatusTest {
 
   @Test
   public void doGetTest() throws Exception {
-    final String STATUS = "STATUS";
+    String STATUS = "STATUS";
 
     Entity envEntity = new Entity("Environment");
     envEntity.setProperty("status", STATUS);
