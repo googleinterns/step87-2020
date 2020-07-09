@@ -3,7 +3,9 @@ package com.google.sps.tasks;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.exception.DockerException;
 import com.github.dockerjava.api.model.Frame;
+import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
@@ -20,6 +22,8 @@ import com.google.sps.workspace.WorkspaceFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -71,7 +75,7 @@ public class ExecuteCode extends HttpServlet {
               .createContainerCmd(image + ':' + tag)
               .withAttachStdout(true)
               .withAttachStderr(true)
-              // .withHostConfig(HostConfig.newHostConfig().withAutoRemove(true))
+              .withHostConfig(HostConfig.newHostConfig().withAutoRemove(true))
               .exec();
 
       try {
@@ -95,18 +99,7 @@ public class ExecuteCode extends HttpServlet {
                 .withStdOut(true)
                 .withStdErr(true)
                 .withFollowStream(true)
-                .exec(
-                    new ResultCallback.Adapter<Frame>() {
-                      @Override
-                      public void onNext(Frame object) {
-                        try {
-                          stdOut.write(object.getPayload());
-                          stdOut.flush();
-                        } catch (IOException e) {
-                          onError(e);
-                        }
-                      }
-                    });
+                .exec(new OutputAdapter(stdOut));
 
         // Without this sometimes the adapter will complete with out eny output.
         // This may be because the container is started before the adapter is added.
@@ -115,22 +108,37 @@ public class ExecuteCode extends HttpServlet {
 
         if (adapter.awaitCompletion(5, TimeUnit.MINUTES)) {
           w.updateExecutionOutput(executionID, stdOut.toString());
-          resp.getWriter().println(executionID);
-          resp.getWriter().println(stdOut.toString());
         } else {
           docker.killContainerCmd(container.getId()).exec();
           resp.sendError(HttpServletResponse.SC_REQUEST_TIMEOUT);
         }
-      } catch (InterruptedException | ExecutionException e) {
+      } catch (InterruptedException | ExecutionException | DockerException e) {
         docker.killContainerCmd(container.getId()).exec();
         resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        throw new RuntimeException(e);
       }
     } catch (InterruptedException
         | EntityNotFoundException
         | ExecutionException
         | TimeoutException e) {
       resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  static class OutputAdapter extends ResultCallback.Adapter<Frame> {
+    private OutputStream stdOut;
+
+    public OutputAdapter(OutputStream stdOut) {
+      this.stdOut = Objects.requireNonNull(stdOut);
+    }
+
+    @Override
+    public void onNext(Frame object) {
+      try {
+        stdOut.write(object.getPayload());
+        stdOut.flush();
+      } catch (IOException e) {
+        onError(e);
+      }
     }
   }
 }

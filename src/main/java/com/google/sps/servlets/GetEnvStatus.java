@@ -23,8 +23,8 @@ public class GetEnvStatus extends HttpServlet {
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
       Entity e = datastore.get(KeyFactory.stringToKey(envID));
 
-      resp.getWriter().print(e.getProperty("status"));
-    } catch (EntityNotFoundException e) {
+      resp.getWriter().print((String) e.getProperty("status"));
+    } catch (EntityNotFoundException | IllegalArgumentException e) {
       resp.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
   }
