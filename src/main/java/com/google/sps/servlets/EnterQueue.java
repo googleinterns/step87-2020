@@ -7,15 +7,28 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.CompositeFilter;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.TransactionOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.Date;
+import java.util.List;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -27,11 +40,15 @@ import javax.servlet.http.HttpServletResponse;
 public final class EnterQueue extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
+  private Clock clock;
+  private static final String TA_QUEUE = "/queue/ta.html?classCode=";
+  private static final String STUDENT_QUEUE = "/queue/student.html?classCode=";
 
   @Override
   public void init(ServletConfig config) throws ServletException {
     try {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
+      clock = Clock.systemUTC();
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -50,7 +67,7 @@ public final class EnterQueue extends HttpServlet {
 
       String idToken = request.getParameter("idToken");
       FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
-      String uID = decodedToken.getUid();
+      String userID = decodedToken.getUid();
 
       if (request.getParameter("enterTA") == null) {
         int retries = 10;
@@ -61,15 +78,36 @@ public final class EnterQueue extends HttpServlet {
             Key classKey = KeyFactory.stringToKey(classCode);
             Entity classEntity = datastore.get(txn, classKey);
 
+            // Get date
+            LocalDate localDate = LocalDate.now(clock);
+            ZoneId defaultZoneId = ZoneId.systemDefault();
+            Date currDate = Date.from(localDate.atStartOfDay(defaultZoneId).toInstant());
+
+            // Query visit entity for particular day
+            Filter classVisitFilter =
+                new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
+            Filter dateVisitFilter = new FilterPredicate("date", FilterOperator.EQUAL, currDate);
+            CompositeFilter visitFilter =
+                CompositeFilterOperator.and(dateVisitFilter, classVisitFilter);
+            PreparedQuery query = datastore.prepare(new Query("Visit").setFilter(visitFilter));
+
+            // Get visit entity for particular day
+            Entity visitEntity;
+            if (query.countEntities() == 0) {
+              visitEntity = new Entity("Visit");
+              visitEntity.setProperty("classKey", classKey);
+              visitEntity.setProperty("date", currDate);
+              visitEntity.setProperty("numVisits", (long) 0);
+            } else {
+              visitEntity = query.asSingleEntity();
+            }
+
+            long numVisits = (long) visitEntity.getProperty("numVisits");
             ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
 
-            String visitCode = (String) classEntity.getProperty("visitKey");
-            Entity visitEntity = datastore.get(txn, KeyFactory.stringToKey(visitCode));
-
-            Long numVisits = (Long) visitEntity.getProperty("numVisits");
-
-            if (!updatedQueue.contains(uID)) {
-              updatedQueue.add(uID);
+            // Update studentQueue and numVisit properties
+            if (!updatedQueue.contains(userID)) {
+              updatedQueue.add(userID);
               numVisits++;
             }
 
@@ -93,9 +131,22 @@ public final class EnterQueue extends HttpServlet {
             }
           }
         }
-        response.sendRedirect("/queue/student.html?classCode=" + classCode);
+        response.sendRedirect(STUDENT_QUEUE + classCode);
       } else {
-        response.sendRedirect("/queue/ta.html?classCode=" + classCode);
+        Key classKey = KeyFactory.stringToKey(classCode);
+        Entity classEntity = datastore.get(classKey);
+
+        List<String> taList = (List<String>) classEntity.getProperty("taList");
+
+        // Get user email
+        UserRecord userRecord = authInstance.getUser(userID);
+        String userEmail = userRecord.getEmail();
+
+        if (taList.contains(userEmail)) {
+          response.sendRedirect(TA_QUEUE + classCode);
+        } else {
+          response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        }
       }
 
     } catch (EntityNotFoundException e) {

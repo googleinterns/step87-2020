@@ -5,7 +5,6 @@ import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
@@ -28,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 public class NewClass extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
+  private static final String DASHBOARD = "/dashboard.html?classCode=";
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -68,23 +68,10 @@ public class NewClass extends HttpServlet {
 
         classEntity.setProperty("studentQueue", Collections.emptyList());
         classEntity.setProperty("taList", Collections.emptyList());
-        classEntity.setProperty("visitKey", "");
 
         datastore.put(classEntity);
 
-        Entity visitEntity = new Entity("Visit");
-        visitEntity.setProperty("classKey", KeyFactory.keyToString(classEntity.getKey()));
-        visitEntity.setProperty("numVisits", 0);
-        visitEntity.setProperty("className", className);
-
-        datastore.put(visitEntity);
-
-        Entity updateClassEntity = datastore.get(classEntity.getKey());
-        updateClassEntity.setProperty("visitKey", KeyFactory.keyToString(visitEntity.getKey()));
-        datastore.put(updateClassEntity);
-
-        response.sendRedirect(
-            "/dashboard.html?classCode=" + KeyFactory.keyToString(classEntity.getKey()));
+        response.sendRedirect(DASHBOARD + KeyFactory.keyToString(classEntity.getKey()));
 
       } else {
         response.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -92,8 +79,6 @@ public class NewClass extends HttpServlet {
 
     } catch (FirebaseAuthException e) {
       response.sendError(HttpServletResponse.SC_FORBIDDEN);
-    } catch (EntityNotFoundException e) {
-      response.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
   }
 }
