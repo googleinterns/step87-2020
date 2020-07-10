@@ -24,7 +24,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-// Once class owner submits a TA email, retrieve that user and add them as a TA to the class
+// Once class owner submits a TA email, retrieve that user and
+// add them as a TA to the class
 @WebServlet("/visit-date")
 public class VisitsByDate extends HttpServlet {
 
@@ -54,7 +55,8 @@ public class VisitsByDate extends HttpServlet {
 
       Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
 
-      // Obtain visits from datastore and filter them into results query
+      // Obtain visits from datastore and filter them into results query;
+      // Sort by most recent date
       Query query =
           new Query("Visit").addSort("date", SortDirection.DESCENDING).setFilter(classFilter);
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();

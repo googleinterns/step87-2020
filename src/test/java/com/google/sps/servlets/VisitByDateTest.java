@@ -99,16 +99,18 @@ public class VisitByDateTest {
       visitsPerClass.add(classVisits);
     }
 
+    // Verify content of lists
     assertEquals((Date) new Date(2020, 1, 1), (Date) listOfDates.get(0));
     assertEquals((long) 3, (long) visitsPerClass.get(0));
     assertTrue(listOfDates.size() == 1);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
+
     when(httpResponse.getWriter()).thenReturn(writer);
 
-    checkVisits.doGet(httpRequest, httpResponse);
-    System.out.println(stringWriter.toString());
+    checkVisits.doGet(httpRequest, httpResponse); // Servlet response
+
     assertTrue(stringWriter.toString().contains("Feb 1, 3920, 12:00:00 AM"));
     assertTrue(stringWriter.toString().contains("3"));
   }
@@ -347,5 +349,60 @@ public class VisitByDateTest {
     assertTrue(stringWriter.toString().contains("17"));
     assertTrue(stringWriter.toString().contains("4"));
     assertTrue(stringWriter.toString().contains("10"));
+  }
+
+  @Test
+  // With no visits, the response should be empty
+  public void emptyVisits() throws Exception {
+    ArrayList<Date> listOfDates = new ArrayList<Date>();
+    ArrayList<Long> visitsPerClass = new ArrayList<Long>();
+
+    Entity init = new Entity("Class");
+
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("taList", Collections.emptyList());
+    init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
+
+    datastore.put(init);
+
+    // Create a test entity in Visits
+    Entity visitEntity = new Entity("Visit");
+    visitEntity.setProperty("classKey", init.getKey());
+    visitEntity.setProperty("numVisits", 3);
+    visitEntity.setProperty("date", new Date(2020, 1, 1));
+
+    datastore.put(visitEntity);
+    datastore.delete(visitEntity.getKey());
+
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+
+    // Obtain visits from datastore and filter them into results query
+    Query query = new Query("Visit");
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery results = datastore.prepare(query);
+
+    // Store the class name and number of visits into two separate lists
+    for (Entity entity : results.asIterable()) {
+      Date date = (Date) entity.getProperty("date");
+      long classVisits = (long) entity.getProperty("numVisits");
+
+      listOfDates.add(date);
+      visitsPerClass.add(classVisits);
+    }
+
+    // Verify empty lists
+    assertTrue(listOfDates.size() == 0);
+    assertTrue(visitsPerClass.size() == 0);
+
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter writer = new PrintWriter(stringWriter);
+
+    when(httpResponse.getWriter()).thenReturn(writer);
+
+    checkVisits.doGet(httpRequest, httpResponse); // Servlet response
+
+    assertTrue(stringWriter.toString().contains(":[]"));
   }
 }
