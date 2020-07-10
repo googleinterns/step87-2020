@@ -75,6 +75,7 @@ public class ExecuteCode extends HttpServlet {
               .createContainerCmd(image + ':' + tag)
               .withAttachStdout(true)
               .withAttachStderr(true)
+              .withTty(true)
               .withHostConfig(HostConfig.newHostConfig().withAutoRemove(true))
               .exec();
 
@@ -99,7 +100,17 @@ public class ExecuteCode extends HttpServlet {
                 .withStdOut(true)
                 .withStdErr(true)
                 .withFollowStream(true)
-                .exec(new OutputAdapter(stdOut));
+                .exec(
+                    new ResultCallback.Adapter<Frame>() {
+                      @Override
+                      public void onNext(Frame object) {
+                        try {
+                          w.writeOutput(executionID, new String(object.getPayload()));
+                        } catch (ExecutionException | InterruptedException e) {
+                          onError(e);
+                        }
+                      }
+                    });
 
         // Without this sometimes the adapter will complete with out eny output.
         // This may be because the container is started before the adapter is added.
@@ -107,7 +118,7 @@ public class ExecuteCode extends HttpServlet {
         docker.startContainerCmd(container.getId()).exec();
 
         if (adapter.awaitCompletion(5, TimeUnit.MINUTES)) {
-          w.updateExecutionOutput(executionID, stdOut.toString());
+          // w.updateExecutionOutput(executionID, stdOut.toString());
         } else {
           docker.killContainerCmd(container.getId()).exec();
           resp.sendError(HttpServletResponse.SC_REQUEST_TIMEOUT);

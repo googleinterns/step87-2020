@@ -145,6 +145,11 @@ public class Workspace {
     reference.child("executions").child(executionID).setValueAsync(output).get();
   }
 
+  public void writeOutput(String executionID, String output)
+      throws InterruptedException, ExecutionException {
+    reference.child("executions").child(executionID).push().setValueAsync(output).get();
+  }
+
   /** @return the workspaceID */
   public String getWorkspaceID() {
     return reference.getKey();
