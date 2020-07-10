@@ -5,7 +5,7 @@ function drawBasic() {
 
   // Set up the data table to have a class name and visits associated w/ that specific class
   var data = new google.visualization.DataTable();
-  data.addColumn('string', 'Date'); // Is this supposed to be string or date?
+  data.addColumn('date', 'Date');
   data.addColumn('number', 'Visits');
 
   // Organize visit data through visit-by-date servlet
@@ -13,16 +13,21 @@ function drawBasic() {
     .then(response => response.json()).then(visits=> {
     
     var dates = visits.dates;
+
+    // Convert JSON date format to Date type
+    for (var k = 0; k < dates.length; k++) {
+      var dateStr = dates[k];
+      var realDate = new Date(dateStr);
+      dates[k] = realDate;
+    }
+
     var numVisits = visits.classVisits;
 
     var tempDataHolder = []; // To be pushed into datatable after updating
 
     // Loop through both lists and add info sets for each class 
     for (var i = 0; i < dates.length; i++) {
-      var temp = [];
-      temp.push(dates[i]);
-      temp.push(numVisits[i]);
-      tempDataHolder.push(temp);
+      tempDataHolder.push([dates[i], numVisits[i]]);
     }
     
     data.addRows(tempDataHolder); // Populate datatable with final data
@@ -30,6 +35,7 @@ function drawBasic() {
     var options = {
       title: 'Number of Student Office Hour Visits',
       hAxis: {
+        format: 'M/d/yy',
         title: 'Date',
         textStyle: {
           bold:true
