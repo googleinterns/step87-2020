@@ -9,6 +9,10 @@
     <script src="https://www.gstatic.com/firebasejs/7.15.1/firebase-auth.js"></script>
     <!-- Firebase Messaging -->
     <script src="https://www.gstatic.com/firebasejs/7.15.1/firebase-messaging.js"></script>
+
+    <link rel="stylesheet" href="studentQueue.css">
+    <!--Font-->
+    <link href='https://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'></link>
   </head>
 
   <script>
@@ -92,7 +96,7 @@
           }    
         } 
         else {
-            document.getElementById("studentPosition").innerText = "#" + studentPosition;
+            document.getElementById("studentPosition").innerText = "You are #" + studentPosition + " on the queue.";
         }
       });
     }
@@ -155,13 +159,13 @@
   </script>
 
   <body onload="getToken()">
-    <h1 id = "beingHelped"> </h1>
-    <a href="" id = "workspaceRedirect" style="text-decoration: none;" rel="noopener noreferrer" target="_blank"></a>
+    <div class = "wrapper">
+      <h1 id = "beingHelped"> </h1>
+      <a href="" id = "workspaceRedirect" style="text-decoration: none;" rel="noopener noreferrer" target="_blank"></a>
+    </div>
 
-    <div id="queue_status">
-      <h1>you are</h1>
+    <div id="queue_status"  class="wrapper">
       <h1 id="studentPosition">#</h1>
-      <h1> on the queue</h1>
     </div>
   </body>
 
