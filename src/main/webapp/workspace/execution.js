@@ -38,16 +38,22 @@ function executeCode() {
   getToken().then(tok => {
     fetch(`/workspace/queueExecution?workspaceID=${getParam("workspaceID")}&idToken=${tok}`)
       .then(resp => resp.text()).then(execID => {
-        if (!outputVisible) {
-          toggleOutput();
-        }
-
+        seenFirstOutput = false;
         getFirebaseRef().child("executions").child(execID).on("child_added", snap => {
           if (snap.val() !== null) {
+            if (typeof snap.val() === 'string' || snap.val() instanceof String) {
+              if (!outputVisible && ! seenFirstOutput) {
+                toggleOutput();
+                seenFirstOutput = true;
+              }    
 
-            fit.fit();
-            term.write(snap.val());
-
+              fit.fit();
+              term.write(snap.val());
+            } else {
+              executeButton.disabled = false;	
+              executeButton.classList.remove("download-in-progress");	
+              getFirebaseRef().child("executions").child(execID).off("child_added");
+            }
           }
         });
       });
