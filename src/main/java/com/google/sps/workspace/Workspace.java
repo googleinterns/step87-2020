@@ -140,11 +140,6 @@ public class Workspace {
     return reference.child("executions").push().getKey();
   }
 
-  public void updateExecutionOutput(String executionID, String output)
-      throws InterruptedException, ExecutionException {
-    reference.child("executions").child(executionID).setValueAsync(output).get();
-  }
-
   public void writeOutput(String executionID, String output)
       throws InterruptedException, ExecutionException {
     reference.child("executions").child(executionID).push().setValueAsync(output).get();
