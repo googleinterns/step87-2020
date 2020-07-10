@@ -118,7 +118,8 @@ public class ExecuteCode extends HttpServlet {
         docker.startContainerCmd(container.getId()).exec();
 
         if (adapter.awaitCompletion(5, TimeUnit.MINUTES)) {
-          // w.updateExecutionOutput(executionID, stdOut.toString());
+          // In the future we will get the exit code of the container.
+          w.setExitCode(executionID, 0);
         } else {
           docker.killContainerCmd(container.getId()).exec();
           resp.sendError(HttpServletResponse.SC_REQUEST_TIMEOUT);

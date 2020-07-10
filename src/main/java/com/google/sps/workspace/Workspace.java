@@ -150,6 +150,11 @@ public class Workspace {
     reference.child("executions").child(executionID).push().setValueAsync(output).get();
   }
 
+  public void setExitCode(String executionID, int exitcode)
+      throws InterruptedException, ExecutionException {
+    reference.child("executions").child(executionID).push().setValueAsync(exitcode).get();
+  }
+
   /** @return the workspaceID */
   public String getWorkspaceID() {
     return reference.getKey();
