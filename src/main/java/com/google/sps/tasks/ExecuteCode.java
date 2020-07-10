@@ -22,7 +22,6 @@ import com.google.sps.workspace.WorkspaceFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -92,25 +91,13 @@ public class ExecuteCode extends HttpServlet {
             .withRemotePath("/workspace")
             .exec();
 
-        ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
-
         ResultCallback.Adapter<Frame> adapter =
             docker
                 .attachContainerCmd(container.getId())
                 .withStdOut(true)
                 .withStdErr(true)
                 .withFollowStream(true)
-                .exec(
-                    new ResultCallback.Adapter<Frame>() {
-                      @Override
-                      public void onNext(Frame object) {
-                        try {
-                          w.writeOutput(executionID, new String(object.getPayload()));
-                        } catch (ExecutionException | InterruptedException e) {
-                          onError(e);
-                        }
-                      }
-                    });
+                .exec(new OutputAdapter(w, executionID));
 
         // Without this sometimes the adapter will complete with out eny output.
         // This may be because the container is started before the adapter is added.
@@ -137,18 +124,19 @@ public class ExecuteCode extends HttpServlet {
   }
 
   static class OutputAdapter extends ResultCallback.Adapter<Frame> {
-    private OutputStream stdOut;
+    private Workspace workspace;
+    private String execID;
 
-    public OutputAdapter(OutputStream stdOut) {
-      this.stdOut = Objects.requireNonNull(stdOut);
+    public OutputAdapter(Workspace workspace, String execID) {
+      this.workspace = Objects.requireNonNull(workspace);
+      this.execID = Objects.requireNonNull(execID);
     }
 
     @Override
     public void onNext(Frame object) {
       try {
-        stdOut.write(object.getPayload());
-        stdOut.flush();
-      } catch (IOException e) {
+        workspace.writeOutput(execID, new String(object.getPayload()));
+      } catch (ExecutionException | InterruptedException e) {
         onError(e);
       }
     }
