@@ -1,14 +1,16 @@
 google.charts.load('current', {packages: ['corechart', 'line']});
 
 // Render a chart visual on dashboard page for tracking class visits by date
-function drawBasic2() {
+function drawBasic() {
 
   // Set up the data table to have a class name and visits associated w/ that specific class
   var data = new google.visualization.DataTable();
   data.addColumn('string', 'Date'); // Is this supposed to be string or date?
   data.addColumn('number', 'Visits');
 
-  fetch(`/visit-date?classCode=` + getParam("classCode")).then(response => response.json()).then(visits=> {
+  // Organize visit data through visit-by-date servlet
+  fetch(`/visit-date?classCode=` + getParam("classCode"))
+    .then(response => response.json()).then(visits=> {
     
     var dates = visits.dates;
     var numVisits = visits.classVisits;
@@ -26,7 +28,7 @@ function drawBasic2() {
     data.addRows(tempDataHolder); // Populate datatable with final data
 
     var options = {
-      title: 'Number of Visits per Day',
+      title: 'Number of Student Office Hour Visits',
       hAxis: {
         title: 'Date',
         textStyle: {
@@ -67,7 +69,7 @@ function drawBasic2() {
   });
 }
 
-google.charts.setOnLoadCallback(drawBasic2);
+google.charts.setOnLoadCallback(drawBasic);
 
 function setRedirect(){
   var params = window.location.search;
