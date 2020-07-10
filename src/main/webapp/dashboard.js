@@ -5,7 +5,7 @@ function drawBasic2() {
 
   // Set up the data table to have a class name and visits associated w/ that specific class
   var data = new google.visualization.DataTable();
-  data.addColumn('string', 'Date');
+  data.addColumn('string', 'Date'); // Is this supposed to be string or date?
   data.addColumn('number', 'Visits');
 
   fetch(`/visit-date?classCode=` + getParam("classCode")).then(response => response.json()).then(visits=> {
@@ -50,7 +50,7 @@ function drawBasic2() {
     };
 
     var chart = new google.visualization.LineChart(
-    document.getElementById('line-chart'));
+    document.getElementById("line-chart"));
 
     chart.draw(data, options);
 

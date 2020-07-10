@@ -56,7 +56,7 @@ public class VisitsByDate extends HttpServlet {
 
       // Obtain visits from datastore and filter them into results query
       Query query =
-          new Query("Visit").addSort("date", SortDirection.ASCENDING).setFilter(classFilter);
+          new Query("Visit").addSort("date", SortDirection.DESCENDING).setFilter(classFilter);
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
       PreparedQuery results = datastore.prepare(query);
 
@@ -66,12 +66,6 @@ public class VisitsByDate extends HttpServlet {
         long visitsForThisDate = (long) entity.getProperty("numVisits");
 
         dates.add(date);
-        // ------------------
-        // String pattern = "MM/dd/yyyy HH:mm:ss";
-        // DateFormat df = new SimpleDateFormat(pattern);
-        // String todayAsString = df.format(date);
-        // tempDates.add(todayAsString);
-        // ------------------
         classVisits.add(visitsForThisDate);
       }
 
