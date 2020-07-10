@@ -27,13 +27,33 @@ function drawBasic2() {
 
     var options = {
       title: 'Number of Visits per Day',
-      hAxis: {title: 'Date'},
-      vAxis: {title: 'Number of Visits'},
-      textStyle: {
-        color: 'white'
+      hAxis: {
+        title: 'Date',
+        textStyle: {
+          bold:true
+        },
+      },
+      vAxis: {
+        title: 'Number of Visits',
+        textStyle: {
+          bold:true
+        },
       },
       backgroundColor: {
-        color: '#2457AA',
+        gradient: {
+          // Start color for gradient
+          color1: '#C2E1FF',
+          // Finish color for gradient
+          color2: '#2457AA',
+          // Start and end point of gradient, start 
+          // on upper left corner
+          x1: '0%', y1: '0%',
+          x2: '100%', y2: '100%',
+          // If true, the boundary for x1,
+          // y1, x2, and y2 is the box. If
+          // false, it's the entire chart.
+          useObjectBoundingBoxUnits: true
+        },
         stroke: '#031430',
         strokeWidth: 5
       },
