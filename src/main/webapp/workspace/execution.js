@@ -39,6 +39,8 @@ function executeCode() {
     fetch(`/workspace/queueExecution?workspaceID=${getParam("workspaceID")}&idToken=${tok}`)
       .then(resp => resp.text()).then(execID => {
         seenFirstOutput = false;
+        term.write('\x1bc'); // clear terminal
+
         getFirebaseRef().child("executions").child(execID).on("child_added", snap => {
           if (snap.val() !== null) {
             if (typeof snap.val() === 'string' || snap.val() instanceof String) {
