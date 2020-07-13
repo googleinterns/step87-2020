@@ -3,6 +3,7 @@ package com.google.sps.workspace;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.sps.workspace.WorkspaceArchive.ArchiveType;
 import java.util.ArrayList;
@@ -136,18 +137,31 @@ public class Workspace {
     reference.child("downloads").child(downloadID).setValueAsync(name).get();
   }
 
-  public String newExecutionID() {
-    return reference.child("executions").push().getKey();
+  public String newExecutionID() throws InterruptedException, ExecutionException {
+    DatabaseReference ref = reference.child("executions").push();
+    ref.child("timestamp").setValueAsync(ServerValue.TIMESTAMP).get();
+    return ref.getKey();
   }
 
   public void writeOutput(String executionID, String output)
       throws InterruptedException, ExecutionException {
-    reference.child("executions").child(executionID).push().setValueAsync(output).get();
+    reference
+        .child("executions")
+        .child(executionID)
+        .child("output")
+        .push()
+        .setValueAsync(output)
+        .get();
   }
 
   public void setExitCode(String executionID, int exitcode)
       throws InterruptedException, ExecutionException {
-    reference.child("executions").child(executionID).push().setValueAsync(exitcode).get();
+    reference
+        .child("executions")
+        .child(executionID)
+        .child("exitCode")
+        .setValueAsync(exitcode)
+        .get();
   }
 
   /** @return the workspaceID */
