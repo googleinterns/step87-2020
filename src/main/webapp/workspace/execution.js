@@ -1,3 +1,5 @@
+const clear = '\x1bc';
+
 let outputVisible = false;
 let currOutputRef = null;
 let currExitCode = null;
@@ -57,7 +59,7 @@ getFirebaseRef().child("executions").orderByChild("timestamp").startAt(Date.now(
   executeButton.disabled = true;
 
   seenFirstOutput = false;
-  term.write('\x1bc');
+  term.write(clear);  // Clear terminal
 
   currOutputRef = snap.ref.child("output");
   currOutputRef.on("child_added", snap => {
