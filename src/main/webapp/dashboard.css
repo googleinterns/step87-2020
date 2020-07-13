@@ -125,3 +125,7 @@ body {
 .hidden {
   display: none;
 }
+
+#envTable {
+  width: 100%;
+}
