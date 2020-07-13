@@ -73,10 +73,8 @@ public class NotifyStudent extends HttpServlet {
           // Update queue
           ArrayList<EmbeddedEntity> updatedQueue =
               (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
-          EmbeddedEntity delEntity = updatedQueue.stream()
-                                                 .filter(elem -> elem.hasProperty(studentID))
-                                                 .findFirst()
-                                                 .get();
+          EmbeddedEntity delEntity =
+              updatedQueue.stream().filter(elem -> elem.hasProperty(studentID)).findFirst().get();
           updatedQueue.remove(delEntity);
 
           // Get workspace ID

@@ -3,6 +3,7 @@ package com.google.sps.servlets;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
@@ -52,8 +53,11 @@ public class CheckStudentStatus extends HttpServlet {
       Entity classEntity = datastore.get(classKey);
 
       // Find position in queue
-      ArrayList<String> queue = (ArrayList) classEntity.getProperty("studentQueue");
-      int studentPosition = queue.indexOf(studentID) + 1;
+      ArrayList<EmbeddedEntity> queue =
+          (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
+      EmbeddedEntity studentEntity =
+          queue.stream().filter(elem -> elem.hasProperty(studentID)).findFirst().get();
+      int studentPosition = queue.indexOf(studentEntity) + 1;
 
       response.setContentType("application/json;");
       response.getWriter().print(studentPosition);
