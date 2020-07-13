@@ -96,17 +96,28 @@ function addEnvRow(name, status) {
   copy.querySelector(".envName").innerText = name;
   copy.querySelector(".envStatus").innerText = status;
 
+  const deleteButton = copy.querySelector(".envDelete");
+  deleteButton.disabled = status === "pulling";
+  
+
   document.getElementById("envTable").appendChild(copy);
 
   return copy;
 }
 
 function checkEnvStatus(envID, row) {
-  fetch(`/environment?envID=${envID}`).then(resp => resp.ok ? resp.text() : "failed").then(env => {
+  fetch(`/environment?envID=${envID}`).then(resp => resp.ok ? resp.json() : "failed").then(env => {
     row.querySelector(".envStatus").innerText = env.status;
 
     if (env.status === "pulling") {
       setTimeout(() => checkEnvStatus(envID, row), 1000);
+    } else {
+      const deleteButton = row.querySelector(".envDelete");
+      deleteButton.disabled = false;
+      deleteButton.onclick = () => {
+        row.querySelector(".envStatus").innerText = "deleting";
+        fetch(`/environment?envID=${envID}`, {method: 'DELETE'});
+      };
     }
   });
 }
@@ -124,7 +135,11 @@ function pullImage() {
 function getEnvs() {
   fetch(`/getEnvironments?classID=${getParam("classCode")}`).then(resp => resp.json()).then(envs => {
     for (var env of envs) {
-     addEnvRow(env.name, env.status); 
+     const row = addEnvRow(env.name, env.status);
+     row.querySelector(".envDelete").onclick = () => {
+      row.querySelector(".envStatus").innerText = "deleting";
+      fetch(`/environment?envID=${env.id}`, {method: 'DELETE'});
+     }; 
     }
   });
 }
