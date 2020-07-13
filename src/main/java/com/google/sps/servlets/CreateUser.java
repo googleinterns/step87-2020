@@ -3,8 +3,9 @@ package com.google.sps.servlets;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
@@ -50,20 +51,13 @@ public class CreateUser extends HttpServlet {
       UserRecord userRecord = authInstance.getUser(userID);
       String userEmail = userRecord.getEmail();
 
-      // Obtain users from datastore and filter them into results query
-      Query query = new Query("User");
-      PreparedQuery results = datastore.prepare(query);
+      // Prevent creating duplicate users
+      Query query =
+          new Query("User")
+              .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, userEmail));
 
-      boolean userExists = false; // Assume user does not exist
-      for (Entity entity : results.asIterable()) {
-        if (entity.getProperty("userEmail") == userEmail) {
-          userExists = true;
-          System.out.println("Found user entity.");
-        }
-      }
+      if (datastore.prepare(query).countEntities() == 0) {
 
-      // Create a new user entity if there is no existing one
-      if (!userExists) {
         Entity user = new Entity("User");
         user.setProperty("userEmail", userEmail);
         user.setProperty("registeredClasses", Collections.emptyList());
@@ -71,6 +65,8 @@ public class CreateUser extends HttpServlet {
         user.setProperty("taClasses", Collections.emptyList());
 
         datastore.put(user);
+      } else {
+        response.sendError(HttpServletResponse.SC_FORBIDDEN);
       }
     } catch (FirebaseAuthException e) {
       response.sendError(HttpServletResponse.SC_FORBIDDEN);
