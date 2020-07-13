@@ -41,6 +41,7 @@ public class WorkspaceTest {
   @Mock DatabaseReference environmentRef;
   @Mock DatabaseReference executionsRef;
   @Mock DatabaseReference newExecutionRef;
+  @Mock DatabaseReference outputElementRef;
 
   @Captor ArgumentCaptor<ValueEventListener> listenerCaptor;
 
@@ -230,17 +231,34 @@ public class WorkspaceTest {
   }
 
   @Test
-  public void updateExecutionOutput() throws Exception {
+  public void writeOutput() throws Exception {
     String EXEC_ID = "EXEC_ID";
     String OUTPUT = "OUTPUT";
 
     when(reference.child(eq("executions"))).thenReturn(executionsRef);
     when(executionsRef.child(eq(EXEC_ID))).thenReturn(newExecutionRef);
-    when(newExecutionRef.setValueAsync(eq(OUTPUT))).thenReturn(apiFuture);
+    when(newExecutionRef.push()).thenReturn(outputElementRef);
+    when(outputElementRef.setValueAsync(eq(OUTPUT))).thenReturn(apiFuture);
 
-    new Workspace(reference).updateExecutionOutput(EXEC_ID, OUTPUT);
+    new Workspace(reference).writeOutput(EXEC_ID, OUTPUT);
 
-    verify(newExecutionRef, times(1)).setValueAsync(eq(OUTPUT));
+    verify(outputElementRef, times(1)).setValueAsync(eq(OUTPUT));
+    verify(apiFuture, times(1)).get();
+  }
+
+  @Test
+  public void setExitCode() throws Exception {
+    String EXEC_ID = "EXEC_ID";
+    int EXIT_CODE = 0;
+
+    when(reference.child(eq("executions"))).thenReturn(executionsRef);
+    when(executionsRef.child(eq(EXEC_ID))).thenReturn(newExecutionRef);
+    when(newExecutionRef.push()).thenReturn(outputElementRef);
+    when(outputElementRef.setValueAsync(eq(EXIT_CODE))).thenReturn(apiFuture);
+
+    new Workspace(reference).setExitCode(EXEC_ID, EXIT_CODE);
+
+    verify(outputElementRef, times(1)).setValueAsync(eq(EXIT_CODE));
     verify(apiFuture, times(1)).get();
   }
 }

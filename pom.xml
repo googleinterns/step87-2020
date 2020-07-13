@@ -189,6 +189,9 @@
             <directories>
                 <directory>src/main/webapp</directory>
             </directories>
+            <excludes>
+              <exclude>src/main/webapp/workspace/xterm</exclude>
+            </excludes>
             <reporter>html</reporter>
             <reportFile>target/site/jshint.html</reportFile>
             <skipEmptyReport>false</skipEmptyReport>

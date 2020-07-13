@@ -1,0 +1,7 @@
+indexes:
+
+- kind: Visit
+  properties:
+  - name: classKey
+  - name: date
+    direction: desc
