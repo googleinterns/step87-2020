@@ -67,12 +67,10 @@ public class GetQueueTest {
   @Test
   public void getQueue() throws Exception {
     Entity init = new Entity("Class");
-    ArrayList<String> setQueue = new ArrayList<String>(Arrays.asList("uID1", "uID2"));
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", "");
-    init.setProperty("studentQueue", setQueue);
 
     EmbeddedEntity addQueue1 = new EmbeddedEntity();
     EmbeddedEntity studentInfo1 = new EmbeddedEntity();
