@@ -37,6 +37,22 @@ public class CreateUser extends HttpServlet {
     }
   }
 
-  
+  // Add a user to the datastore
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
+    // Check if user entity already exists
+    String userToken = request.getParameter("userToken");
+    FirebaseToken decodedToken = authInstance.verifyIdToken(userToken);
+    String userID = decodedToken.getUid();
+
+    UserRecord userRecord = authInstance.getUser(userID);
+    String userEmail = userRecord.getEmail();
+
+    
+
+    // Create a new user entity if there is no existing one
+  }
 }

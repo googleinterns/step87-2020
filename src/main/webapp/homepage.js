@@ -74,9 +74,24 @@ function addAuthStateListener() {
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
       button.style.visibility = "visible";
+      user.getIdToken().then((token) => setToken(token));
+      fetch
     } else {
-    button.style.visibility = "hidden";
+      button.style.visibility = "hidden";
     }
+  });
+}
+
+function setToken(token){
+  userToken = token;
+  addUser();
+}
+
+function addUser(){
+  var params = window.location.search + "&userToken=" + userToken;
+  const request = new Request("/create-user" + params, {method: "POST"});
+  fetch(request).then(response => response.json()).then((studentPosition) => {
+    // TODO
   });
 }
 
