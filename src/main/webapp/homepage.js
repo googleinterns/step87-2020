@@ -67,6 +67,17 @@ function checkSignIn() {
   }
 }
 
+function addUser() {
+  var params = window.location.search + "&userToken=" + userToken;
+  const request = new Request("/create-user" + params, {method: "POST"});
+  fetch(request);
+}
+
+function setToken(token) {
+  userToken = token;
+  addUser();
+}
+
 // When user sign-in state changes, hide or show logout button
 function addAuthStateListener() {
   var button = document.getElementById("signout");
@@ -75,23 +86,9 @@ function addAuthStateListener() {
     if (user) {
       button.style.visibility = "visible";
       user.getIdToken().then((token) => setToken(token));
-      fetch
     } else {
       button.style.visibility = "hidden";
     }
-  });
-}
-
-function setToken(token){
-  userToken = token;
-  addUser();
-}
-
-function addUser(){
-  var params = window.location.search + "&userToken=" + userToken;
-  const request = new Request("/create-user" + params, {method: "POST"});
-  fetch(request).then(response => response.json()).then((studentPosition) => {
-    // TODO
   });
 }
 
