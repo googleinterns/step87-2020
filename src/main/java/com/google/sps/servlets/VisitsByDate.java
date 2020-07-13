@@ -24,8 +24,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-// Once class owner submits a TA email, retrieve that user and
-// add them as a TA to the class
+// Retrieve class visit data by date
 @WebServlet("/visit-date")
 public class VisitsByDate extends HttpServlet {
 
