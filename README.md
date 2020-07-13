@@ -4,3 +4,5 @@ This website will be geared towards teaching staff of computer science courses t
 virtual office hours as a better alternative to screen-sharing in Zoom. The website would allow 
 teaching staff (TAs) to create shared workspaces that they could invite students to collaborate on. 
 The site will allow verified users to edit code together in real time.
+
+[Environment documentation](docs/ENVIRONMENT.md)

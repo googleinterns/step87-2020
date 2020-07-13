@@ -1,0 +1,17 @@
+*{
+  font-family: 'Noto Sans', sans-serif;
+}
+
+.wrapper {
+  overflow: auto;
+  text-align: center;
+}
+
+#studentPosition{
+  padding: 10px;
+  overflow: auto;
+  margin: auto;  
+  margin-top: 10px;
+  margin-bottom: 10px;
+  max-width: 800px;
+}
