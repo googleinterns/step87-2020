@@ -102,7 +102,7 @@ function addEnvRow(name, status) {
 }
 
 function checkEnvStatus(envID, row) {
-  fetch(`/envStatus?envID=${envID}`).then(resp => resp.text()).then(status => {
+  fetch(`/envStatus?envID=${envID}`).then(resp => resp.ok ? resp.text() : "failed").then(status => {
     row.querySelector(".envStatus").innerText = status;
 
     if (status === "pulling") {
@@ -115,8 +115,21 @@ function pullImage() {
   const name = document.getElementById("envName").value;
   const image = document.getElementById("envImage").value;
   const tag = document.getElementById("envTag").value;
-  fetch(`/queueEnvPull?classID=${getParam("classCode")}&image=${image}&tag=${tag}`)
+  fetch(`/queueEnvPull?classID=${getParam("classCode")}&name=${name}&image=${image}&tag=${tag}`)
     .then(resp => resp.text()).then(envID => {
       checkEnvStatus(envID, addEnvRow(name, "pulling"));
     });
+}
+
+function getEnvs() {
+  fetch(`/getEnvironments?classID=${getParam("classCode")}`).then(resp => resp.json()).then(envs => {
+    for (var env of envs) {
+     addEnvRow(env.name, env.status); 
+    }
+  });
+}
+
+function onload() {
+  setRedirect();
+  getEnvs();
 }
