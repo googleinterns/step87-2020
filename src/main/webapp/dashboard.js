@@ -89,21 +89,34 @@ function getClassCode() {
   return true;
 } 
 
-function checkEnvStatus(envID) {
+function addEnvRow(name, status) {
+  const template = document.getElementById("envRowTemplate");
+  const copy = template.content.cloneNode(true).querySelector("tr");
+
+  copy.querySelector(".envName").innerText = name;
+  copy.querySelector(".envStatus").innerText = status;
+
+  document.getElementById("envTable").appendChild(copy);
+
+  return copy;
+}
+
+function checkEnvStatus(envID, row) {
   fetch(`/envStatus?envID=${envID}`).then(resp => resp.text()).then(status => {
-    console.log(status);
+    row.querySelector(".envStatus").innerText = status;
 
     if (status === "pulling") {
-      setTimeout(() => checkEnvStatus(envID), 1000);
+      setTimeout(() => checkEnvStatus(envID, row), 1000);
     }
   });
 }
 
 function pullImage() {
+  const name = document.getElementById("envName").value;
   const image = document.getElementById("envImage").value;
   const tag = document.getElementById("envTag").value;
   fetch(`/queueEnvPull?classID=${getParam("classCode")}&image=${image}&tag=${tag}`)
     .then(resp => resp.text()).then(envID => {
-      checkEnvStatus(envID);
+      checkEnvStatus(envID, addEnvRow(name, "pulling"));
     });
 }
