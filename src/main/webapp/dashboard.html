@@ -50,6 +50,19 @@
               </label>
             </fieldset>
           </form>
+
+          <div>
+            <label for="envName"><span>Environment Name <span class="required">*</span></span></label>
+            <input type="text" id="envName" name="envName" />
+            <br />
+            <label for="envImage"><span>Docker Image Name <span class="required">*</span></span></label>
+            <input type="text" id="envImage" name="envImage" />
+            <br />
+            <label for="envTag"><span>Docker Image Tag <span class="required">*</span></span></label>
+            <input type="text" id="envTag" name="envTag" />
+            <br />
+            <button onclick="pullImage()">Submit</button>
+          </div>
         </div>
       </div>
       

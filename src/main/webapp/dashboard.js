@@ -88,3 +88,22 @@ function getClassCode() {
   document.getElementById("hiddenClassCode").value = getParam("classCode");
   return true;
 } 
+
+function checkEnvStatus(envID) {
+  fetch(`/envStatus?envID=${envID}`).then(resp => resp.text()).then(status => {
+    console.log(status);
+
+    if (status === "pulling") {
+      setTimeout(() => checkEnvStatus(envID), 1000);
+    }
+  });
+}
+
+function pullImage() {
+  const image = document.getElementById("envImage").value;
+  const tag = document.getElementById("envTag").value;
+  fetch(`/queueEnvPull?classID=${getParam("classCode")}&image=${image}&tag=${tag}`)
+    .then(resp => resp.text()).then(envID => {
+      checkEnvStatus(envID);
+    });
+}
