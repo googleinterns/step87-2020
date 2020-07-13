@@ -37,7 +37,7 @@ public class CreateUser extends HttpServlet {
 
   // Add a user to the datastore
   @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
@@ -58,6 +58,7 @@ public class CreateUser extends HttpServlet {
       for (Entity entity : results.asIterable()) {
         if (entity.getProperty("userEmail") == userEmail) {
           userExists = true;
+          System.out.println("Found user entity.");
         }
       }
 
