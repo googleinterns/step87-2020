@@ -72,6 +72,11 @@ public class GetEnvironment extends HttpServlet {
     String envID = req.getParameter("envID");
 
     try (CloudTasksClient client = getClient()) {
+      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+      Entity e = datastore.get(KeyFactory.stringToKey(envID));
+      e.setProperty("status", "deleting");
+      datastore.put(e);
+
       String queuePath = QueueName.of(getProjectID(), getLocation(), getQueueName()).toString();
 
       Task.Builder taskBuilder =
@@ -86,6 +91,8 @@ public class GetEnvironment extends HttpServlet {
       client.createTask(queuePath, taskBuilder.build());
 
       resp.getWriter().print(envID);
+    } catch (EntityNotFoundException e) {
+      resp.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
   }
 }
