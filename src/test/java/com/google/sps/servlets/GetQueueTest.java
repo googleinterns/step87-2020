@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
@@ -15,8 +16,11 @@ import com.google.firebase.auth.UserRecord;
 import com.google.gson.Gson;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
@@ -45,6 +49,10 @@ public class GetQueueTest {
 
   @InjectMocks GetQueue queue;
 
+  private static final LocalDate LOCAL_DATE = LocalDate.of(2020, 07, 06);
+  private static final Date DATE =
+      Date.from(LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
   @Before
   public void setUp() {
     helper.setUp();
@@ -57,7 +65,7 @@ public class GetQueueTest {
   }
 
   @Test
-  public void shortQueue() throws Exception {
+  public void getQueue() throws Exception {
     Entity init = new Entity("Class");
     ArrayList<String> setQueue = new ArrayList<String>(Arrays.asList("uID1", "uID2"));
 
@@ -65,6 +73,18 @@ public class GetQueueTest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", "");
     init.setProperty("studentQueue", setQueue);
+
+    EmbeddedEntity addQueue1 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo1 = new EmbeddedEntity();
+    studentInfo1.setProperty("timeEntered", DATE);
+    addQueue1.setProperty("uID1", studentInfo1);
+
+    EmbeddedEntity addQueue2 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo2 = new EmbeddedEntity();
+    studentInfo2.setProperty("timeEntered", DATE);
+    addQueue2.setProperty("uID2", studentInfo2);
+
+    init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2));
 
     datastore.put(init);
 
