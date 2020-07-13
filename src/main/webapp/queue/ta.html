@@ -7,6 +7,10 @@
     <script src="https://www.gstatic.com/firebasejs/7.15.1/firebase-app.js"></script>
     <!-- Firebase Authentication -->
     <script src="https://www.gstatic.com/firebasejs/7.15.1/firebase-auth.js"></script>
+
+    <link rel="stylesheet" href="taQueue.css">
+    <!--Font-->
+    <link href='https://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'></link>
   </head>
 
   <script>
@@ -62,7 +66,7 @@
     function notifyStudent(studentEmail){
       var params = window.location.search + "&studentEmail=" + studentEmail + "&taToken=" + taToken;
       const request = new Request("/notify-student" + params, {method: "POST"});
-      document.getElementById('beingHelped').appendChild(createHelpedElem(studentEmail));
+      document.getElementById('beingHelped').appendChild(createHelpedElem(studentEmail, params));
       
       fetch(request);
 
@@ -83,8 +87,6 @@
       var params = window.location.search + "&studentEmail=" + studentEmail + "&taToken=" + taToken;
       const request = new Request("/end-help" + params, {method: "POST"});
       document.getElementById('beingHelped').innerText = "";
-      document.getElementById("workspaceRedirect").href = "";
-      document.getElementById("workspaceRedirect").innerText = "";
       
       fetch(request);
 
@@ -93,14 +95,17 @@
 
     function createListElement(studentEmail) {
       let notifyElem = document.createElement("div");
+      notifyElem.className = "student-container";
 
-      let student = document.createElement('h1');
+      let student = document.createElement('p');
       student.innerText = studentEmail;
+      student.className = "student-info";
 
       let btn = document.createElement("input");
       btn.value = "notify student you're ready to help";
       btn.type = "button";
       btn.id = studentEmail;
+      btn.className = "notify-button";
       btn.onclick = function(){notifyStudent(this.id);};
 
       notifyElem.appendChild(student);
@@ -109,32 +114,44 @@
       return notifyElem;
     }
 
-    function createHelpedElem(studentEmail){
+    function createHelpedElem(studentEmail, params){
       let studentElem = document.createElement("div");
+      studentElem.className = "help-container";
 
-      let student = document.createElement('h1');
+      let student = document.createElement('p');
       student.innerText = "You are helping " + studentEmail;
+      student.className = "help-info";
 
       let btn = document.createElement("input");
       btn.value = "end interaction";
       btn.type = "button";
       btn.id = studentEmail;
+      btn.className = "end-button";
       btn.onclick = function(){endHelp(this.id);};
 
       studentElem.appendChild(student);
       studentElem.appendChild(btn);
+      studentElem.appendChild(createLink(params));
 
       return studentElem;
+    }
+
+    function createLink(params){
+      let link = document.createElement("a");
+      link.id = "workspaceRedirect";
+      link.rel= "noopener noreferrer";
+      link.target= "_blank";
+      link.href = getWorkspace(params);
+      link.style = "text-decoration: none;"
+
+      return link;
     }
   </script>
 
   <body onload="getToken()">
-    <h1>hello TA</h1>
-
-    <div id = "beingHelped"></div>
-    <br>
-    <a href="" id = "workspaceRedirect" style="text-decoration: none;"></a>
-
-    <div id="queue"></div>
+    <div id = "beingHelped" class="wrapper"> </div>
+    
+    <h1 id="queue-start">waitlist: pull from top first!</h1>
+    <div id="queue" class="wrapper"></div>
   </body>
 </html>
