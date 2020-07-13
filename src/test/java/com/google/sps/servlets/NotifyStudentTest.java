@@ -2,6 +2,7 @@ package com.google.sps.servlets;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -20,8 +21,11 @@ import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.sps.workspace.Workspace;
 import com.google.sps.workspace.WorkspaceFactory;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
@@ -54,6 +58,10 @@ public class NotifyStudentTest {
 
   @InjectMocks NotifyStudent alertStudent;
 
+  private static final LocalDate LOCAL_DATE = LocalDate.of(2020, 07, 06);
+  private static final Date DATE =
+      Date.from(LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
   @Before
   public void setUp() {
     helper.setUp();
@@ -79,8 +87,19 @@ public class NotifyStudentTest {
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
-    init.setProperty("studentQueue", new ArrayList(Arrays.asList("studentID", "test2")));
     init.setProperty("visitKey", "visitKey");
+
+    EmbeddedEntity addQueue1 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo1 = new EmbeddedEntity();
+    studentInfo1.setProperty("timeEntered", DATE);
+    addQueue1.setProperty("studentID", studentInfo1);
+
+    EmbeddedEntity addQueue2 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo2 = new EmbeddedEntity();
+    studentInfo2.setProperty("timeEntered", DATE);
+    addQueue2.setProperty("test2", studentInfo2);
+
+    init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2));
 
     EmbeddedEntity queueInfo = new EmbeddedEntity();
     queueInfo.setProperty("taID", "taID");
@@ -113,7 +132,6 @@ public class NotifyStudentTest {
 
     Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
 
-    ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
     EmbeddedEntity got = (EmbeddedEntity) testClassEntity.getProperty("beingHelped");
     EmbeddedEntity gotQueue = (EmbeddedEntity) got.getProperty("studentID");
 
@@ -122,9 +140,11 @@ public class NotifyStudentTest {
         .named("got.workspaceID")
         .isEqualTo("workspaceID");
 
+    ArrayList<EmbeddedEntity> testQueue =
+        (ArrayList<EmbeddedEntity>) testClassEntity.getProperty("studentQueue");
     assertEquals(
         KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
     assertEquals(1, testQueue.size());
-    assertEquals("test2", testQueue.get(0));
+    assertTrue(testQueue.get(0).hasProperty("test2"));
   }
 }

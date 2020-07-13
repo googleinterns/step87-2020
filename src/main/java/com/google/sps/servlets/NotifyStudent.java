@@ -71,8 +71,11 @@ public class NotifyStudent extends HttpServlet {
           String studentID = userRecord.getUid();
 
           // Update queue
-          ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
-          updatedQueue.remove(studentID);
+          ArrayList<EmbeddedEntity> updatedQueue =
+              (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
+          EmbeddedEntity delEntity =
+              updatedQueue.stream().filter(elem -> elem.hasProperty(studentID)).findFirst().get();
+          updatedQueue.remove(delEntity);
 
           // Get workspace ID
           String workspaceID = factory.fromStudentAndTA(studentID, taID).getWorkspaceID();

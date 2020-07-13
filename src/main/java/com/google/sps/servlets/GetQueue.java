@@ -3,6 +3,7 @@ package com.google.sps.servlets;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
@@ -50,11 +51,13 @@ public class GetQueue extends HttpServlet {
       Entity classEntity = datastore.get(classKey);
 
       // Get queue
-      ArrayList<String> uidQueue = (ArrayList) classEntity.getProperty("studentQueue");
+      ArrayList<EmbeddedEntity> entityQueue =
+          (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
 
       // Reconstruct queue using names
       ArrayList<String> queue = new ArrayList<String>();
-      for (String uid : uidQueue) {
+      for (EmbeddedEntity elem : entityQueue) {
+        String uid = elem.getProperties().keySet().stream().findFirst().get();
         UserRecord userRecord = authInstance.getUser(uid);
         String studentName = userRecord.getEmail();
         queue.add(studentName);

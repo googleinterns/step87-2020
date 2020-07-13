@@ -3,6 +3,7 @@ package com.google.sps.servlets;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
@@ -24,6 +25,7 @@ import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -83,6 +85,10 @@ public final class EnterQueue extends HttpServlet {
             ZoneId defaultZoneId = ZoneId.systemDefault();
             Date currDate = Date.from(localDate.atStartOfDay(defaultZoneId).toInstant());
 
+            // Get time
+            LocalDateTime localTime = LocalDateTime.now(clock);
+            Date currTime = Date.from(localTime.atZone(defaultZoneId).toInstant());
+
             // Query visit entity for particular day
             Filter classVisitFilter =
                 new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
@@ -103,11 +109,24 @@ public final class EnterQueue extends HttpServlet {
             }
 
             long numVisits = (long) visitEntity.getProperty("numVisits");
-            ArrayList<String> updatedQueue = (ArrayList) classEntity.getProperty("studentQueue");
+            ArrayList<EmbeddedEntity> updatedQueue =
+                (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
 
-            // Update studentQueue and numVisit properties
-            if (!updatedQueue.contains(userID)) {
-              updatedQueue.add(userID);
+            // Update studentQueue and numVisit properties if student not already in queue
+            if (!updatedQueue.stream()
+                .filter(elem -> elem.hasProperty(userID))
+                .findFirst()
+                .isPresent()) {
+
+              // create new student entity to add to queue
+              EmbeddedEntity queueInfo = new EmbeddedEntity();
+
+              EmbeddedEntity studentInfo = new EmbeddedEntity();
+              studentInfo.setProperty("timeEntered", currTime);
+
+              queueInfo.setProperty(userID, studentInfo);
+
+              updatedQueue.add(queueInfo);
               numVisits++;
             }
 
