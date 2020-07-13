@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
-  <threadsafe>false</threadsafe>
+  <threadsafe>true</threadsafe>
   <sessions-enabled>true</sessions-enabled>
   <runtime>java8</runtime>
   <static-files>
     <!-- prevent unwanted caching when accessing via the web preview server -->
     <include path="/**" expiration="0s" />
   </static-files>
-  <instance-class>B1</instance-class>
 	<basic-scaling>
 	    <max-instances>1</max-instances>
 	    <idle-timeout>1m</idle-timeout>
@@ -16,7 +15,7 @@
     <env-var name="DOWNLOAD_QUEUE_ID" value="download-queue" />
     <env-var name="EXECUTION_QUEUE_ID" value="execution-queue" />
     <env-var name="LOCATION_ID" value="us-central1" />
-    <env-var name="DOCKER_HOST" value="tcp://10.8.0.4:2376" />
+    <env-var name="DOCKER_HOST" value="tcp://docker-host.c.fulfillment-deco-step-2020.internal:2376" />
     <env-var name="DOCKER_TLS_VERIFY" value="false" />
   </env-variables>
   <vpc-access-connector>

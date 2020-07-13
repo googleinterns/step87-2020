@@ -1,9 +1,9 @@
 package com.google.sps.tasks;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -118,6 +118,7 @@ public class ExecuteCodeTest {
     when(docker.createContainerCmd(anyString())).thenReturn(contCmd);
     when(contCmd.withAttachStdout(anyBoolean())).thenReturn(contCmd);
     when(contCmd.withAttachStderr(anyBoolean())).thenReturn(contCmd);
+    when(contCmd.withTty(anyBoolean())).thenReturn(contCmd);
     when(contCmd.withHostConfig(any())).thenReturn(contCmd);
     when(contCmd.exec()).thenReturn(container);
     when(w.getArchive(ArchiveType.TAR)).thenReturn(archive);
@@ -168,7 +169,7 @@ public class ExecuteCodeTest {
     verify(startCmd, times(1)).exec();
     verify(adapter, times(1)).awaitCompletion(anyLong(), any());
 
-    verify(w, times(1)).updateExecutionOutput(eq(EXECUTION_ID), anyString());
+    verify(w, times(1)).setExitCode(eq(EXECUTION_ID), anyInt());
   }
 
   @Test
@@ -197,6 +198,7 @@ public class ExecuteCodeTest {
     when(docker.createContainerCmd(anyString())).thenReturn(contCmd);
     when(contCmd.withAttachStdout(anyBoolean())).thenReturn(contCmd);
     when(contCmd.withAttachStderr(anyBoolean())).thenReturn(contCmd);
+    when(contCmd.withTty(anyBoolean())).thenReturn(contCmd);
     when(contCmd.withHostConfig(any())).thenReturn(contCmd);
     when(contCmd.exec()).thenReturn(container);
     when(w.getArchive(ArchiveType.TAR)).thenReturn(archive);
@@ -278,6 +280,7 @@ public class ExecuteCodeTest {
     when(docker.createContainerCmd(anyString())).thenReturn(contCmd);
     when(contCmd.withAttachStdout(anyBoolean())).thenReturn(contCmd);
     when(contCmd.withAttachStderr(anyBoolean())).thenReturn(contCmd);
+    when(contCmd.withTty(anyBoolean())).thenReturn(contCmd);
     when(contCmd.withHostConfig(any())).thenReturn(contCmd);
     when(contCmd.exec()).thenReturn(container);
     when(w.getArchive(ArchiveType.TAR)).thenReturn(archive);
@@ -312,18 +315,25 @@ public class ExecuteCodeTest {
   }
 
   @Test(expected = NullPointerException.class)
-  public void OutputAdapterNullStream() {
-    new ExecuteCode.OutputAdapter(null);
+  public void OutputAdapterNullStream() throws Exception {
+    new ExecuteCode.OutputAdapter(null, "").close();
+    ;
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void OutputAdapterNullExecID() throws Exception {
+    new ExecuteCode.OutputAdapter(w, null).close();
   }
 
   @Test
   public void OutputAdapterOnNext() throws Exception {
+    String EXECUTION_ID = "EXECUTION_ID";
     byte[] payload = "PAYLOAD".getBytes();
 
     when(frame.getPayload()).thenReturn(payload);
 
-    new ExecuteCode.OutputAdapter(output).onNext(frame);
+    new ExecuteCode.OutputAdapter(w, EXECUTION_ID).onNext(frame);
 
-    verify(output, times(1)).write(aryEq(payload));
+    verify(w, times(1)).writeOutput(eq(EXECUTION_ID), eq(new String(payload)));
   }
 }

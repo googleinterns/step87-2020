@@ -1,4 +1,14 @@
-outputVisible = false;
+let outputVisible = false;
+const term = new Terminal();
+const fit = new FitAddon.FitAddon();
+term.loadAddon(fit);
+
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.getElementById("output-container");
+  container.classList.remove("hidden");
+  term.open(container);
+  container.classList.add("hidden");
+});
 
 getFirebaseRef().child("environment").on("value", snap => {
   if (snap.val() !== null) {
@@ -28,24 +38,24 @@ function executeCode() {
   getToken().then(tok => {
     fetch(`/workspace/queueExecution?workspaceID=${getParam("workspaceID")}&idToken=${tok}`)
       .then(resp => resp.text()).then(execID => {
-        getFirebaseRef().child("executions").child(execID).on("value", snap => {
+        seenFirstOutput = false;
+        term.write('\x1bc'); // clear terminal
+
+        getFirebaseRef().child("executions").child(execID).on("child_added", snap => {
           if (snap.val() !== null) {
-            const pre = document.createElement("pre");
-            pre.innerText = snap.val();
+            if (typeof snap.val() === 'string' || snap.val() instanceof String) {
+              if (!outputVisible && ! seenFirstOutput) {
+                toggleOutput();
+                seenFirstOutput = true;
+              }    
 
-            const outputContainer = document.getElementById("output-container");
-            outputContainer.innerHTML = "";
-            outputContainer.appendChild(pre);
-
-            executeButton.disabled = false;
-            executeButton.classList.remove("download-in-progress");
-            getFirebaseRef().child("executions").child(execID).off("value");
-            
-            if (!outputVisible) {
-              toggleOutput();
-            }        
-
-            outputContainer.scrollTop = outputContainer.scrollHeight;
+              fit.fit();
+              term.write(snap.val());
+            } else {
+              executeButton.disabled = false;	
+              executeButton.classList.remove("download-in-progress");	
+              getFirebaseRef().child("executions").child(execID).off("child_added");
+            }
           }
         });
       });
