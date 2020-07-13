@@ -102,10 +102,10 @@ function addEnvRow(name, status) {
 }
 
 function checkEnvStatus(envID, row) {
-  fetch(`/envStatus?envID=${envID}`).then(resp => resp.ok ? resp.text() : "failed").then(status => {
-    row.querySelector(".envStatus").innerText = status;
+  fetch(`/environment?envID=${envID}`).then(resp => resp.ok ? resp.text() : "failed").then(env => {
+    row.querySelector(".envStatus").innerText = env.status;
 
-    if (status === "pulling") {
+    if (env.status === "pulling") {
       setTimeout(() => checkEnvStatus(envID, row), 1000);
     }
   });
