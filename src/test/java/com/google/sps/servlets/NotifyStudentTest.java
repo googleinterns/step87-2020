@@ -125,7 +125,8 @@ public class NotifyStudentTest {
     when(authInstance.getUserByEmail("test@google.com")).thenReturn(mockUser);
     when(mockUser.getUid()).thenReturn("studentID");
 
-    when(factory.fromStudentAndTA("studentID", "taID")).thenReturn(workspace);
+    when(factory.fromStudentAndTA(KeyFactory.keyToString(init.getKey()), "studentID", "taID"))
+        .thenReturn(workspace);
     when(workspace.getWorkspaceID()).thenReturn("workspaceID");
 
     alertStudent.doPost(httpRequest, httpResponse);

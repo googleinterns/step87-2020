@@ -24,22 +24,26 @@ public class WorkspaceFactory {
             .child(workspaceID));
   }
 
-  public Workspace fromStudentAndTA(String studentUID, String TaUID)
+  public Workspace fromStudentAndTA(String classID, String studentUID, String TaUID)
       throws InterruptedException, ExecutionException, IOException {
     return fromStudentAndTA(
+        classID,
         studentUID,
         TaUID,
         FirebaseDatabase.getInstance(FirebaseAppManager.getApp()).getReference().push());
   }
 
-  public Workspace fromStudentAndTA(String studentUID, String TaUID, DatabaseReference reference)
+  public Workspace fromStudentAndTA(
+      String classID, String studentUID, String TaUID, DatabaseReference reference)
       throws InterruptedException, ExecutionException, IOException {
     ApiFuture<Void> studentFuture =
         reference.child("student").setValueAsync(Objects.requireNonNull(studentUID));
     ApiFuture<Void> taFuture = reference.child("ta").setValueAsync(Objects.requireNonNull(TaUID));
+    ApiFuture<Void> classFuture = reference.child("classID").setValueAsync(classID);
 
     studentFuture.get();
     taFuture.get();
+    classFuture.get();
 
     return new Workspace(reference);
   }
