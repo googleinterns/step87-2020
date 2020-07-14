@@ -1,9 +1,16 @@
 package com.google.sps.servlets;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -31,14 +38,30 @@ public class SubmitRoster extends HttpServlet {
   // Add a user to the datastore
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
     String rosterNames = request.getParameter("roster").trim();
 
     // Split the emails and collapse whitespaces
-    List<String> emailsContainer = Arrays.asList(rosterNames.split("\\s*,\\s*"));
+    List<String> allClassEmails = Arrays.asList(rosterNames.split("\\s*,\\s*"));
 
-    for (String email : emailsContainer) {
-      response.setContentType("text/html;");
-      response.getWriter().println(email);
+    for (String email : allClassEmails) {
+      // Prevent creating duplicate users
+      Query query =
+          new Query("User")
+              .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, email));
+
+      if (datastore.prepare(query).countEntities() == 0) {
+
+        Entity user = new Entity("User");
+        user.setProperty("userEmail", email);
+        user.setProperty("registeredClasses", Collections.emptyList());
+        user.setProperty("ownedClasses", Collections.emptyList());
+        user.setProperty("taClasses", Collections.emptyList());
+
+        datastore.put(user);
+      }
     }
   }
 }
