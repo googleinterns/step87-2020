@@ -57,21 +57,29 @@
 
     <!--Contains the statistics charts-->
     <div class="right">
+
       <h1>Site Statistics</h1>
+
       <div id="line-chart" style="width: 900px; height: 500px"></div>
+
       <br>
       <br>
       <br>
+
       <a href="" id = "redirect" style="text-decoration: none;">Go to Queue</a>
+      
       <h4 id = "classCode"> </h4>
-      <form action="/submit-roster" method="POST">
+
+      <!--Form for submitting a class roster-->
+      <form action="/submit-roster" method="POST" onsubmit="getRosterClassCode()">
         <label for="roster">Enter class roster as comma separated list</label>
         <br>
-        <textarea id="roster" name="roster" height="400px" width="500px">
-        </textarea>
+        <textarea id="roster" name="roster" height="400px" width="500px"></textarea>
         <br><br>
         <input type="submit" value="Submit">
+        <input class="hidden" id="hiddenRosterClassCode" name="classCode">
       </form>
+
     </div>
 
   </body>

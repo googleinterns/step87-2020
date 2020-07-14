@@ -88,3 +88,9 @@ function getClassCode() {
   document.getElementById("hiddenClassCode").value = getParam("classCode");
   return true;
 } 
+
+// Obtain the class's specific code from URL parameter
+function getRosterClassCode() {
+  document.getElementById("hiddenRosterClassCode").value = getParam("classCode");
+  return true;
+}

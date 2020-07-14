@@ -2,15 +2,10 @@ package com.google.sps.servlets;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -46,6 +41,12 @@ public class SubmitRoster extends HttpServlet {
     // Split the emails and collapse whitespaces
     List<String> allClassEmails = Arrays.asList(rosterNames.split("\\s*,\\s*"));
 
+    // Find the corresponding class Key
+    String classCode = request.getParameter("classCode").trim();
+    Key classKey = KeyFactory.stringToKey(classCode);
+    ArrayList<Key> registered = new ArrayList<Key>();
+    registered.add(classCode);
+
     for (String email : allClassEmails) {
       // Prevent creating duplicate users
       Query query =
@@ -56,7 +57,7 @@ public class SubmitRoster extends HttpServlet {
 
         Entity user = new Entity("User");
         user.setProperty("userEmail", email);
-        user.setProperty("registeredClasses", Collections.emptyList());
+        user.setProperty("registeredClasses", registered);
         user.setProperty("ownedClasses", Collections.emptyList());
         user.setProperty("taClasses", Collections.emptyList());
 
