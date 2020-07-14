@@ -112,7 +112,7 @@ public class ExecuteCode extends HttpServlet {
           resp.sendError(HttpServletResponse.SC_REQUEST_TIMEOUT);
         }
       } catch (InterruptedException | ExecutionException | DockerException e) {
-        docker.killContainerCmd(container.getId()).exec();
+        docker.removeContainerCmd(container.getId()).withForce(true).exec();
         resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       }
     } catch (InterruptedException
