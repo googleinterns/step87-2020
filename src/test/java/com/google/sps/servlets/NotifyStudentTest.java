@@ -36,7 +36,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -61,7 +60,7 @@ public class NotifyStudentTest {
 
   @Mock Clock clock;
 
-  @Spy @InjectMocks NotifyStudent alertStudent;
+  @InjectMocks NotifyStudent alertStudent;
 
   private Clock fixedClock;
   private static final LocalDate LOCAL_DATE = LocalDate.of(2020, 07, 07);
@@ -78,7 +77,7 @@ public class NotifyStudentTest {
     fixedClock =
         Clock.fixed(
             LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
-    // doReturn(fixedClock.instant()).when(clock).instant();
+    doReturn(fixedClock.instant()).when(clock).instant();
     doReturn(fixedClock.getZone()).when(clock).getZone();
   }
 
@@ -137,8 +136,6 @@ public class NotifyStudentTest {
 
     when(factory.fromStudentAndTA("studentID", "taID")).thenReturn(workspace);
     when(workspace.getWorkspaceID()).thenReturn("workspaceID");
-
-    // doReturn(Duration.ofHours(24)).when(alertStudent).getDuration(addQueue1, "studentID");
 
     alertStudent.doPost(httpRequest, httpResponse);
 

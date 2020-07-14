@@ -117,8 +117,13 @@ public class NotifyStudent extends HttpServlet {
               (ArrayList<Duration>) waitEntity.getProperty("waitDurations");
 
           // Update wait entity
-          Duration duration = getDuration(delEntity, studentID);
-          waitTimes.add(duration);
+          EmbeddedEntity studentEntity = (EmbeddedEntity) delEntity.getProperty(studentID);
+          Date timeEntered = (Date) studentEntity.getProperty("timeEntered");
+
+          LocalDateTime currTime = LocalDateTime.now(clock);
+          LocalDateTime enteredTime =
+              timeEntered.toInstant().atZone(defaultZoneId).toLocalDateTime();
+          waitTimes.add(Duration.between(enteredTime, currTime));
 
           // Update entity
           waitEntity.setProperty("waitDurations", waitTimes);
@@ -196,15 +201,5 @@ public class NotifyStudent extends HttpServlet {
     } catch (ExecutionException e) {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
     }
-  }
-
-  public Duration getDuration(EmbeddedEntity delEntity, String studentID) {
-    EmbeddedEntity studentEntity = (EmbeddedEntity) delEntity.getProperty(studentID);
-    Date timeEntered = (Date) studentEntity.getProperty("timeEntered");
-
-    LocalDateTime currTime = LocalDateTime.now(clock);
-    LocalDateTime enteredTime =
-        timeEntered.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-    return Duration.between(enteredTime, currTime);
   }
 }
