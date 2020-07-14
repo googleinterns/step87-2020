@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-// Once class owner submits a TA email, retrieve that user and add them as a TA to the class
+// Create a User entity for new users that sign up
 @WebServlet("/create-user")
 public class CreateUser extends HttpServlet {
 
@@ -43,7 +43,8 @@ public class CreateUser extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
     try {
-      // Check if user entity already exists
+
+      // Retrieve user info
       String userToken = request.getParameter("userToken");
       FirebaseToken decodedToken = authInstance.verifyIdToken(userToken);
       String userID = decodedToken.getUid(); // PROBLEM AT THIS LINE - NULL POINTER EXCEPTION
@@ -51,7 +52,7 @@ public class CreateUser extends HttpServlet {
       UserRecord userRecord = authInstance.getUser(userID);
       String userEmail = userRecord.getEmail();
 
-      // Prevent creating duplicate users
+      // Search User entities for the user's email
       Query query =
           new Query("User")
               .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, userEmail));
@@ -66,7 +67,7 @@ public class CreateUser extends HttpServlet {
 
         datastore.put(user);
       } else {
-        response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        response.sendError(HttpServletResponse.SC_FORBIDDEN); // Prevent creating duplicate users
       }
     } catch (FirebaseAuthException e) {
       response.sendError(HttpServletResponse.SC_FORBIDDEN);
