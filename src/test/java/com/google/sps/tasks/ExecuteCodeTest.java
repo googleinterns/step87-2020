@@ -19,6 +19,7 @@ import com.github.dockerjava.api.command.CopyArchiveToContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.KillContainerCmd;
+import com.github.dockerjava.api.command.RemoveContainerCmd;
 import com.github.dockerjava.api.command.StartContainerCmd;
 import com.github.dockerjava.api.exception.DockerException;
 import com.github.dockerjava.api.model.Frame;
@@ -36,7 +37,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -74,6 +74,7 @@ public class ExecuteCodeTest {
   @Mock ResultCallback.Adapter<Frame> adapter;
   @Mock StartContainerCmd startCmd;
   @Mock KillContainerCmd killCmd;
+  @Mock RemoveContainerCmd rmCmd;
   @Mock OutputStream output;
   @Mock Frame frame;
 
@@ -101,20 +102,16 @@ public class ExecuteCodeTest {
     byte[] tar = "TAR".getBytes();
     String CONTAINER_ID = "CONTAINER_ID";
 
-    Stream<String> lines = Arrays.asList(WORKSPACE_ID + "," + EXECUTION_ID).stream();
-
     Entity envEntity = new Entity("Environment");
     envEntity.setProperty("image", IMAGE);
     envEntity.setProperty("tag", TAG);
     String envID = KeyFactory.keyToString(datastore.put(envEntity));
 
-    CompletableFuture<String> envIDFuture = new CompletableFuture<>();
-    envIDFuture.complete(envID);
+    Stream<String> lines = Arrays.asList(WORKSPACE_ID + "," + envID + "," + EXECUTION_ID).stream();
 
     when(req.getReader()).thenReturn(reader);
     when(reader.lines()).thenReturn(lines);
     when(workspaceFactory.fromWorkspaceID(eq(WORKSPACE_ID))).thenReturn(w);
-    when(w.getEnvironment()).thenReturn(envIDFuture);
     when(docker.createContainerCmd(anyString())).thenReturn(contCmd);
     when(contCmd.withAttachStdout(anyBoolean())).thenReturn(contCmd);
     when(contCmd.withAttachStderr(anyBoolean())).thenReturn(contCmd);
@@ -181,20 +178,16 @@ public class ExecuteCodeTest {
     byte[] tar = "TAR".getBytes();
     String CONTAINER_ID = "CONTAINER_ID";
 
-    Stream<String> lines = Arrays.asList(WORKSPACE_ID + "," + EXECUTION_ID).stream();
-
     Entity envEntity = new Entity("Environment");
     envEntity.setProperty("image", IMAGE);
     envEntity.setProperty("tag", TAG);
     String envID = KeyFactory.keyToString(datastore.put(envEntity));
 
-    CompletableFuture<String> envIDFuture = new CompletableFuture<>();
-    envIDFuture.complete(envID);
+    Stream<String> lines = Arrays.asList(WORKSPACE_ID + "," + envID + "," + EXECUTION_ID).stream();
 
     when(req.getReader()).thenReturn(reader);
     when(reader.lines()).thenReturn(lines);
     when(workspaceFactory.fromWorkspaceID(eq(WORKSPACE_ID))).thenReturn(w);
-    when(w.getEnvironment()).thenReturn(envIDFuture);
     when(docker.createContainerCmd(anyString())).thenReturn(contCmd);
     when(contCmd.withAttachStdout(anyBoolean())).thenReturn(contCmd);
     when(contCmd.withAttachStderr(anyBoolean())).thenReturn(contCmd);
@@ -263,20 +256,16 @@ public class ExecuteCodeTest {
     byte[] tar = "TAR".getBytes();
     String CONTAINER_ID = "CONTAINER_ID";
 
-    Stream<String> lines = Arrays.asList(WORKSPACE_ID + "," + EXECUTION_ID).stream();
-
     Entity envEntity = new Entity("Environment");
     envEntity.setProperty("image", IMAGE);
     envEntity.setProperty("tag", TAG);
     String envID = KeyFactory.keyToString(datastore.put(envEntity));
 
-    CompletableFuture<String> envIDFuture = new CompletableFuture<>();
-    envIDFuture.complete(envID);
+    Stream<String> lines = Arrays.asList(WORKSPACE_ID + "," + envID + "," + EXECUTION_ID).stream();
 
     when(req.getReader()).thenReturn(reader);
     when(reader.lines()).thenReturn(lines);
     when(workspaceFactory.fromWorkspaceID(eq(WORKSPACE_ID))).thenReturn(w);
-    when(w.getEnvironment()).thenReturn(envIDFuture);
     when(docker.createContainerCmd(anyString())).thenReturn(contCmd);
     when(contCmd.withAttachStdout(anyBoolean())).thenReturn(contCmd);
     when(contCmd.withAttachStderr(anyBoolean())).thenReturn(contCmd);
@@ -297,7 +286,8 @@ public class ExecuteCodeTest {
     when(container.getId()).thenReturn(CONTAINER_ID);
     when(docker.copyArchiveToContainerCmd(anyString()))
         .thenThrow(new DockerException("message", 500));
-    when(docker.killContainerCmd(anyString())).thenReturn(killCmd);
+    when(docker.removeContainerCmd(anyString())).thenReturn(rmCmd);
+    when(rmCmd.withForce(anyBoolean())).thenReturn(rmCmd);
 
     servlet.doPost(req, resp);
 
@@ -308,8 +298,9 @@ public class ExecuteCodeTest {
 
     verify(docker, times(1)).copyArchiveToContainerCmd(eq(CONTAINER_ID));
 
-    verify(docker, times(1)).killContainerCmd(eq(CONTAINER_ID));
-    verify(killCmd, times(1)).exec();
+    verify(docker, times(1)).removeContainerCmd(eq(CONTAINER_ID));
+    verify(rmCmd, times(1)).withForce(true);
+    verify(rmCmd, times(1)).exec();
 
     verify(resp, times(1)).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
   }

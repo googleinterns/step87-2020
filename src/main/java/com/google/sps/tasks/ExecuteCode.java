@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -58,14 +57,14 @@ public class ExecuteCode extends HttpServlet {
     String args[] = body.split(",");
 
     String workspaceID = args[0];
-    String executionID = args[1];
+    String envID = args[1];
+    String executionID = args[2];
 
     try {
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
       Workspace w = workspaceFactory.fromWorkspaceID(workspaceID);
-      Entity env =
-          datastore.get(KeyFactory.stringToKey(w.getEnvironment().get(10, TimeUnit.SECONDS)));
+      Entity env = datastore.get(KeyFactory.stringToKey(envID));
       String image = (String) env.getProperty("image");
       String tag = (String) env.getProperty("tag");
 
@@ -115,10 +114,7 @@ public class ExecuteCode extends HttpServlet {
         docker.removeContainerCmd(container.getId()).withForce(true).exec();
         resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       }
-    } catch (InterruptedException
-        | EntityNotFoundException
-        | ExecutionException
-        | TimeoutException e) {
+    } catch (EntityNotFoundException e) {
       resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
   }
