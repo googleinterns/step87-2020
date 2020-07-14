@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/tasks/deleteEnv")
-public class DeleteEnvironments extends HttpServlet {
+public class DeleteEnvironment extends HttpServlet {
   DockerClient docker;
 
   @Override
