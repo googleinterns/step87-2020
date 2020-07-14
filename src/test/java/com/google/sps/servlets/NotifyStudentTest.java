@@ -23,6 +23,7 @@ import com.google.firebase.auth.UserRecord;
 import com.google.sps.workspace.Workspace;
 import com.google.sps.workspace.WorkspaceFactory;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -77,7 +78,7 @@ public class NotifyStudentTest {
     fixedClock =
         Clock.fixed(
             LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
-    doReturn(fixedClock.instant()).when(clock).instant();
+    // doReturn(fixedClock.instant()).when(clock).instant();
     doReturn(fixedClock.getZone()).when(clock).getZone();
   }
 
@@ -156,9 +157,8 @@ public class NotifyStudentTest {
     assertEquals(1, testQueue.size());
     assertTrue(testQueue.get(0).hasProperty("test2"));
 
-    // Entity testWaitEntity = datastore.prepare(new Query("Wait")).asSingleEntity();
-    // ArrayList<Duration> waitDurations =
-    //     (ArrayList<Duration>) testWaitEntity.getProperty("waitDurations");
-    // assertEquals(Duration.ofHours(24), waitDurations.get(0));
+    Entity testWaitEntity = datastore.prepare(new Query("Wait")).asSingleEntity();
+    ArrayList<Long> waitDurations = (ArrayList<Long>) testWaitEntity.getProperty("waitDurations");
+    assertEquals((long) Duration.ofHours(24).getSeconds(), (long) waitDurations.get(0));
   }
 }

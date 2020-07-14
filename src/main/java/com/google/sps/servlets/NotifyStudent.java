@@ -103,7 +103,7 @@ public class NotifyStudent extends HttpServlet {
             waitEntity = new Entity("Wait");
             waitEntity.setProperty("classKey", classKey);
             waitEntity.setProperty("date", currDate);
-            waitEntity.setProperty("waitDurations", new ArrayList<Duration>());
+            waitEntity.setProperty("waitDurations", new ArrayList<Long>());
           } else {
             waitEntity = query.asSingleEntity();
           }
@@ -113,8 +113,7 @@ public class NotifyStudent extends HttpServlet {
               (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
           EmbeddedEntity delEntity =
               queue.stream().filter(elem -> elem.hasProperty(studentID)).findFirst().orElse(null);
-          ArrayList<Duration> waitTimes =
-              (ArrayList<Duration>) waitEntity.getProperty("waitDurations");
+          ArrayList<Long> waitTimes = (ArrayList<Long>) waitEntity.getProperty("waitDurations");
 
           // Update wait entity
           EmbeddedEntity studentEntity = (EmbeddedEntity) delEntity.getProperty(studentID);
@@ -123,11 +122,11 @@ public class NotifyStudent extends HttpServlet {
           LocalDateTime currTime = LocalDateTime.now(clock);
           LocalDateTime enteredTime =
               timeEntered.toInstant().atZone(defaultZoneId).toLocalDateTime();
-          waitTimes.add(Duration.between(enteredTime, currTime));
+          waitTimes.add(Duration.between(enteredTime, currTime).getSeconds());
 
           // Update entity
           waitEntity.setProperty("waitDurations", waitTimes);
-          //   datastore.put(waitTxn, waitEntity);
+          datastore.put(waitTxn, waitEntity);
 
           waitTxn.commit();
           break;
