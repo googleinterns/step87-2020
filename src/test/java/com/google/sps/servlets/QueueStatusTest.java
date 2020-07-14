@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
@@ -14,8 +15,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
@@ -42,6 +45,10 @@ public class QueueStatusTest {
 
   @InjectMocks CheckStudentStatus queue;
 
+  private static final LocalDate LOCAL_DATE = LocalDate.of(2020, 07, 06);
+  private static final Date DATE =
+      Date.from(LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
   @Before
   public void setUp() {
     helper.setUp();
@@ -56,12 +63,17 @@ public class QueueStatusTest {
   @Test
   public void firstInQueue() throws Exception {
     Entity init = new Entity("Class");
-    ArrayList<String> setQueue = new ArrayList<String>(Arrays.asList("uID"));
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", "");
-    init.setProperty("studentQueue", setQueue);
+
+    EmbeddedEntity addQueue1 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo1 = new EmbeddedEntity();
+    studentInfo1.setProperty("timeEntered", DATE);
+    addQueue1.setProperty("uID", studentInfo1);
+
+    init.setProperty("studentQueue", Arrays.asList(addQueue1));
 
     datastore.put(init);
 
@@ -84,13 +96,32 @@ public class QueueStatusTest {
   @Test
   public void midQueue() throws Exception {
     Entity init = new Entity("Class");
-    ArrayList<String> setQueue =
-        new ArrayList<String>(Arrays.asList("test1", "test2", "uID", "test3"));
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", "");
-    init.setProperty("studentQueue", setQueue);
+
+    EmbeddedEntity addQueue1 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo1 = new EmbeddedEntity();
+    studentInfo1.setProperty("timeEntered", DATE);
+    addQueue1.setProperty("test1", studentInfo1);
+
+    EmbeddedEntity addQueue2 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo2 = new EmbeddedEntity();
+    studentInfo2.setProperty("timeEntered", DATE);
+    addQueue2.setProperty("test2", studentInfo2);
+
+    EmbeddedEntity addQueue3 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo3 = new EmbeddedEntity();
+    studentInfo3.setProperty("timeEntered", DATE);
+    addQueue3.setProperty("uID", studentInfo3);
+
+    EmbeddedEntity addQueue4 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo4 = new EmbeddedEntity();
+    studentInfo4.setProperty("timeEntered", DATE);
+    addQueue4.setProperty("test3", studentInfo4);
+
+    init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2, addQueue3, addQueue4));
 
     datastore.put(init);
 
@@ -113,13 +144,32 @@ public class QueueStatusTest {
   @Test
   public void duplicateInQueue() throws Exception {
     Entity init = new Entity("Class");
-    ArrayList<String> setQueue =
-        new ArrayList<String>(Arrays.asList("uID", "test2", "uID", "test3"));
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", "");
-    init.setProperty("studentQueue", setQueue);
+
+    EmbeddedEntity addQueue1 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo1 = new EmbeddedEntity();
+    studentInfo1.setProperty("timeEntered", DATE);
+    addQueue1.setProperty("uID", studentInfo1);
+
+    EmbeddedEntity addQueue2 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo2 = new EmbeddedEntity();
+    studentInfo2.setProperty("timeEntered", DATE);
+    addQueue2.setProperty("test2", studentInfo2);
+
+    EmbeddedEntity addQueue3 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo3 = new EmbeddedEntity();
+    studentInfo3.setProperty("timeEntered", DATE);
+    addQueue3.setProperty("uID", studentInfo3);
+
+    EmbeddedEntity addQueue4 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo4 = new EmbeddedEntity();
+    studentInfo4.setProperty("timeEntered", DATE);
+    addQueue4.setProperty("test3", studentInfo4);
+
+    init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2, addQueue3, addQueue4));
 
     datastore.put(init);
 
