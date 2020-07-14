@@ -62,7 +62,7 @@ body {
   font-family: 'Noto Sans', sans-serif;
 }
 
-.ta-form fieldset{
+.ta-form fieldset, .side-section{
   border-radius: 10px;
   margin: 0px 0px 10px 0px;
   border: 1px solid #C2E1FF;
@@ -114,7 +114,7 @@ body {
   font-weight: normal;
 }
 
-#submitButton {
+#submitButton, .side-section button {
   background-color: #031430;
   color: #C2E1FF;
   margin-top: 10px;
