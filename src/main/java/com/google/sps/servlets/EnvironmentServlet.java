@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/environment")
-public class GetEnvironment extends HttpServlet {
+public class EnvironmentServlet extends HttpServlet {
   @VisibleForTesting
   protected CloudTasksClient getClient() throws IOException {
     return CloudTasksClient.create();

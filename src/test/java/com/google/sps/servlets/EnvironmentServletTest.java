@@ -24,7 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GetEnvironmentTest {
+public class EnvironmentServletTest {
   private final LocalServiceTestHelper helper =
       new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
 
@@ -58,7 +58,7 @@ public class GetEnvironmentTest {
     when(req.getParameter(eq("envID"))).thenReturn(envID);
     when(resp.getWriter()).thenReturn(printWriter);
 
-    new GetEnvironment().doGet(req, resp);
+    new EnvironmentServlet().doGet(req, resp);
 
     verify(printWriter, times(1)).print(new Gson().toJson(new Environment(NAME, STATUS, envID)));
   }
@@ -67,7 +67,7 @@ public class GetEnvironmentTest {
   public void doGetTestNoEntity() throws Exception {
     when(req.getParameter(eq("envID"))).thenReturn("invalid key");
 
-    new GetEnvironment().doGet(req, resp);
+    new EnvironmentServlet().doGet(req, resp);
 
     verify(resp).sendError(HttpServletResponse.SC_NOT_FOUND);
   }
