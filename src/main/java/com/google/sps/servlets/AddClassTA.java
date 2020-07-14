@@ -73,6 +73,9 @@ public class AddClassTA extends HttpServlet {
             }
           }
 
+          //   response.setContentType("application/json;");
+          //   response.getWriter().println(teachingAssistantEmail);
+
           // Redirect to the class dashboard page
           response.sendRedirect("/dashboard.html?classCode=" + classCode);
 
