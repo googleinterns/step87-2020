@@ -52,6 +52,7 @@ public class DeleteEnvironments extends HttpServlet {
       resp.getWriter().write("Could not find entity");
     } catch (NotFoundException e) {
       resp.getWriter().write("Image does not exist");
+      datastore.delete(KeyFactory.stringToKey(entityID));
     }
   }
 }
