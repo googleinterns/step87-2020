@@ -19,6 +19,7 @@ import com.google.cloud.tasks.v2.HttpMethod;
 import com.google.cloud.tasks.v2.QueueName;
 import com.google.cloud.tasks.v2.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.sps.tasks.PullNewEnvironment;
 import java.io.PrintWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -66,7 +67,7 @@ public class QueueEnvPullTest {
   }
 
   @Test
-  public void doGetTestStudent() throws Exception {
+  public void doGetTest() throws Exception {
     Entity classEntity = new Entity("Class");
     datastore.put(classEntity);
     String classID = KeyFactory.keyToString(classEntity.getKey());
@@ -100,5 +101,27 @@ public class QueueEnvPullTest {
     assertEquals(HttpMethod.POST, apppengineReq.getHttpMethod());
 
     assertEquals("pulling", datastore.get(KeyFactory.stringToKey(envID)).getProperty("status"));
+  }
+
+  @Test
+  public void doGetTestConfict() throws Exception {
+    Entity classEntity = new Entity("Class");
+    datastore.put(classEntity);
+    String classID = KeyFactory.keyToString(classEntity.getKey());
+
+    Entity conflicting = new Entity("Environment");
+    conflicting.setProperty("class", classEntity.getKey());
+    conflicting.setProperty("image", PullNewEnvironment.getImageName(classID, IMAGE));
+    datastore.put(conflicting);
+
+    QueueEnvPull servlet = spy(new QueueEnvPull());
+
+    when(req.getParameter(eq("classID"))).thenReturn(classID);
+    when(req.getParameter(eq("image"))).thenReturn(IMAGE);
+    when(req.getParameter(eq("tag"))).thenReturn(TAG);
+
+    servlet.doGet(req, resp);
+
+    verify(resp, times(1)).sendError(HttpServletResponse.SC_CONFLICT);
   }
 }
