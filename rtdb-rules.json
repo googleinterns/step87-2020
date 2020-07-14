@@ -12,6 +12,9 @@
         ".write": false,
         ".read": false
       },
+      "classID": {
+        ".read": "root.child($workspaceID).child('student').val() === auth.uid || root.child($workspaceID).child('ta').val() === auth.uid"
+      },
       // You must be the TA or student to read or write to a file.
       "files": {
         ".read": "root.child($workspaceID).child('student').val() === auth.uid || root.child($workspaceID).child('ta').val() === auth.uid",
