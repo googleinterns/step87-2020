@@ -45,6 +45,6 @@ public class GetEnvironments extends HttpServlet {
               KeyFactory.keyToString(e.getKey())));
     }
 
-    resp.getWriter().println(new Gson().toJson(envs));
+    resp.getWriter().print(new Gson().toJson(envs));
   }
 }
