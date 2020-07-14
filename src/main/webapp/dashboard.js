@@ -97,12 +97,22 @@ function addEnvRow(name, status) {
   copy.querySelector(".envStatus").innerText = status;
 
   const deleteButton = copy.querySelector(".envDelete");
-  deleteButton.disabled = status === "pulling";
+  deleteButton.disabled = status !== "ready" && status !== "failed";
   
 
   document.getElementById("envTable").appendChild(copy);
 
   return copy;
+}
+
+function checkDeletionStatus(envID, row) {
+  fetch(`/environment?envID=${envID}`).then(resp => {
+    if (resp.status === 404) {
+      row.remove();
+    } else {
+      setTimeout(() => checkDeletionStatus(envID, row), 1000);
+    }
+  });
 }
 
 function checkEnvStatus(envID, row) {
@@ -117,6 +127,7 @@ function checkEnvStatus(envID, row) {
       deleteButton.onclick = () => {
         row.querySelector(".envStatus").innerText = "deleting";
         fetch(`/environment?envID=${envID}`, {method: 'DELETE'});
+        checkDeletionStatus(envID, row);
       };
     }
   });
@@ -126,9 +137,10 @@ function pullImage() {
   const name = document.getElementById("envName").value;
   const image = document.getElementById("envImage").value;
   const tag = document.getElementById("envTag").value;
+  const row = addEnvRow(name, "queueing");
   fetch(`/queueEnvPull?classID=${getParam("classCode")}&name=${name}&image=${image}&tag=${tag}`)
     .then(resp => resp.text()).then(envID => {
-      checkEnvStatus(envID, addEnvRow(name, "pulling"));
+      checkEnvStatus(envID, row);
     });
 }
 
@@ -139,6 +151,7 @@ function getEnvs() {
      row.querySelector(".envDelete").onclick = () => {
       row.querySelector(".envStatus").innerText = "deleting";
       fetch(`/environment?envID=${env.id}`, {method: 'DELETE'});
+      checkDeletionStatus(env.id, row);
      }; 
     }
   });
