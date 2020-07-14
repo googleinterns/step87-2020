@@ -83,15 +83,14 @@ public class NotifyStudent extends HttpServlet {
       ZoneId defaultZoneId = ZoneId.systemDefault();
       Date currDate = Date.from(localDate.atStartOfDay(defaultZoneId).toInstant());
 
-      // transaction to create wait entity
-      int waitRetries = 10;
+      int retries = 10;
       while (true) {
-        TransactionOptions waitOptions = TransactionOptions.Builder.withXG(true);
-        Transaction waitTxn = datastore.beginTransaction(waitOptions);
+        TransactionOptions options = TransactionOptions.Builder.withXG(true);
+        Transaction txn = datastore.beginTransaction(options);
         try {
           // Retrive class entity
           Key classKey = KeyFactory.stringToKey(classCode);
-          Entity classEntity = datastore.get(waitTxn, classKey);
+          Entity classEntity = datastore.get(txn, classKey);
 
           // Query wait entity for particular day
           Filter classWaitFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
@@ -126,44 +125,8 @@ public class NotifyStudent extends HttpServlet {
               timeEntered.toInstant().atZone(defaultZoneId).toLocalDateTime();
           waitTimes.add(Duration.between(enteredTime, currTime).getSeconds());
 
-          // Update entity
-          waitEntity.setProperty("waitDurations", waitTimes);
-          datastore.put(waitTxn, waitEntity);
-
-          waitTxn.commit();
-          break;
-        } catch (ConcurrentModificationException e) {
-          if (waitRetries == 0) {
-            throw e;
-          }
-          // Allow retry to occur
-          --waitRetries;
-        } finally {
-          if (waitTxn.isActive()) {
-            waitTxn.rollback();
-          }
-        }
-      }
-
-      // transaction to update queue
-      int queueRetries = 10;
-      while (true) {
-        TransactionOptions queueOptions = TransactionOptions.Builder.withXG(true);
-        Transaction queueTxn = datastore.beginTransaction(queueOptions);
-        try {
-          // Retrive class entity
-          Key classKey = KeyFactory.stringToKey(classCode);
-          Entity classEntity = datastore.get(queueTxn, classKey);
-
           // Update queue
-          ArrayList<EmbeddedEntity> updatedQueue =
-              (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
-          EmbeddedEntity delEntity =
-              updatedQueue.stream()
-                  .filter(elem -> elem.hasProperty(studentID))
-                  .findFirst()
-                  .orElse(null);
-          updatedQueue.remove(delEntity);
+          queue.remove(delEntity);
 
           // Get workspace ID
           String workspaceID = factory.fromStudentAndTA(studentID, taID).getWorkspaceID();
@@ -175,20 +138,25 @@ public class NotifyStudent extends HttpServlet {
           queueInfo.setProperty("workspaceID", workspaceID);
           beingHelped.setProperty(studentID, queueInfo);
 
-          classEntity.setProperty("studentQueue", updatedQueue);
+          // Update entities
+          waitEntity.setProperty("waitDurations", waitTimes);
+          datastore.put(txn, waitEntity);
+
+          classEntity.setProperty("studentQueue", queue);
           classEntity.setProperty("beingHelped", beingHelped);
-          datastore.put(queueTxn, classEntity);
-          queueTxn.commit();
+          datastore.put(txn, classEntity);
+
+          txn.commit();
           break;
         } catch (ConcurrentModificationException e) {
-          if (queueRetries == 0) {
+          if (retries == 0) {
             throw e;
           }
           // Allow retry to occur
-          --queueRetries;
+          --retries;
         } finally {
-          if (queueTxn.isActive()) {
-            queueTxn.rollback();
+          if (txn.isActive()) {
+            txn.rollback();
           }
         }
       }
