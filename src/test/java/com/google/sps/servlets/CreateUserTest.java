@@ -70,7 +70,7 @@ public class CreateUserTest {
 
     createUser.doGet(httpRequest, httpResponse);
 
-    Entity testUserEntity = datastore.prepare(new Query("Class")).asSingleEntity();
+    Entity testUserEntity = datastore.prepare(new Query("User")).asSingleEntity();
 
     assertEquals(testUserEntity.getProperty("userEmail"), "exampleUserEmail");
 
