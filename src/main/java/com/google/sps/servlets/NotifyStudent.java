@@ -16,6 +16,7 @@ import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Transaction;
+import com.google.appengine.api.datastore.TransactionOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
@@ -85,7 +86,8 @@ public class NotifyStudent extends HttpServlet {
       // transaction to create wait entity
       int waitRetries = 10;
       while (true) {
-        Transaction waitTxn = datastore.beginTransaction();
+        TransactionOptions waitOptions = TransactionOptions.Builder.withXG(true);
+        Transaction waitTxn = datastore.beginTransaction(waitOptions);
         try {
           // Retrive class entity
           Key classKey = KeyFactory.stringToKey(classCode);
@@ -146,7 +148,8 @@ public class NotifyStudent extends HttpServlet {
       // transaction to update queue
       int queueRetries = 10;
       while (true) {
-        Transaction queueTxn = datastore.beginTransaction();
+        TransactionOptions queueOptions = TransactionOptions.Builder.withXG(true);
+        Transaction queueTxn = datastore.beginTransaction(queueOptions);
         try {
           // Retrive class entity
           Key classKey = KeyFactory.stringToKey(classCode);

@@ -78,7 +78,6 @@ public class NotifyStudentTest {
     fixedClock =
         Clock.fixed(
             LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
-    // doReturn(fixedClock.instant()).when(clock).instant();
     doReturn(fixedClock.getZone()).when(clock).getZone();
   }
 
