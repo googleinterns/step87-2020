@@ -1,4 +1,9 @@
+const clear = '\x1bc';
+
 let outputVisible = false;
+let currOutputRef = null;
+let currExitCode = null;
+
 const term = new Terminal();
 const fit = new FitAddon.FitAddon();
 term.loadAddon(fit);
@@ -36,28 +41,49 @@ function executeCode() {
   executeButton.classList.add("download-in-progress");
   executeButton.disabled = true;
   getToken().then(tok => {
-    fetch(`/workspace/queueExecution?workspaceID=${getParam("workspaceID")}&idToken=${tok}`)
-      .then(resp => resp.text()).then(execID => {
-        seenFirstOutput = false;
-        term.write('\x1bc'); // clear terminal
-
-        getFirebaseRef().child("executions").child(execID).on("child_added", snap => {
-          if (snap.val() !== null) {
-            if (typeof snap.val() === 'string' || snap.val() instanceof String) {
-              if (!outputVisible && ! seenFirstOutput) {
-                toggleOutput();
-                seenFirstOutput = true;
-              }    
-
-              fit.fit();
-              term.write(snap.val());
-            } else {
-              executeButton.disabled = false;	
-              executeButton.classList.remove("download-in-progress");	
-              getFirebaseRef().child("executions").child(execID).off("child_added");
-            }
-          }
-        });
-      });
+    fetch(`/workspace/queueExecution?workspaceID=${getParam("workspaceID")}&idToken=${tok}`);
   });
 }
+
+getFirebaseRef().child("executions").orderByChild("timestamp").startAt(Date.now()).on("child_added", snap => {
+  if(currOutputRef !== null) {
+    currOutputRef.off("child_added");
+  }
+
+  if(currExitCode !== null) {
+    currExitCode.off("value");
+  }
+  
+  const executeButton = document.getElementById("executeButton");
+  executeButton.classList.add("download-in-progress");
+  executeButton.disabled = true;
+
+  seenFirstOutput = false;
+  term.write(clear);  // Clear terminal
+
+  currOutputRef = snap.ref.child("output");
+  currOutputRef.on("child_added", snap => {
+    if (!outputVisible && !seenFirstOutput) {
+      toggleOutput();
+      seenFirstOutput = true;
+    }    
+
+    fit.fit();
+    term.write(snap.val());
+  });
+
+  currExitCode = snap.ref.child("exitCode");
+  currExitCode.on("value", snap => {
+    if (snap.val() !== null) {
+      executeButton.disabled = false;	
+      executeButton.classList.remove("download-in-progress");
+
+
+      currOutputRef.off("child_added");
+      currExitCode.off("value");
+
+      currOutputRef = null;
+      currExitCode = null;
+    }
+  });
+});

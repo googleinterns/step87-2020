@@ -1,6 +1,7 @@
 package com.google.sps.servlets;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -125,9 +126,10 @@ public class EnterQueueTest {
     addFirst.doPost(httpRequest, httpResponse);
 
     Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
-    ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
+    ArrayList<EmbeddedEntity> testQueue =
+        (ArrayList<EmbeddedEntity>) testClassEntity.getProperty("studentQueue");
     assertEquals(1, testQueue.size());
-    assertEquals("studentID", testQueue.get(0));
+    assertTrue(testQueue.get(0).hasProperty("studentID"));
 
     Entity testVisitEntity = datastore.prepare(visitQuery).asSingleEntity();
     assertEquals(1, (long) testVisitEntity.getProperty("numVisits"));
@@ -139,8 +141,13 @@ public class EnterQueueTest {
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
-    init.setProperty("studentQueue", Arrays.asList("test1"));
     init.setProperty("taList", Collections.emptyList());
+
+    EmbeddedEntity addQueue = new EmbeddedEntity();
+    EmbeddedEntity studentInfo = new EmbeddedEntity();
+    studentInfo.setProperty("timeEntered", DATE);
+    addQueue.setProperty("test1", studentInfo);
+    init.setProperty("studentQueue", Arrays.asList(addQueue));
 
     datastore.put(init);
 
@@ -165,11 +172,13 @@ public class EnterQueueTest {
 
     Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
 
-    ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
+    ArrayList<EmbeddedEntity> testQueue =
+        (ArrayList<EmbeddedEntity>) testClassEntity.getProperty("studentQueue");
     assertEquals(
         KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
     assertEquals(2, testQueue.size());
-    assertEquals("uID", testQueue.get(1));
+    assertTrue(testQueue.get(0).hasProperty("test1"));
+    assertTrue(testQueue.get(1).hasProperty("uID"));
 
     Entity testVisitEntity = datastore.prepare(visitQuery).asSingleEntity();
     assertEquals(2, (long) testVisitEntity.getProperty("numVisits"));
@@ -181,8 +190,13 @@ public class EnterQueueTest {
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
-    init.setProperty("studentQueue", Arrays.asList("uID"));
     init.setProperty("taList", Collections.emptyList());
+
+    EmbeddedEntity addQueue = new EmbeddedEntity();
+    EmbeddedEntity studentInfo = new EmbeddedEntity();
+    studentInfo.setProperty("timeEntered", DATE);
+    addQueue.setProperty("uID", studentInfo);
+    init.setProperty("studentQueue", Arrays.asList(addQueue));
 
     datastore.put(init);
 
@@ -207,17 +221,12 @@ public class EnterQueueTest {
 
     Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
 
-    ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
+    ArrayList<EmbeddedEntity> testQueue =
+        (ArrayList<EmbeddedEntity>) testClassEntity.getProperty("studentQueue");
     assertEquals(
         KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
     assertEquals(1, testQueue.size());
-    assertEquals("uID", testQueue.get(0));
-
-    Filter classVisitFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, init.getKey());
-
-    Filter dateVisitFilter = new FilterPredicate("date", FilterOperator.EQUAL, DATE);
-
-    CompositeFilter visitFilter = CompositeFilterOperator.and(dateVisitFilter, classVisitFilter);
+    assertTrue(testQueue.get(0).hasProperty("uID"));
 
     Entity testVisitEntity = datastore.prepare(visitQuery).asSingleEntity();
     assertEquals(1, (long) testVisitEntity.getProperty("numVisits"));
@@ -237,6 +246,7 @@ public class EnterQueueTest {
     datastore.put(init);
 
     when(httpRequest.getParameter("enterTA")).thenReturn("isTA");
+
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
 
@@ -267,6 +277,7 @@ public class EnterQueueTest {
     datastore.put(init);
 
     when(httpRequest.getParameter("enterTA")).thenReturn("isTA");
+
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
 

@@ -3,6 +3,7 @@ package com.google.sps.workspace;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -13,6 +14,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +43,9 @@ public class WorkspaceTest {
   @Mock DatabaseReference environmentRef;
   @Mock DatabaseReference executionsRef;
   @Mock DatabaseReference newExecutionRef;
+  @Mock DatabaseReference outputRef;
   @Mock DatabaseReference outputElementRef;
+  @Mock DatabaseReference timestampRef;
 
   @Captor ArgumentCaptor<ValueEventListener> listenerCaptor;
 
@@ -225,9 +229,12 @@ public class WorkspaceTest {
 
     when(reference.child(eq("executions"))).thenReturn(executionsRef);
     when(executionsRef.push()).thenReturn(newExecutionRef);
+    when(newExecutionRef.child(eq("timestamp"))).thenReturn(timestampRef);
+    when(timestampRef.setValueAsync(any())).thenReturn(apiFuture);
     when(newExecutionRef.getKey()).thenReturn(EXEC_KEY);
 
     assertEquals(EXEC_KEY, new Workspace(reference).newExecutionID());
+    verify(timestampRef, times(1)).setValueAsync(ServerValue.TIMESTAMP);
   }
 
   @Test
@@ -237,7 +244,8 @@ public class WorkspaceTest {
 
     when(reference.child(eq("executions"))).thenReturn(executionsRef);
     when(executionsRef.child(eq(EXEC_ID))).thenReturn(newExecutionRef);
-    when(newExecutionRef.push()).thenReturn(outputElementRef);
+    when(newExecutionRef.child("output")).thenReturn(outputRef);
+    when(outputRef.push()).thenReturn(outputElementRef);
     when(outputElementRef.setValueAsync(eq(OUTPUT))).thenReturn(apiFuture);
 
     new Workspace(reference).writeOutput(EXEC_ID, OUTPUT);
@@ -253,7 +261,7 @@ public class WorkspaceTest {
 
     when(reference.child(eq("executions"))).thenReturn(executionsRef);
     when(executionsRef.child(eq(EXEC_ID))).thenReturn(newExecutionRef);
-    when(newExecutionRef.push()).thenReturn(outputElementRef);
+    when(newExecutionRef.child(eq("exitCode"))).thenReturn(outputElementRef);
     when(outputElementRef.setValueAsync(eq(EXIT_CODE))).thenReturn(apiFuture);
 
     new Workspace(reference).setExitCode(EXEC_ID, EXIT_CODE);
