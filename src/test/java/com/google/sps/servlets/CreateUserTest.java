@@ -60,6 +60,7 @@ public class CreateUserTest {
 
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
+    when(mockToken.getUid()).thenReturn("testID");
     when(mockToken.getEmail()).thenReturn("exampleUserEmail");
 
     createUser.doGet(httpRequest, httpResponse);

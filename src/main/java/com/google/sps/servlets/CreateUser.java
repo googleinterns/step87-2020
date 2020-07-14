@@ -46,7 +46,7 @@ public class CreateUser extends HttpServlet {
       // Check if user entity already exists
       String userToken = request.getParameter("userToken");
       FirebaseToken decodedToken = authInstance.verifyIdToken(userToken);
-      String userID = decodedToken.getUid();
+      String userID = decodedToken.getUid(); // PROBLEM AT THIS LINE - NULL POINTER EXCEPTION
 
       UserRecord userRecord = authInstance.getUser(userID);
       String userEmail = userRecord.getEmail();
