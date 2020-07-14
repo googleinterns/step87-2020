@@ -53,6 +53,7 @@ public class QueueExecutionTest {
   private final String ID_TOKEN = "ID_TOKEN";
   private final String UID = "UID";
   private final String BAD_UID = "BAD_UID";
+  private final String ENV_ID = "ENV_ID";
 
   @Test
   public void doGetTestStudent() throws Exception {
@@ -64,6 +65,7 @@ public class QueueExecutionTest {
 
     when(req.getParameter(eq("workspaceID"))).thenReturn(WORKSPACE_ID);
     when(req.getParameter(eq("idToken"))).thenReturn(ID_TOKEN);
+    when(req.getParameter("envID")).thenReturn(ENV_ID);
     when(auth.verifyIdToken(eq(ID_TOKEN))).thenReturn(tok);
     when(tok.getUid()).thenReturn(UID);
     when(workspaceFactory.fromWorkspaceID(eq(WORKSPACE_ID))).thenReturn(workspace);
@@ -85,7 +87,8 @@ public class QueueExecutionTest {
     AppEngineHttpRequest apppengineReq = taskCaptor.getValue().getAppEngineHttpRequest();
 
     assertEquals(
-        ByteString.copyFrom(WORKSPACE_ID + ',' + EXECUTION_ID, Charset.defaultCharset()),
+        ByteString.copyFrom(
+            WORKSPACE_ID + ',' + ENV_ID + ',' + EXECUTION_ID, Charset.defaultCharset()),
         apppengineReq.getBody());
     assertEquals("/tasks/executeCode", apppengineReq.getRelativeUri());
     assertEquals(HttpMethod.POST, apppengineReq.getHttpMethod());
@@ -106,6 +109,7 @@ public class QueueExecutionTest {
 
     when(req.getParameter(eq("workspaceID"))).thenReturn(WORKSPACE_ID);
     when(req.getParameter(eq("idToken"))).thenReturn(ID_TOKEN);
+    when(req.getParameter("envID")).thenReturn(ENV_ID);
     when(auth.verifyIdToken(eq(ID_TOKEN))).thenReturn(tok);
     when(tok.getUid()).thenReturn(UID);
     when(workspaceFactory.fromWorkspaceID(eq(WORKSPACE_ID))).thenReturn(workspace);
@@ -128,7 +132,8 @@ public class QueueExecutionTest {
     AppEngineHttpRequest apppengineReq = taskCaptor.getValue().getAppEngineHttpRequest();
 
     assertEquals(
-        ByteString.copyFrom(WORKSPACE_ID + ',' + EXECUTION_ID, Charset.defaultCharset()),
+        ByteString.copyFrom(
+            WORKSPACE_ID + ',' + ENV_ID + ',' + EXECUTION_ID, Charset.defaultCharset()),
         apppengineReq.getBody());
     assertEquals("/tasks/executeCode", apppengineReq.getRelativeUri());
     assertEquals(HttpMethod.POST, apppengineReq.getHttpMethod());
