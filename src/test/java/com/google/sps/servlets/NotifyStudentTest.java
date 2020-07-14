@@ -3,6 +3,7 @@ package com.google.sps.servlets;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -21,6 +22,7 @@ import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.sps.workspace.Workspace;
 import com.google.sps.workspace.WorkspaceFactory;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -34,6 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -56,11 +59,14 @@ public class NotifyStudentTest {
 
   @Mock Workspace workspace;
 
-  @InjectMocks NotifyStudent alertStudent;
+  @Mock Clock clock;
 
-  private static final LocalDate LOCAL_DATE = LocalDate.of(2020, 07, 06);
-  private static final Date DATE =
-      Date.from(LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant());
+  @Spy @InjectMocks NotifyStudent alertStudent;
+
+  private Clock fixedClock;
+  private static final LocalDate LOCAL_DATE = LocalDate.of(2020, 07, 07);
+  private static final Date START_DATE =
+      Date.from(LocalDate.of(2020, 07, 06).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
   @Before
   public void setUp() {
@@ -68,6 +74,12 @@ public class NotifyStudentTest {
     datastore = DatastoreServiceFactory.getDatastoreService();
     System.setProperty(
         DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
+
+    fixedClock =
+        Clock.fixed(
+            LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
+    // doReturn(fixedClock.instant()).when(clock).instant();
+    doReturn(fixedClock.getZone()).when(clock).getZone();
   }
 
   @After
@@ -87,16 +99,15 @@ public class NotifyStudentTest {
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
-    init.setProperty("visitKey", "visitKey");
 
     EmbeddedEntity addQueue1 = new EmbeddedEntity();
     EmbeddedEntity studentInfo1 = new EmbeddedEntity();
-    studentInfo1.setProperty("timeEntered", DATE);
+    studentInfo1.setProperty("timeEntered", START_DATE);
     addQueue1.setProperty("studentID", studentInfo1);
 
     EmbeddedEntity addQueue2 = new EmbeddedEntity();
     EmbeddedEntity studentInfo2 = new EmbeddedEntity();
-    studentInfo2.setProperty("timeEntered", DATE);
+    studentInfo2.setProperty("timeEntered", START_DATE);
     addQueue2.setProperty("test2", studentInfo2);
 
     init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2));
@@ -106,8 +117,6 @@ public class NotifyStudentTest {
     queueInfo.setProperty("workspaceID", "workspaceID");
 
     EmbeddedEntity beingHelped = new EmbeddedEntity();
-    beingHelped.setProperty("studentID", queueInfo);
-
     init.setProperty("beingHelped", beingHelped);
 
     datastore.put(init);
@@ -124,9 +133,12 @@ public class NotifyStudentTest {
     UserRecord mockUser = mock(UserRecord.class);
     when(authInstance.getUserByEmail("test@google.com")).thenReturn(mockUser);
     when(mockUser.getUid()).thenReturn("studentID");
+    doReturn(fixedClock.instant()).when(clock).instant();
 
     when(factory.fromStudentAndTA("studentID", "taID")).thenReturn(workspace);
     when(workspace.getWorkspaceID()).thenReturn("workspaceID");
+
+    // doReturn(Duration.ofHours(24)).when(alertStudent).getDuration(addQueue1, "studentID");
 
     alertStudent.doPost(httpRequest, httpResponse);
 
@@ -146,5 +158,10 @@ public class NotifyStudentTest {
         KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
     assertEquals(1, testQueue.size());
     assertTrue(testQueue.get(0).hasProperty("test2"));
+
+    // Entity testWaitEntity = datastore.prepare(new Query("Wait")).asSingleEntity();
+    // ArrayList<Duration> waitDurations =
+    //     (ArrayList<Duration>) testWaitEntity.getProperty("waitDurations");
+    // assertEquals(Duration.ofHours(24), waitDurations.get(0));
   }
 }

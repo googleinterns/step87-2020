@@ -188,4 +188,52 @@ public class QueueStatusTest {
 
     assertEquals("1", stringWriter.toString());
   }
+
+  @Test
+  public void notInQueue() throws Exception {
+    Entity init = new Entity("Class");
+
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", "");
+
+    EmbeddedEntity addQueue1 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo1 = new EmbeddedEntity();
+    studentInfo1.setProperty("timeEntered", DATE);
+    addQueue1.setProperty("test1", studentInfo1);
+
+    EmbeddedEntity addQueue2 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo2 = new EmbeddedEntity();
+    studentInfo2.setProperty("timeEntered", DATE);
+    addQueue2.setProperty("test2", studentInfo2);
+
+    EmbeddedEntity addQueue3 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo3 = new EmbeddedEntity();
+    studentInfo3.setProperty("timeEntered", DATE);
+    addQueue3.setProperty("test3", studentInfo3);
+
+    EmbeddedEntity addQueue4 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo4 = new EmbeddedEntity();
+    studentInfo4.setProperty("timeEntered", DATE);
+    addQueue4.setProperty("test4", studentInfo4);
+
+    init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2, addQueue3, addQueue4));
+
+    datastore.put(init);
+
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("studentToken")).thenReturn("testID");
+
+    FirebaseToken mockToken = mock(FirebaseToken.class);
+    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
+    when(mockToken.getUid()).thenReturn("uID");
+
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter writer = new PrintWriter(stringWriter);
+    when(httpResponse.getWriter()).thenReturn(writer);
+
+    queue.doGet(httpRequest, httpResponse);
+
+    assertEquals("0", stringWriter.toString());
+  }
 }
