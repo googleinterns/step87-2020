@@ -56,6 +56,7 @@ public class SubmitRosterTest {
   }
 
   @Test
+  // Create new student users when a roster is submitted
   public void addRosterNewStudents() throws Exception {
 
     // Create a class
@@ -153,7 +154,7 @@ public class SubmitRosterTest {
   }
 
   @Test
-  // For existing users, just update registration list
+  // If owner submits a roster with the same student twice, only add the student once
   public void existingStudents() throws Exception {
 
     // Create a class

@@ -103,7 +103,7 @@ public class AddClassTATest {
 
     datastore.put(init);
 
-    // Create a user
+    // Initialize a user
     Entity user = new Entity("User");
 
     List<Key> taClassList = Arrays.asList(init.getKey());
@@ -137,6 +137,61 @@ public class AddClassTATest {
 
   @Test
   // For a user that already TAs for one class, add more classes
+  public void preventDuplicateTAClasses() throws Exception {
+
+    // Create some classes
+    Entity init = new Entity("Class");
+
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("studentQueue", Collections.emptyList());
+    init.setProperty("taList", Collections.emptyList());
+
+    Entity init2 = new Entity("Class");
+
+    init2.setProperty("owner", "ownerID2");
+    init2.setProperty("name", "testClass2");
+    init2.setProperty("beingHelped", new EmbeddedEntity());
+    init2.setProperty("studentQueue", Collections.emptyList());
+    init2.setProperty("taList", Collections.emptyList());
+
+    datastore.put(init);
+
+    // Initialize a TA user
+    Entity user = new Entity("User");
+
+    List<Key> taClassList = Arrays.asList(init.getKey(), init2.getKey());
+
+    user.setProperty("userEmail", "testTA@google.com");
+    user.setProperty("registeredClasses", Collections.emptyList());
+    user.setProperty("taClasses", taClassList);
+    user.setProperty("ownedClasses", Collections.emptyList());
+
+    datastore.put(user);
+
+    // Create examples for the TA email and class code
+    when(httpRequest.getParameter("taEmail")).thenReturn("testTA@google.com");
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+
+    addTA.doPost(httpRequest, httpResponse);
+
+    Query query = new Query("User");
+    PreparedQuery results = datastore.prepare(query);
+
+    // Verify list of classes for TA is unchanged
+    for (Entity entity : results.asIterable()) {
+      if (entity.getProperty("userEmail") == "testTA@google.com") {
+        List<Key> taClasses = (List<Key>) entity.getProperty("taClasses");
+        assertTrue(taClasses.contains(init.getKey()));
+        assertTrue(taClasses.contains(init2.getKey()));
+        assertTrue(taClasses.size() == 2);
+      }
+    }
+  }
+
+  @Test
+  // Add multiple classes for a TA user
   public void addMultipleClassKeys() throws Exception {
 
     // Create multiple classes
