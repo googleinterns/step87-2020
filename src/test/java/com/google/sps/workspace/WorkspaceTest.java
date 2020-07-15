@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -56,6 +57,17 @@ public class WorkspaceTest {
   String TA = "TA";
 
   @Test
+  public void setStudentID() throws Exception {
+    when(reference.child(eq("student"))).thenReturn(studentRef);
+    when(studentRef.setValueAsync(anyString())).thenReturn(apiFuture);
+
+    new Workspace(reference).setStudentUID(STUDENT);
+
+    verify(studentRef, times(1)).setValueAsync(eq(STUDENT));
+    verify(apiFuture, times(1)).get();
+  }
+
+  @Test
   public void getStudentID() throws Exception {
 
     when(reference.child(eq("student"))).thenReturn(studentRef);
@@ -91,6 +103,17 @@ public class WorkspaceTest {
 
     assertTrue(future.isDone());
     future.get();
+  }
+
+  @Test
+  public void setTaID() throws Exception {
+    when(reference.child(eq("ta"))).thenReturn(taRef);
+    when(taRef.setValueAsync(anyString())).thenReturn(apiFuture);
+
+    new Workspace(reference).setTaUID(TA);
+
+    verify(taRef, times(1)).setValueAsync(eq(TA));
+    verify(apiFuture, times(1)).get();
   }
 
   @Test
