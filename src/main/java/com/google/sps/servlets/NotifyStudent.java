@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -130,7 +129,7 @@ public class NotifyStudent extends HttpServlet {
           queue.remove(delEntity);
 
           // Get workspace ID
-          String workspaceID = (String) delEntity.getProperty("workspaceID");
+          String workspaceID = (String) studentEntity.getProperty("workspaceID");
           factory.fromWorkspaceID(workspaceID).setTaUID(taID);
 
           // Update beingHelped
