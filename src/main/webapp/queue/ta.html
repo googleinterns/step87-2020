@@ -14,7 +14,7 @@
   </head>
 
   <script>
-    var repeat = setInterval(getQueue, 5000);
+    var repeat = setInterval(getQueue, 10000);
     var taToken;
 
     function getToken() {
@@ -68,9 +68,7 @@
       const request = new Request("/notify-student" + params, {method: "POST"});
       document.getElementById('beingHelped').appendChild(createHelpedElem(studentEmail, params));
       
-      fetch(request);
-
-      getWorkspace(params);
+      fetch(request).then(getWorkspace(params));
 
       getQueue();
     }
@@ -88,9 +86,9 @@
       const request = new Request("/end-help" + params, {method: "POST"});
       document.getElementById('beingHelped').innerText = "";
       
-      fetch(request);
+      fetch(request).then(getQueue());
 
-      getQueue();
+      
     }
 
     function createListElement(studentEmail) {

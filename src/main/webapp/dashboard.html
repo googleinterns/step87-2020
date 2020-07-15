@@ -31,7 +31,7 @@
 
   </head>
 
-  <body onload = "setRedirect()">
+  <body onload = "onload()">
     
     <!--Contains the TA email form-->
     <div class="left">
@@ -50,6 +50,32 @@
               </label>
             </fieldset>
           </form>
+
+          <div class="side-section">
+            <div>
+              <table id="envTable">
+                <template id="envRowTemplate">
+                  <tr>
+                    <th class="envName"></th>
+                    <th class="envStatus"></th>
+                    <th><button class="envDelete">Delete</button></th>
+                  </tr>
+                </template>
+              </table>
+            </div>
+            <div>
+              <label for="envName"><span>Environment Name <span class="required">*</span></span></label>
+              <input type="text" id="envName" name="envName" />
+              <br />
+              <label for="envImage"><span>Docker Image Name <span class="required">*</span></span></label>
+              <input type="text" id="envImage" name="envImage" />
+              <br />
+              <label for="envTag"><span>Docker Image Tag <span class="required">*</span></span></label>
+              <input type="text" id="envTag" name="envTag" />
+              <br />
+              <button onclick="pullImage()">Submit</button>
+            </div>
+          </div>
         </div>
       </div>
       

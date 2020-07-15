@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -106,5 +107,30 @@ public class GetQueueTest {
     queue.doGet(httpRequest, httpResponse);
 
     assertEquals("test1@google.com, test2@google.com", stringWriter.toString());
+  }
+
+  @Test
+  public void emptyQueue() throws Exception {
+    Entity init = new Entity("Class");
+
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", "");
+
+    init.setProperty("studentQueue", Collections.emptyList());
+
+    datastore.put(init);
+
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+
+    when(gson.toJson(new ArrayList<String>())).thenReturn("");
+
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter writer = new PrintWriter(stringWriter);
+    when(httpResponse.getWriter()).thenReturn(writer);
+
+    queue.doGet(httpRequest, httpResponse);
+
+    assertEquals("", stringWriter.toString());
   }
 }
