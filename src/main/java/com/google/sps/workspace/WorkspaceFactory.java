@@ -25,11 +25,11 @@ public class WorkspaceFactory {
 
   public Workspace create(String classID)
       throws InterruptedException, ExecutionException, IOException {
-    return fromStudentAndTA(
+    return create(
         classID, FirebaseDatabase.getInstance(FirebaseAppManager.getApp()).getReference().push());
   }
 
-  public Workspace fromStudentAndTA(String classID, DatabaseReference reference)
+  public Workspace create(String classID, DatabaseReference reference)
       throws InterruptedException, ExecutionException, IOException {
     ApiFuture<Void> classFuture = reference.child("classID").setValueAsync(classID);
 
