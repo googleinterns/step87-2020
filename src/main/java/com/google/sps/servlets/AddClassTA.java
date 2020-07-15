@@ -61,6 +61,7 @@ public class AddClassTA extends HttpServlet {
           String classCode = request.getParameter("classCode").trim();
           Key classKey = KeyFactory.stringToKey(classCode);
 
+          // Look for the TA in the user datastore
           PreparedQuery queryUser =
               datastore.prepare(
                   new Query("User")
@@ -82,7 +83,7 @@ public class AddClassTA extends HttpServlet {
             user.setProperty("taClasses", taClassesList);
 
             datastore.put(txn, user);
-          } 
+          }
           // If TA user already exists, update their ta class list
           else {
             user = queryUser.asSingleEntity();
