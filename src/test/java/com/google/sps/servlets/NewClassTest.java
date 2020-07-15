@@ -59,6 +59,7 @@ public class NewClassTest {
 
   @Test
   public void addUniqueClass() throws Exception {
+
     when(httpRequest.getParameter("className")).thenReturn("testClass");
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
 
@@ -66,6 +67,7 @@ public class NewClassTest {
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("ownerID");
 
+    // Get owner info
     UserRecord mockUser = mock(UserRecord.class);
     when(authInstance.getUser("ownerID")).thenReturn(mockUser);
     when(mockUser.getEmail()).thenReturn("ownerEmail@google.com");
@@ -75,10 +77,12 @@ public class NewClassTest {
     Query query = new Query("User");
     PreparedQuery results = datastore.prepare(query);
 
+    // Search for owner user entity in datastore
     for (Entity user : results.asIterable()) {
       if (user.getProperty("userEmail") == "ownerEmail@google.com") {
         ArrayList<Key> testOwned = (ArrayList<Key>) user.getProperty("ownedClasses");
         assertTrue(!testOwned.isEmpty());
+        assertTrue(testOwned.size() == 1);
       }
     }
 
@@ -97,6 +101,7 @@ public class NewClassTest {
 
   @Test
   public void addDuplicateClass() throws Exception {
+
     Entity init = new Entity("Class");
 
     init.setProperty("owner", "ownerID");
@@ -108,6 +113,7 @@ public class NewClassTest {
     datastore.put(init);
 
     when(httpRequest.getParameter("className")).thenReturn("testClass");
+
     addNew.doPost(httpRequest, httpResponse);
 
     verify(httpResponse).sendError(HttpServletResponse.SC_FORBIDDEN);
