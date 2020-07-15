@@ -68,17 +68,17 @@ function checkSignIn() {
 }
  
 function addUser() {
-  var params = window.location.search + "?userToken=" + userToken;
-  console.log("Adding user.");
-  const request = new Request(`/create-user` + params, {method: "GET"});
-  fetch(request);
+//   var params = window.location.search + "?userToken=" + userToken;
+//   console.log("Adding user.");
+//   const request = new Request(`/create-user` + params, {method: "GET"});
+//   fetch(request);
 }
 
 function setToken(token) {
-  userToken = token;
-  console.log("User token set.");
-  console.log("User token is " + userToken);
-  addUser();
+//   userToken = token;
+//   console.log("User token set.");
+//   console.log("User token is " + userToken);
+//   addUser();
 }
 
 // When user sign-in state changes, hide or show logout button
@@ -88,7 +88,7 @@ function addAuthStateListener() {
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
       button.style.visibility = "visible";
-      user.getIdToken().then((token) => setToken(token));
+    //   user.getIdToken().then((token) => setToken(token));
     } else {
       button.style.visibility = "hidden";
     }

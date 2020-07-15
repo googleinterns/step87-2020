@@ -5,16 +5,17 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
+import java.util.List;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -54,23 +55,31 @@ public class AddClassTA extends HttpServlet {
 
           // Obtain the teaching assistant email and search for the user
           String teachingAssistantEmail = request.getParameter("taEmail").trim();
-          UserRecord userRecord = authInstance.getUserByEmail(teachingAssistantEmail);
 
           // Find the corresponding class Key
           String classCode = request.getParameter("classCode").trim();
           Key classKey = KeyFactory.stringToKey(classCode);
-    
-          Query query = new Query("User");
-          PreparedQuery results = datastore.prepare(query);
 
-          // Add the class key to the user's TA classes list
-          for (Entity entity : results.asIterable()) {
-            if (entity.getProperty("userEmail") == teachingAssistantEmail) {
-              ArrayList<Key> taClassesList = (ArrayList) entity.getProperty("taClasses");
-              taClassesList.add(classKey);
-              entity.setProperty("taClasses", taClassesList);
-              datastore.put(txn, entity);
-            }
+          Query query =
+              new Query("User")
+                  .setFilter(
+                      new FilterPredicate(
+                          "userEmail", FilterOperator.EQUAL, teachingAssistantEmail));
+
+          if (datastore.prepare(query).countEntities() == 0) {
+
+            List<Key> taClassesList = Arrays.asList(classKey);
+
+            Entity user = new Entity("User");
+            user.setProperty("userEmail", teachingAssistantEmail);
+            user.setProperty("registeredClasses", Collections.emptyList());
+            user.setProperty("ownedClasses", Collections.emptyList());
+            user.setProperty("taClasses", taClassesList);
+
+            datastore.put(txn, user);
+          } else {
+            response.sendError(
+                HttpServletResponse.SC_FORBIDDEN); // Prevent creating duplicate users
           }
 
           // Redirect to the class dashboard page
@@ -93,8 +102,6 @@ public class AddClassTA extends HttpServlet {
         }
       }
 
-    } catch (FirebaseAuthException e) {
-      response.sendError(HttpServletResponse.SC_NOT_FOUND);
     } catch (IllegalArgumentException e) {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
     }

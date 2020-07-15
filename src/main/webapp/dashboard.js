@@ -7,7 +7,7 @@ function drawBasic() {
   var data = new google.visualization.DataTable();
   data.addColumn('date', 'Date');
   data.addColumn('number', 'Visits');
-
+ 
   // Organize visit data through visit-by-date servlet
   fetch(`/visit-date?classCode=` + getParam("classCode"))
     .then(response => response.json()).then(visits=> {

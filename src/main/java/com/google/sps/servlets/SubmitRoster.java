@@ -51,7 +51,7 @@ public class SubmitRoster extends HttpServlet {
 
     // Find the corresponding class Key
     String classCode = request.getParameter("classCode").trim();
-    Key classKey = KeyFactory.stringToKey(classCode); // ERROR ON THIS LINE
+    Key classKey = KeyFactory.stringToKey(classCode);
     ArrayList<Key> registered = new ArrayList<Key>();
     registered.add(classKey);
 
@@ -70,7 +70,12 @@ public class SubmitRoster extends HttpServlet {
         user.setProperty("taClasses", Collections.emptyList());
 
         datastore.put(user);
+      } else {
+        // Entity user = query.asSingleEntity();
       }
     }
+
+    // Redirect to the class dashboard page
+    response.sendRedirect("/dashboard.html?classCode=" + classCode);
   }
 }

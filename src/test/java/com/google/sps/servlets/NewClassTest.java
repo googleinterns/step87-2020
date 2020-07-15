@@ -10,11 +10,14 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
 import java.util.ArrayList;
 import java.util.Collections;
 import javax.servlet.http.HttpServletRequest;
@@ -63,7 +66,21 @@ public class NewClassTest {
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("ownerID");
 
+    UserRecord mockUser = mock(UserRecord.class);
+    when(authInstance.getUser("ownerID")).thenReturn(mockUser);
+    when(mockUser.getEmail()).thenReturn("ownerEmail@google.com");
+
     addNew.doPost(httpRequest, httpResponse);
+
+    Query query = new Query("User");
+    PreparedQuery results = datastore.prepare(query);
+
+    for (Entity user : results.asIterable()) {
+      if (user.getProperty("userEmail") == "ownerEmail@google.com") {
+        ArrayList<Key> testOwned = (ArrayList<Key>) user.getProperty("ownedClasses");
+        assertTrue(!testOwned.isEmpty());
+      }
+    }
 
     Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
 

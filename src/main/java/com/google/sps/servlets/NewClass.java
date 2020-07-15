@@ -5,16 +5,21 @@ import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -70,6 +75,37 @@ public class NewClass extends HttpServlet {
         classEntity.setProperty("taList", Collections.emptyList());
 
         datastore.put(classEntity);
+
+        // Add the class to the owner's user entity class list
+        UserRecord userRecord = authInstance.getUser(decodedToken.getUid());
+        String ownerEmail = userRecord.getEmail();
+
+        PreparedQuery queryUser =
+            datastore.prepare(
+                new Query("User")
+                    .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, ownerEmail)));
+
+        Entity user;
+
+        // Create a new user with one owned class if they don't exist
+        if (queryUser.countEntities() == 0) {
+          List<Key> ownedClassesList = Arrays.asList(classEntity.getKey());
+
+          user = new Entity("User");
+          user.setProperty("userEmail", ownerEmail);
+          user.setProperty("registeredClasses", Collections.emptyList());
+          user.setProperty("ownedClasses", ownedClassesList);
+          user.setProperty("taClasses", Collections.emptyList());
+        }
+        // For existing users, add the class to ownedClasses
+        else {
+          user = queryUser.asSingleEntity();
+          List<Key> ownedClassesList = (List<Key>) user.getProperty("ownedClasses");
+          ownedClassesList.add(classEntity.getKey());
+          user.setProperty("ownedClasses", ownedClassesList);
+
+          datastore.put(user);
+        }
 
         response.sendRedirect(DASHBOARD + KeyFactory.keyToString(classEntity.getKey()));
 
