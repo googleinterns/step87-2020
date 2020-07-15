@@ -26,9 +26,6 @@
       },
       "executions": {
         ".read": "root.child($workspaceID).child('student').val() === auth.uid || root.child($workspaceID).child('ta').val() === auth.uid"
-      },
-      "environment": {
-        ".read": "root.child($workspaceID).child('student').val() === auth.uid || root.child($workspaceID).child('ta').val() === auth.uid"
       }
     }
   }
