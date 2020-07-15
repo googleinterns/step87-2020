@@ -26,7 +26,7 @@ getFirebaseRef().child("classID").once("value", snap => {
     }
 
     if (envs.length > 0) {
-      select.classList.remove("hidden");
+      document.getElementById("envSelectWrapper").classList.remove("hidden");
       document.getElementById("executeButton").classList.remove("hidden");
     }
   });

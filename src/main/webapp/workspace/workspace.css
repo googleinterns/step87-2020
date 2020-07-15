@@ -103,7 +103,7 @@ body {
   background-color: var(--tab-hover-color);
 }
 
-.tab:focus {
+.tab:focus, .select-wrapper select:focus {
   outline: none;
 }
 
@@ -154,4 +154,45 @@ body {
   background-color: var(--permanent-tab-color);
   color: var(--text-color);
   flex-shrink: 0;
+}
+
+.select-wrapper {
+  position: relative;
+  min-width: 5em;
+}
+
+.select-wrapper select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  color: var(--text-color);
+  
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding-left: 15px;
+  padding-right: 20px;
+}
+
+.select-wrapper select option {
+  background-color: var(--permanent-tab-color);
+  color: var(--text-color);
+}
+
+.select-wrapper select::-ms-expand {
+  display: none;
+}
+
+.select-wrapper::after {
+  content: "\25BC";
+
+  width: 5px;
+  position: absolute;
+  right: 0;
+  padding-right: 15px;
 }
