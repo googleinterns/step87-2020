@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -135,7 +137,6 @@ public class NotifyStudentTest {
     doReturn(fixedClock.instant()).when(clock).instant();
 
     when(factory.fromWorkspaceID(WORKSPACE_ID)).thenReturn(workspace);
-    when(workspace.getWorkspaceID()).thenReturn(WORKSPACE_ID);
 
     alertStudent.doPost(httpRequest, httpResponse);
 
@@ -148,6 +149,8 @@ public class NotifyStudentTest {
     assertThat((String) gotQueue.getProperty("workspaceID"))
         .named("got.workspaceID")
         .isEqualTo(WORKSPACE_ID);
+
+    verify(workspace, times(1)).setTaUID("taID");
 
     ArrayList<EmbeddedEntity> testQueue =
         (ArrayList<EmbeddedEntity>) testClassEntity.getProperty("studentQueue");
