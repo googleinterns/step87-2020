@@ -59,7 +59,7 @@ public class AddClassTA extends HttpServlet {
           // Find the corresponding class Key
           String classCode = request.getParameter("classCode").trim();
           Key classKey = KeyFactory.stringToKey(classCode);
-
+    
           Query query = new Query("User");
           PreparedQuery results = datastore.prepare(query);
 
@@ -72,9 +72,6 @@ public class AddClassTA extends HttpServlet {
               datastore.put(txn, entity);
             }
           }
-
-          //   response.setContentType("application/json;");
-          //   response.getWriter().println(teachingAssistantEmail);
 
           // Redirect to the class dashboard page
           response.sendRedirect("/dashboard.html?classCode=" + classCode);

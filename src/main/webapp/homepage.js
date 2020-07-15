@@ -66,7 +66,7 @@ function checkSignIn() {
     button.style.visibility = "hidden";
   }
 }
-
+ 
 function addUser() {
   var params = window.location.search + "?userToken=" + userToken;
   console.log("Adding user.");

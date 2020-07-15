@@ -58,7 +58,7 @@ public class CreateUserTest {
   @Test
   // Register a single user and add a User entity
   public void addUser() throws Exception {
-    when(httpRequest.getParameter("idToken")).thenReturn("testID");
+    when(httpRequest.getParameter("userToken")).thenReturn("testID");
 
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
@@ -87,11 +87,15 @@ public class CreateUserTest {
   @Test
   public void addDuplicateUser() throws Exception {
 
-    when(httpRequest.getParameter("idToken")).thenReturn("testID");
+    when(httpRequest.getParameter("userToken")).thenReturn("testID");
 
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
-    when(mockToken.getEmail()).thenReturn("exampleUserEmail");
+    when(mockToken.getUid()).thenReturn("123ABC");
+
+    UserRecord mockUser = mock(UserRecord.class);
+    when(authInstance.getUser("123ABC")).thenReturn(mockUser);
+    when(mockUser.getEmail()).thenReturn("exampleUserEmail");
 
     Entity userEntity = new Entity("User");
 

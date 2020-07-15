@@ -87,7 +87,7 @@ function setRedirect(){
 function getClassCode() {
   document.getElementById("hiddenClassCode").value = getParam("classCode");
   return true;
-} 
+}  
 
 // Obtain the class's specific code from URL parameter
 function getRosterClassCode() {
