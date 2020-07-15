@@ -81,7 +81,7 @@
       makeRequest();
     }
 
-    let repeat = setInterval(makeRequest, 5000);
+    let repeat = setInterval(makeRequest, 10000);
     function makeRequest(){
       var params = window.location.search + "&studentToken=" + studentToken;
       const request = new Request("/check-student" + params, {method: "GET"});
