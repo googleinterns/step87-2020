@@ -5,6 +5,7 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
@@ -60,26 +61,36 @@ public class AddClassTA extends HttpServlet {
           String classCode = request.getParameter("classCode").trim();
           Key classKey = KeyFactory.stringToKey(classCode);
 
-          Query query =
-              new Query("User")
-                  .setFilter(
-                      new FilterPredicate(
-                          "userEmail", FilterOperator.EQUAL, teachingAssistantEmail));
+          PreparedQuery queryUser =
+              datastore.prepare(
+                  new Query("User")
+                      .setFilter(
+                          new FilterPredicate(
+                              "userEmail", FilterOperator.EQUAL, teachingAssistantEmail)));
 
-          if (datastore.prepare(query).countEntities() == 0) {
+          Entity user;
+
+          // If the TA user entity doesnt exist yet, create one
+          if (queryUser.countEntities() == 0) {
 
             List<Key> taClassesList = Arrays.asList(classKey);
 
-            Entity user = new Entity("User");
+            user = new Entity("User");
             user.setProperty("userEmail", teachingAssistantEmail);
             user.setProperty("registeredClasses", Collections.emptyList());
             user.setProperty("ownedClasses", Collections.emptyList());
             user.setProperty("taClasses", taClassesList);
 
             datastore.put(txn, user);
-          } else {
-            response.sendError(
-                HttpServletResponse.SC_FORBIDDEN); // Prevent creating duplicate users
+          } 
+          // If TA user already exists, update their ta class list
+          else {
+            user = queryUser.asSingleEntity();
+            List<Key> taClassesList = (List<Key>) user.getProperty("taClasses");
+            taClassesList.add(classKey);
+            user.setProperty("taClasses", taClassesList);
+
+            datastore.put(txn, user);
           }
 
           // Redirect to the class dashboard page
