@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** Servlet that creates a new class Datastore. */
+// Servlet that creates a new class Datastore
 @WebServlet("/newclass")
 public class NewClass extends HttpServlet {
   private FirebaseAuth authInstance;
@@ -46,7 +46,7 @@ public class NewClass extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form.
-    // navigate to /_ah/admin to view Datastore
+    // Navigate to /_ah/admin to view Datastore
 
     datastore = DatastoreServiceFactory.getDatastoreService();
     System.setProperty(
@@ -55,12 +55,13 @@ public class NewClass extends HttpServlet {
     try {
       String className = request.getParameter("className").trim();
 
-      // prevents creating duplicate classes
+      // Prevents creating duplicate classes
       Query query =
           new Query("Class")
               .setFilter(new FilterPredicate("name", FilterOperator.EQUAL, className));
 
       if (datastore.prepare(query).countEntities() == 0) {
+
         String idToken = request.getParameter("idToken");
         FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
 
