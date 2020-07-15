@@ -45,7 +45,7 @@ public class GetQueue extends HttpServlet {
         DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
 
     try {
-      // Retrive class entity
+      // Retrieve class entity
       String classCode = request.getParameter("classCode").trim();
       Key classKey = KeyFactory.stringToKey(classCode);
       Entity classEntity = datastore.get(classKey);
@@ -57,7 +57,7 @@ public class GetQueue extends HttpServlet {
       // Reconstruct queue using names
       ArrayList<String> queue = new ArrayList<String>();
       for (EmbeddedEntity elem : entityQueue) {
-        String uid = elem.getProperties().keySet().stream().findFirst().get();
+        String uid = elem.getProperties().keySet().stream().findFirst().orElse(null);
         UserRecord userRecord = authInstance.getUser(uid);
         String studentName = userRecord.getEmail();
         queue.add(studentName);
