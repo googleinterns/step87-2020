@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.ExecutionException;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -78,8 +79,8 @@ public class NotifyStudent extends HttpServlet {
           updatedQueue.remove(delEntity);
 
           // Get workspace ID
-          String workspaceID =
-              factory.fromStudentAndTA(classCode, studentID, taID).getWorkspaceID();
+          String workspaceID = (String) delEntity.getProperty("workspaceID");
+          factory.fromWorkspaceID(workspaceID).setTaUID(taID);
 
           // Update beingHelped
           EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
