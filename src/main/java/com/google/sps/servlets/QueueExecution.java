@@ -22,22 +22,21 @@ public class QueueExecution extends HttpServlet {
   private TaskSchedulerFactory taskSchedulerFactory;
   private FirebaseAuth auth;
 
+  @VisibleForTesting
+  protected String QUEUE_NAME;
+
 
   @Override
   public void init() throws ServletException {
     super.init();
     workspaceFactory = WorkspaceFactory.getInstance();
     taskSchedulerFactory = TaskSchedulerFactory.getInstance();
+    QUEUE_NAME = System.getenv("EXECUTION_QUEUE_ID");
     try {
       auth = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
     } catch (IOException e) {
       throw new ServletException(e);
     }
-  }
-
-  @VisibleForTesting
-  protected String getQueueName() {
-    return System.getenv("EXECUTION_QUEUE_ID");
   }
 
   @Override
@@ -53,7 +52,7 @@ public class QueueExecution extends HttpServlet {
       if (w.getStudentUID().get().equals(tok.getUid()) || w.getTaUID().get().equals(tok.getUid())) {
         String execID = w.newExecutionID();
 
-        taskSchedulerFactory.create(getQueueName(), "/tasks/executeCode")
+        taskSchedulerFactory.create(QUEUE_NAME, "/tasks/executeCode")
             .schedule(String.join(",", w.getWorkspaceID(), envID, execID));
 
         resp.getWriter().print(execID);

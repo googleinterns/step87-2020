@@ -20,15 +20,13 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/environment")
 public class EnvironmentServlet extends HttpServlet {
   private TaskSchedulerFactory taskSchedulerFactory;
+  @VisibleForTesting
+  protected String QUEUE_NAME;
 
   @Override
   public void init() throws ServletException {
     taskSchedulerFactory = TaskSchedulerFactory.getInstance();
-  }
-
-  @VisibleForTesting
-  protected String getQueueName() {
-    return System.getenv("EXECUTION_QUEUE_ID");
+    QUEUE_NAME = System.getenv("EXECUTION_QUEUE_ID");
   }
 
   @Override
@@ -64,7 +62,7 @@ public class EnvironmentServlet extends HttpServlet {
       e.setProperty("status", "deleting");
       datastore.put(e);
 
-      taskSchedulerFactory.create(getQueueName(), "/tasks/deleteEnv")
+      taskSchedulerFactory.create(QUEUE_NAME, "/tasks/deleteEnv")
           .schedule(envID);
 
       resp.getWriter().print(envID);

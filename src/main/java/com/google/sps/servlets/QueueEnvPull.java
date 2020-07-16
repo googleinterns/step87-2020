@@ -25,15 +25,13 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/queueEnvPull")
 public class QueueEnvPull extends HttpServlet {
   private TaskSchedulerFactory taskSchedulerFactory;
+  @VisibleForTesting
+  protected String QUEUE_NAME;
 
   @Override
   public void init() throws ServletException {
     this.taskSchedulerFactory = TaskSchedulerFactory.getInstance();
-  }
-
-  @VisibleForTesting
-  protected String getQueueName() {
-    return System.getenv("EXECUTION_QUEUE_ID");
+    QUEUE_NAME = System.getenv("EXECUTION_QUEUE_ID");
   }
 
   @Override
@@ -67,7 +65,7 @@ public class QueueEnvPull extends HttpServlet {
       datastore.put(e);
       String envID = KeyFactory.keyToString(e.getKey());
 
-      taskSchedulerFactory.create(getQueueName(), "/tasks/pullEnv")
+      taskSchedulerFactory.create(QUEUE_NAME, "/tasks/pullEnv")
           .schedule(String.join(",", envID, classID, image, tag));
 
       resp.getWriter().print(envID);

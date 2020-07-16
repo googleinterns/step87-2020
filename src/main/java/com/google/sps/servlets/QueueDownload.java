@@ -26,21 +26,20 @@ public class QueueDownload extends HttpServlet {
   private TaskSchedulerFactory taskSchedulerFactory;
   private FirebaseAuth auth;
 
+  @VisibleForTesting
+  protected String QUEUE_NAME;
+
   @Override
   public void init() throws ServletException {
     super.init();
     workspaceFactory = WorkspaceFactory.getInstance();
     taskSchedulerFactory = TaskSchedulerFactory.getInstance();
+    QUEUE_NAME = System.getenv("DOWNLOAD_QUEUE_ID");
     try {
       auth = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
     } catch (IOException e) {
       throw new ServletException(e);
     }
-  }
-
-  @VisibleForTesting
-  protected String getQueueName() {
-    return System.getenv("DOWNLOAD_QUEUE_ID");
   }
 
   @Override
@@ -56,7 +55,7 @@ public class QueueDownload extends HttpServlet {
 
         String downloadID = w.newDownloadID();
 
-        taskSchedulerFactory.create(getQueueName(), "/tasks/prepareDownload")
+        taskSchedulerFactory.create(QUEUE_NAME, "/tasks/prepareDownload")
             .schedule(String.join(",", w.getWorkspaceID(), downloadID));
 
         resp.getWriter().print(downloadID);
