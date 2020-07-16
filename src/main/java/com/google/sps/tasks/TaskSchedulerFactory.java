@@ -13,11 +13,15 @@ public class TaskSchedulerFactory {
 
   public TaskScheduler create(String queueName, String URI) {
     return create(
-      System.getenv("GOOGLE_CLOUD_PROJECT"), queueName, System.getenv("LOCATION_ID"), URI, HttpMethod.POST);
+        System.getenv("GOOGLE_CLOUD_PROJECT"),
+        queueName,
+        System.getenv("LOCATION_ID"),
+        URI,
+        HttpMethod.POST);
   }
 
-  public TaskScheduler create(String projectID, String queueName, String location, String URI, HttpMethod httpMethod) {
+  public TaskScheduler create(
+      String projectID, String queueName, String location, String URI, HttpMethod httpMethod) {
     return new TaskScheduler(projectID, queueName, location, URI, httpMethod);
   }
-  
 }

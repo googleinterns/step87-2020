@@ -12,7 +12,6 @@ import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.sps.tasks.TaskScheduler;
 import com.google.sps.tasks.TaskSchedulerFactory;
 import com.google.sps.tasks.servlets.PullNewEnvironment;
 import java.io.IOException;
@@ -25,8 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/queueEnvPull")
 public class QueueEnvPull extends HttpServlet {
   private TaskSchedulerFactory taskSchedulerFactory;
-  @VisibleForTesting
-  protected String QUEUE_NAME;
+  @VisibleForTesting protected String QUEUE_NAME;
 
   @Override
   public void init() throws ServletException {
@@ -65,7 +63,8 @@ public class QueueEnvPull extends HttpServlet {
       datastore.put(e);
       String envID = KeyFactory.keyToString(e.getKey());
 
-      taskSchedulerFactory.create(QUEUE_NAME, "/tasks/pullEnv")
+      taskSchedulerFactory
+          .create(QUEUE_NAME, "/tasks/pullEnv")
           .schedule(String.join(",", envID, classID, image, tag));
 
       resp.getWriter().print(envID);

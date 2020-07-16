@@ -9,7 +9,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
 import com.google.sps.environment.Environment;
 import com.google.sps.tasks.TaskSchedulerFactory;
-
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,8 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/environment")
 public class EnvironmentServlet extends HttpServlet {
   private TaskSchedulerFactory taskSchedulerFactory;
-  @VisibleForTesting
-  protected String QUEUE_NAME;
+  @VisibleForTesting protected String QUEUE_NAME;
 
   @Override
   public void init() throws ServletException {
@@ -62,8 +60,7 @@ public class EnvironmentServlet extends HttpServlet {
       e.setProperty("status", "deleting");
       datastore.put(e);
 
-      taskSchedulerFactory.create(QUEUE_NAME, "/tasks/deleteEnv")
-          .schedule(envID);
+      taskSchedulerFactory.create(QUEUE_NAME, "/tasks/deleteEnv").schedule(envID);
 
       resp.getWriter().print(envID);
     } catch (EntityNotFoundException e) {

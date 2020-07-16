@@ -22,9 +22,7 @@ public class QueueExecution extends HttpServlet {
   private TaskSchedulerFactory taskSchedulerFactory;
   private FirebaseAuth auth;
 
-  @VisibleForTesting
-  protected String QUEUE_NAME;
-
+  @VisibleForTesting protected String QUEUE_NAME;
 
   @Override
   public void init() throws ServletException {
@@ -52,7 +50,8 @@ public class QueueExecution extends HttpServlet {
       if (w.getStudentUID().get().equals(tok.getUid()) || w.getTaUID().get().equals(tok.getUid())) {
         String execID = w.newExecutionID();
 
-        taskSchedulerFactory.create(QUEUE_NAME, "/tasks/executeCode")
+        taskSchedulerFactory
+            .create(QUEUE_NAME, "/tasks/executeCode")
             .schedule(String.join(",", w.getWorkspaceID(), envID, execID));
 
         resp.getWriter().print(execID);

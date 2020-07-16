@@ -1,35 +1,26 @@
 package com.google.sps.servlets;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.cloud.tasks.v2.AppEngineHttpRequest;
-import com.google.cloud.tasks.v2.CloudTasksClient;
-import com.google.cloud.tasks.v2.HttpMethod;
-import com.google.cloud.tasks.v2.QueueName;
-import com.google.cloud.tasks.v2.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
-import com.google.protobuf.ByteString;
 import com.google.sps.tasks.TaskScheduler;
+import com.google.sps.tasks.TaskSchedulerFactory;
 import com.google.sps.workspace.Workspace;
 import com.google.sps.workspace.WorkspaceFactory;
 import java.io.PrintWriter;
-import java.nio.charset.Charset;
 import java.util.concurrent.CompletableFuture;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -39,19 +30,16 @@ public class QueueDownloadTest {
   @Mock Workspace workspace;
   @Mock HttpServletRequest req;
   @Mock HttpServletResponse resp;
-  @Mock CloudTasksClient client;
   @Mock PrintWriter writer;
   @Mock FirebaseAuth auth;
-  @Mock TaskScheduler.Builder builder;
+  @Mock TaskSchedulerFactory taskSchedulerFactory;
   @Mock TaskScheduler scheduler;
 
-  @Captor ArgumentCaptor<Task> taskCaptor;
+  @InjectMocks QueueDownload servlet;
 
   private final String WORKSPACE_ID = "WORKSPACE_ID";
   private final String DOWNLOAD_ID = "DOWNLOAD_ID";
 
-  private final String PROJECT_ID = "PROJECT_ID";
-  private final String LOCATION = "LOCATION";
   private final String QUEUE_NAME = "QUEUE_NAME";
   private final String ID_TOKEN = "ID_TOKEN";
   private final String UID = "UID";
@@ -59,7 +47,6 @@ public class QueueDownloadTest {
 
   @Test
   public void doGetTestStudent() throws Exception {
-    QueueDownload servlet = spy(new QueueDownload(workspaceFactory, auth));
     FirebaseToken tok = mock(FirebaseToken.class);
 
     CompletableFuture<String> future = new CompletableFuture<>();
@@ -73,37 +60,20 @@ public class QueueDownloadTest {
     when(workspace.newDownloadID()).thenReturn(DOWNLOAD_ID);
     when(workspace.getWorkspaceID()).thenReturn(WORKSPACE_ID);
     when(workspace.getStudentUID()).thenReturn(future);
-    when(servlet.getTaskBuilder()).thenReturn(builder);
-    when(builder.setQueueName(anyString())).thenReturn(builder);
-    when(builder.setURI(anyString())).thenReturn(builder);
-    when(builder.build()).thenReturn(scheduler);
-    when(servlet.getQueueName()).thenReturn(QUEUE_NAME);
+    when(taskSchedulerFactory.create(anyString(), anyString())).thenReturn(scheduler);
+    servlet.QUEUE_NAME = QUEUE_NAME;
     when(resp.getWriter()).thenReturn(writer);
 
     servlet.doGet(req, resp);
 
-    verify(builder, times(1)).setQueueName(eq(QUEUE_NAME));
-    verify(builder, times(1)).setURI(eq("/tasks/prepareDownload"));
-
-    verify(client, times(1))
-        .createTask(
-            eq(QueueName.of(PROJECT_ID, LOCATION, QUEUE_NAME).toString()), taskCaptor.capture());
-
-    AppEngineHttpRequest apppengineReq = taskCaptor.getValue().getAppEngineHttpRequest();
-
-    assertEquals(
-        ByteString.copyFrom(WORKSPACE_ID + ',' + DOWNLOAD_ID, Charset.defaultCharset()),
-        apppengineReq.getBody());
-    assertEquals("/tasks/prepareDownload", apppengineReq.getRelativeUri());
-    assertEquals(HttpMethod.POST, apppengineReq.getHttpMethod());
+    verify(taskSchedulerFactory, times(1)).create(eq(QUEUE_NAME), eq("/tasks/prepareDownload"));
+    verify(scheduler, times(1)).schedule(eq(WORKSPACE_ID + ',' + DOWNLOAD_ID));
 
     verify(writer, times(1)).print(eq(DOWNLOAD_ID));
-    verify(client, times(1)).close();
   }
 
   @Test
   public void doGetTestTA() throws Exception {
-    QueueDownload servlet = spy(new QueueDownload(workspaceFactory, auth));
     FirebaseToken tok = mock(FirebaseToken.class);
 
     CompletableFuture<String> studentFuture = new CompletableFuture<>();
@@ -120,29 +90,16 @@ public class QueueDownloadTest {
     when(workspace.getWorkspaceID()).thenReturn(WORKSPACE_ID);
     when(workspace.getStudentUID()).thenReturn(studentFuture);
     when(workspace.getTaUID()).thenReturn(taFuture);
-    when(servlet.getTaskBuilder()).thenReturn(builder);
-    when(builder.setQueueName(anyString())).thenReturn(builder);
-    when(builder.setURI(anyString())).thenReturn(builder);
-    when(builder.build()).thenReturn(scheduler);
-    when(servlet.getQueueName()).thenReturn(QUEUE_NAME);
+    when(taskSchedulerFactory.create(anyString(), anyString())).thenReturn(scheduler);
+    servlet.QUEUE_NAME = QUEUE_NAME;
     when(resp.getWriter()).thenReturn(writer);
 
     servlet.doGet(req, resp);
 
-    verify(client, times(1))
-        .createTask(
-            eq(QueueName.of(PROJECT_ID, LOCATION, QUEUE_NAME).toString()), taskCaptor.capture());
-
-    AppEngineHttpRequest apppengineReq = taskCaptor.getValue().getAppEngineHttpRequest();
-
-    assertEquals(
-        ByteString.copyFrom(WORKSPACE_ID + ',' + DOWNLOAD_ID, Charset.defaultCharset()),
-        apppengineReq.getBody());
-    assertEquals("/tasks/prepareDownload", apppengineReq.getRelativeUri());
-    assertEquals(HttpMethod.POST, apppengineReq.getHttpMethod());
+    verify(taskSchedulerFactory, times(1)).create(eq(QUEUE_NAME), eq("/tasks/prepareDownload"));
+    verify(scheduler, times(1)).schedule(eq(WORKSPACE_ID + ',' + DOWNLOAD_ID));
 
     verify(writer, times(1)).print(eq(DOWNLOAD_ID));
-    verify(client, times(1)).close();
   }
 
   @Test
@@ -150,7 +107,7 @@ public class QueueDownloadTest {
     when(req.getParameter(anyString())).thenReturn("idToken");
     when(auth.verifyIdToken(anyString())).thenThrow(new FirebaseAuthException("code", "message"));
 
-    new QueueDownload(workspaceFactory, auth).doGet(req, resp);
+    servlet.doGet(req, resp);
 
     verify(resp, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
   }
@@ -160,7 +117,7 @@ public class QueueDownloadTest {
     when(req.getParameter(anyString())).thenReturn("idToken");
     when(auth.verifyIdToken(anyString())).thenThrow(new IllegalArgumentException());
 
-    new QueueDownload(workspaceFactory, auth).doGet(req, resp);
+    servlet.doGet(req, resp);
 
     verify(resp, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
   }
@@ -180,7 +137,7 @@ public class QueueDownloadTest {
     when(workspace.getStudentUID()).thenReturn(future);
     when(workspace.getTaUID()).thenReturn(future);
 
-    new QueueDownload(workspaceFactory, auth).doGet(req, resp);
+    servlet.doGet(req, resp);
 
     verify(resp, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
   }
