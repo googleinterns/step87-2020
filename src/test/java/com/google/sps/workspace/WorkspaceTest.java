@@ -279,4 +279,14 @@ public class WorkspaceTest {
     verify(outputElementRef, times(1)).setValueAsync(eq(EXIT_CODE));
     verify(apiFuture, times(1)).get();
   }
+
+  @Test
+  public void delete() throws Exception {
+    when(reference.removeValueAsync()).thenReturn(apiFuture);
+
+    new Workspace(reference).delete();
+
+    verify(reference, times(1)).removeValueAsync();
+    verify(apiFuture, times(1)).get();
+  }
 }
