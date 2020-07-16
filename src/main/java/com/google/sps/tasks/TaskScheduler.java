@@ -5,6 +5,7 @@ import com.google.cloud.tasks.v2.CloudTasksClient;
 import com.google.cloud.tasks.v2.HttpMethod;
 import com.google.cloud.tasks.v2.QueueName;
 import com.google.cloud.tasks.v2.Task;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import java.io.IOException;
@@ -29,8 +30,14 @@ public class TaskScheduler {
     this.httpMethod = Objects.requireNonNull(httpMethod);
   }
 
-  private CloudTasksClient getClient() throws IOException {
+  @VisibleForTesting
+  protected CloudTasksClient getClient() throws IOException {
     return CloudTasksClient.create();
+  }
+
+  @VisibleForTesting
+  protected Instant getInstant() {
+    return Instant.now(Clock.systemUTC());
   }
 
   public void schedule(String payload) throws IOException {
@@ -52,8 +59,7 @@ public class TaskScheduler {
 
       if (seconds > 0) {
         taskBuilder.setScheduleTime(
-            Timestamp.newBuilder()
-                .setSeconds(Instant.now(Clock.systemUTC()).plusSeconds(seconds).getEpochSecond()));
+            Timestamp.newBuilder().setSeconds(getInstant().plusSeconds(seconds).getEpochSecond()));
       }
 
       client.createTask(queuePath, taskBuilder.build());
