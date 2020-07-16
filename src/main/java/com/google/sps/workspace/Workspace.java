@@ -154,4 +154,8 @@ public class Workspace {
   public WorkspaceArchive getArchive(ArchiveType type) {
     return new WorkspaceArchive(this, type);
   }
+
+  public void delete() throws InterruptedException, ExecutionException {
+    reference.removeValueAsync().get();
+  }
 }
