@@ -54,7 +54,7 @@ public class SubmitRoster extends HttpServlet {
     Key classKey = KeyFactory.stringToKey(classCode);
 
     for (String email : allClassEmails) {
-      // Look for the TA in the user datastore
+      // Look for the student in the user datastore
       PreparedQuery queryUser =
           datastore.prepare(
               new Query("User")
