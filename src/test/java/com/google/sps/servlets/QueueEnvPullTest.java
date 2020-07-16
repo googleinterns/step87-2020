@@ -1,6 +1,7 @@
 package com.google.sps.servlets;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -13,13 +14,9 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
-import com.google.cloud.tasks.v2.AppEngineHttpRequest;
-import com.google.cloud.tasks.v2.CloudTasksClient;
-import com.google.cloud.tasks.v2.HttpMethod;
-import com.google.cloud.tasks.v2.QueueName;
-import com.google.cloud.tasks.v2.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.sps.tasks.PullNewEnvironment;
+import com.google.sps.tasks.TaskScheduler;
+import com.google.sps.tasks.servlets.PullNewEnvironment;
 import java.io.PrintWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,11 +33,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class QueueEnvPullTest {
   @Mock HttpServletRequest req;
   @Mock HttpServletResponse resp;
-  @Mock CloudTasksClient client;
   @Mock PrintWriter writer;
   @Mock FirebaseAuth auth;
+  @Mock TaskScheduler.Builder taskBuilder;
+  @Mock TaskScheduler scheduler;
 
-  @Captor ArgumentCaptor<Task> taskCaptor;
   @Captor ArgumentCaptor<String> envIDCaptor;
 
   private final LocalServiceTestHelper helper =
@@ -78,27 +75,24 @@ public class QueueEnvPullTest {
     when(req.getParameter(eq("image"))).thenReturn(IMAGE);
     when(req.getParameter(eq("tag"))).thenReturn(TAG);
 
-    when(servlet.getClient()).thenReturn(client);
-    when(servlet.getProjectID()).thenReturn(PROJECT_ID);
-    when(servlet.getLocation()).thenReturn(LOCATION);
+    when(servlet.getTaskBuilder()).thenReturn(taskBuilder);
+    when(taskBuilder.setQueueName(anyString())).thenReturn(taskBuilder);
+    when(taskBuilder.setURI(anyString())).thenReturn(taskBuilder);
+    when(taskBuilder.build()).thenReturn(scheduler);
     when(servlet.getQueueName()).thenReturn(QUEUE_NAME);
     when(resp.getWriter()).thenReturn(writer);
 
     servlet.doGet(req, resp);
 
-    verify(client, times(1))
-        .createTask(
-            eq(QueueName.of(PROJECT_ID, LOCATION, QUEUE_NAME).toString()), taskCaptor.capture());
-
     verify(writer, times(1)).print(envIDCaptor.capture());
-    verify(client, times(1)).close();
 
     String envID = envIDCaptor.getValue();
-    AppEngineHttpRequest apppengineReq = taskCaptor.getValue().getAppEngineHttpRequest();
-    assertEquals(
-        String.join(",", envID, classID, IMAGE, TAG), apppengineReq.getBody().toStringUtf8());
-    assertEquals("/tasks/pullEnv", apppengineReq.getRelativeUri());
-    assertEquals(HttpMethod.POST, apppengineReq.getHttpMethod());
+
+    verify(taskBuilder, times(1)).setQueueName(eq(QUEUE_NAME));
+    verify(taskBuilder, times(1)).setURI(eq("/tasks/pullEnv"));
+    verify(taskBuilder, times(1)).build();
+
+    verify(scheduler, times(1)).schedule(eq(String.join(",", envID, classID, IMAGE, TAG)));
 
     assertEquals("pulling", datastore.get(KeyFactory.stringToKey(envID)).getProperty("status"));
   }

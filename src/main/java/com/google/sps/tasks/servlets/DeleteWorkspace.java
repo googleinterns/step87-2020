@@ -1,15 +1,13 @@
 package com.google.sps.tasks.servlets;
 
+import com.google.sps.workspace.WorkspaceFactory;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.google.sps.workspace.WorkspaceFactory;
 
 @WebServlet("/tasks/deleteWorkspace")
 public class DeleteWorkspace extends HttpServlet {
@@ -21,8 +19,10 @@ public class DeleteWorkspace extends HttpServlet {
   }
 
   @Override
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    String workspaceID = req.getReader().lines().reduce("", (accumulator, actual) -> accumulator + actual);
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    String workspaceID =
+        req.getReader().lines().reduce("", (accumulator, actual) -> accumulator + actual);
 
     try {
       workspaceFactory.fromWorkspaceID(workspaceID).delete();
