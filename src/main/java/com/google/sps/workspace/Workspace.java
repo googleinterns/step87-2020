@@ -25,6 +25,10 @@ public class Workspace {
     this.reference = Objects.requireNonNull(reference);
   }
 
+  public void setStudentUID(String id) throws InterruptedException, ExecutionException {
+    reference.child("student").setValueAsync(id).get();
+  }
+
   /** @return the studentUID */
   public Future<String> getStudentUID() {
     CompletableFuture<String> future = new CompletableFuture<>();
@@ -46,6 +50,10 @@ public class Workspace {
             });
 
     return future;
+  }
+
+  public void setTaUID(String id) throws InterruptedException, ExecutionException {
+    reference.child("ta").setValueAsync(id).get();
   }
 
   /** @return the taUID */

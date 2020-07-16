@@ -81,6 +81,8 @@
       makeRequest();
     }
 
+    let gotWorkspaceID = false;
+
     let repeat = setInterval(makeRequest, 10000);
     function makeRequest(){
       var params = window.location.search + "&studentToken=" + studentToken;
@@ -97,6 +99,10 @@
         } 
         else {
             document.getElementById("studentPosition").innerText = "You are #" + studentPosition + " on the queue.";
+            if (!gotWorkspaceID) {
+              getWorkspace(params);
+              gotWorkspaceID = true;
+            }
         }
       });
     }
@@ -110,11 +116,15 @@
             document.getElementById("beingHelped").innerText = "You are done being helped.";
             document.getElementById("workspaceRedirect").href = "";
             document.getElementById("workspaceRedirect").innerText = "";
+            gotWorkspaceID = false;
             clearInterval(repeat);
 
         } else {
             document.getElementById("beingHelped").innerText = "You are being helped by " + helpedBy;
-            getWorkspace(params);
+            if (!gotWorkspaceID) {
+              getWorkspace(params);
+              gotWorkspaceID = true;
+            }
         }
       });
     }

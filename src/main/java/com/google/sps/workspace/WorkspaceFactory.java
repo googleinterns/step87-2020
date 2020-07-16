@@ -5,7 +5,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class WorkspaceFactory {
@@ -24,25 +23,16 @@ public class WorkspaceFactory {
             .child(workspaceID));
   }
 
-  public Workspace fromStudentAndTA(String classID, String studentUID, String TaUID)
+  public Workspace create(String classID)
       throws InterruptedException, ExecutionException, IOException {
-    return fromStudentAndTA(
-        classID,
-        studentUID,
-        TaUID,
-        FirebaseDatabase.getInstance(FirebaseAppManager.getApp()).getReference().push());
+    return create(
+        classID, FirebaseDatabase.getInstance(FirebaseAppManager.getApp()).getReference().push());
   }
 
-  public Workspace fromStudentAndTA(
-      String classID, String studentUID, String TaUID, DatabaseReference reference)
+  public Workspace create(String classID, DatabaseReference reference)
       throws InterruptedException, ExecutionException, IOException {
-    ApiFuture<Void> studentFuture =
-        reference.child("student").setValueAsync(Objects.requireNonNull(studentUID));
-    ApiFuture<Void> taFuture = reference.child("ta").setValueAsync(Objects.requireNonNull(TaUID));
     ApiFuture<Void> classFuture = reference.child("classID").setValueAsync(classID);
 
-    studentFuture.get();
-    taFuture.get();
     classFuture.get();
 
     return new Workspace(reference);
