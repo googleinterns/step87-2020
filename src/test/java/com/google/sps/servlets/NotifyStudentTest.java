@@ -134,7 +134,8 @@ public class NotifyStudentTest {
     when(mockUser.getUid()).thenReturn("studentID");
     doReturn(fixedClock.instant()).when(clock).instant();
 
-    when(factory.fromStudentAndTA("studentID", "taID")).thenReturn(workspace);
+    when(factory.fromStudentAndTA(KeyFactory.keyToString(init.getKey()), "studentID", "taID"))
+        .thenReturn(workspace);
     when(workspace.getWorkspaceID()).thenReturn("workspaceID");
 
     alertStudent.doPost(httpRequest, httpResponse);

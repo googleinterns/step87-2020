@@ -69,6 +69,7 @@ public class QueueExecution extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
     String idToken = req.getParameter("idToken");
+    String envID = req.getParameter("envID");
     try {
       FirebaseToken tok = auth.verifyIdToken(idToken);
 
@@ -86,7 +87,7 @@ public class QueueExecution extends HttpServlet {
                       AppEngineHttpRequest.newBuilder()
                           .setBody(
                               ByteString.copyFrom(
-                                  String.join(",", w.getWorkspaceID(), execID),
+                                  String.join(",", w.getWorkspaceID(), envID, execID),
                                   Charset.defaultCharset()))
                           .setRelativeUri("/tasks/executeCode")
                           .setHttpMethod(HttpMethod.POST)

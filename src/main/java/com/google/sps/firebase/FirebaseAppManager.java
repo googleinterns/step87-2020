@@ -32,7 +32,7 @@ public class FirebaseAppManager {
     }
   }
 
-  public static FirebaseApp getApp() throws IOException {
+  public static synchronized FirebaseApp getApp() throws IOException {
     if (app == null) {
       FirebaseOptions options =
           new FirebaseOptions.Builder()

@@ -211,19 +211,6 @@ public class WorkspaceTest {
   }
 
   @Test
-  public void setEnvironment() throws Exception {
-    String ENV_KEY = "ENV_KEY";
-
-    when(reference.child(eq("environment"))).thenReturn(environmentRef);
-    when(environmentRef.setValueAsync(eq(ENV_KEY))).thenReturn(apiFuture);
-
-    new Workspace(reference).setEnvironment(ENV_KEY);
-
-    verify(environmentRef, times(1)).setValueAsync(eq(ENV_KEY));
-    verify(apiFuture, times(1)).get();
-  }
-
-  @Test
   public void newExecutionID() throws Exception {
     String EXEC_KEY = "EXEC_KEY";
 
