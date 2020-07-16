@@ -22,11 +22,11 @@ public class TaskScheduler {
 
   protected TaskScheduler(
       String projectID, String queueName, String location, String URI, HttpMethod httpMethod) {
-    this.projectID = projectID;
+    this.projectID = Objects.requireNonNull(projectID);
     this.queueName = Objects.requireNonNull(queueName);
-    this.location = location;
+    this.location = Objects.requireNonNull(location);
     this.URI = Objects.requireNonNull(URI);
-    this.httpMethod = httpMethod;
+    this.httpMethod = Objects.requireNonNull(httpMethod);
   }
 
   private CloudTasksClient getClient() throws IOException {
