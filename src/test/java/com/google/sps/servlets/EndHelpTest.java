@@ -2,7 +2,11 @@ package com.google.sps.servlets;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -18,8 +22,11 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
+import com.google.sps.tasks.TaskScheduler;
+import com.google.sps.tasks.TaskSchedulerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
@@ -39,12 +46,15 @@ public class EndHelpTest {
           new LocalDatastoreServiceTestConfig().setApplyAllHighRepJobPolicy());
 
   private DatastoreService datastore;
+  private String QUEUE_NAME = "QUEUE_NAME";
 
   @Mock HttpServletRequest httpRequest;
 
   @Mock HttpServletResponse httpResponse;
 
   @Mock FirebaseAuth authInstance;
+  @Mock TaskSchedulerFactory taskSchedulerFactory;
+  @Mock TaskScheduler scheduler;
 
   @InjectMocks EndHelp finishStudent;
 
@@ -105,6 +115,9 @@ public class EndHelpTest {
     when(authInstance.getUserByEmail("test@google.com")).thenReturn(mockUser);
     when(mockUser.getUid()).thenReturn("test1");
 
+    when(taskSchedulerFactory.create(anyString(), anyString())).thenReturn(scheduler);
+    finishStudent.QUEUE_NAME = QUEUE_NAME;
+
     finishStudent.doPost(httpRequest, httpResponse);
 
     Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
@@ -117,5 +130,8 @@ public class EndHelpTest {
     EmbeddedEntity got = (EmbeddedEntity) testClassEntity.getProperty("beingHelped");
     assertThat((EmbeddedEntity) got.getProperty("test1")).isNull();
     assertThat((EmbeddedEntity) got.getProperty("test3")).isNotNull();
+
+    verify(taskSchedulerFactory, times(1)).create(eq(QUEUE_NAME), eq("/tasks/deleteEnv"));
+    verify(scheduler, times(1)).schedule(eq("workspaceID"), eq(TimeUnit.HOURS.toSeconds(1)));
   }
 }
