@@ -15,7 +15,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
-import com.google.gson.Gson;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,13 +34,11 @@ import org.json.JSONObject;
 public class GetUserData extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
-  private Gson gson;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
     try {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
-      gson = new Gson();
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -95,7 +92,6 @@ public class GetUserData extends HttpServlet {
       for (Key classKey : classList) {
         String classCode = KeyFactory.keyToString(classKey);
         String className = (String) datastore.get(classKey).getProperty("name");
-        System.out.println(classCode);
 
         classMap.put(classCode, className);
       }

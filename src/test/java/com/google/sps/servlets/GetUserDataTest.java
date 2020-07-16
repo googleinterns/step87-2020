@@ -1,6 +1,7 @@
 package com.google.sps.servlets;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -134,6 +135,7 @@ public class GetUserDataTest {
     assertEquals(new JSONObject(classMap).toString(), stringWriter.toString());
 
     Entity testUserEntity = datastore.prepare(new Query("User")).asSingleEntity();
+    assertTrue(datastore.prepare(new Query("User")).countEntities() == 1);
     assertEquals(testUserEntity.getProperty("userEmail"), "user@google.com");
   }
 }
