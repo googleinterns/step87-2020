@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.protobuf.ByteString;
+import com.google.sps.tasks.TaskScheduler;
 import com.google.sps.workspace.Workspace;
 import com.google.sps.workspace.WorkspaceFactory;
 import java.io.PrintWriter;
@@ -41,6 +42,8 @@ public class QueueDownloadTest {
   @Mock CloudTasksClient client;
   @Mock PrintWriter writer;
   @Mock FirebaseAuth auth;
+  @Mock TaskScheduler.Builder builder;
+  @Mock TaskScheduler scheduler;
 
   @Captor ArgumentCaptor<Task> taskCaptor;
 
@@ -70,13 +73,17 @@ public class QueueDownloadTest {
     when(workspace.newDownloadID()).thenReturn(DOWNLOAD_ID);
     when(workspace.getWorkspaceID()).thenReturn(WORKSPACE_ID);
     when(workspace.getStudentUID()).thenReturn(future);
-    when(servlet.getClient()).thenReturn(client);
-    when(servlet.getProjectID()).thenReturn(PROJECT_ID);
-    when(servlet.getLocation()).thenReturn(LOCATION);
+    when(servlet.getTaskBuilder()).thenReturn(builder);
+    when(builder.setQueueName(anyString())).thenReturn(builder);
+    when(builder.setURI(anyString())).thenReturn(builder);
+    when(builder.build()).thenReturn(scheduler);
     when(servlet.getQueueName()).thenReturn(QUEUE_NAME);
     when(resp.getWriter()).thenReturn(writer);
 
     servlet.doGet(req, resp);
+
+    verify(builder, times(1)).setQueueName(eq(QUEUE_NAME));
+    verify(builder, times(1)).setURI(eq("/tasks/prepareDownload"));
 
     verify(client, times(1))
         .createTask(
@@ -113,9 +120,10 @@ public class QueueDownloadTest {
     when(workspace.getWorkspaceID()).thenReturn(WORKSPACE_ID);
     when(workspace.getStudentUID()).thenReturn(studentFuture);
     when(workspace.getTaUID()).thenReturn(taFuture);
-    when(servlet.getClient()).thenReturn(client);
-    when(servlet.getProjectID()).thenReturn(PROJECT_ID);
-    when(servlet.getLocation()).thenReturn(LOCATION);
+    when(servlet.getTaskBuilder()).thenReturn(builder);
+    when(builder.setQueueName(anyString())).thenReturn(builder);
+    when(builder.setURI(anyString())).thenReturn(builder);
+    when(builder.build()).thenReturn(scheduler);
     when(servlet.getQueueName()).thenReturn(QUEUE_NAME);
     when(resp.getWriter()).thenReturn(writer);
 

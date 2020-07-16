@@ -12,15 +12,24 @@ import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.sps.tasks.TaskScheduler;
+import com.google.sps.tasks.TaskSchedulerFactory;
 import com.google.sps.tasks.servlets.PullNewEnvironment;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/queueEnvPull")
-public class QueueEnvPull extends QueueServlet {
+public class QueueEnvPull extends HttpServlet {
+  private TaskSchedulerFactory taskSchedulerFactory;
+
+  @Override
+  public void init() throws ServletException {
+    this.taskSchedulerFactory = TaskSchedulerFactory.getInstance();
+  }
 
   @VisibleForTesting
   protected String getQueueName() {
@@ -58,10 +67,7 @@ public class QueueEnvPull extends QueueServlet {
       datastore.put(e);
       String envID = KeyFactory.keyToString(e.getKey());
 
-      getTaskBuilder()
-          .setQueueName(getQueueName())
-          .setURI("/tasks/pullEnv")
-          .build()
+      taskSchedulerFactory.create(getQueueName(), "/tasks/pullEnv")
           .schedule(String.join(",", envID, classID, image, tag));
 
       resp.getWriter().print(envID);

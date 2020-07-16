@@ -29,31 +29,6 @@ public class TaskScheduler {
     this.httpMethod = httpMethod;
   }
 
-  /** @return the projectID */
-  public String getProjectID() {
-    return projectID != null ? projectID : System.getenv("GOOGLE_CLOUD_PROJECT");
-  }
-
-  /** @return the queueName */
-  public String getQueueName() {
-    return queueName;
-  }
-
-  /** @return the location */
-  public String getLocation() {
-    return location != null ? location : System.getenv("LOCATION_ID");
-  }
-
-  /** @return the uRI */
-  public String getURI() {
-    return URI;
-  }
-
-  /** @return the httpMethod */
-  public HttpMethod getHttpMethod() {
-    return httpMethod != null ? httpMethod : HttpMethod.POST;
-  }
-
   private CloudTasksClient getClient() throws IOException {
     return CloudTasksClient.create();
   }
@@ -64,15 +39,15 @@ public class TaskScheduler {
 
   public void schedule(String payload, long seconds) throws IOException {
     try (CloudTasksClient client = getClient()) {
-      String queuePath = QueueName.of(getProjectID(), getLocation(), getQueueName()).toString();
+      String queuePath = QueueName.of(projectID, location, queueName).toString();
 
       Task.Builder taskBuilder =
           Task.newBuilder()
               .setAppEngineHttpRequest(
                   AppEngineHttpRequest.newBuilder()
                       .setBody(ByteString.copyFrom(payload, Charset.defaultCharset()))
-                      .setRelativeUri(getURI())
-                      .setHttpMethod(getHttpMethod())
+                      .setRelativeUri(URI)
+                      .setHttpMethod(httpMethod)
                       .build());
 
       if (seconds > 0) {
@@ -82,49 +57,6 @@ public class TaskScheduler {
       }
 
       client.createTask(queuePath, taskBuilder.build());
-    }
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public static class Builder {
-    private String projectID;
-    private String queueName;
-    private String location;
-    private String URI;
-    private HttpMethod httpMethod;
-
-    private Builder() {}
-
-    public Builder setProjectID(String projectID) {
-      this.projectID = projectID;
-      return this;
-    }
-
-    public Builder setQueueName(String queueName) {
-      this.queueName = queueName;
-      return this;
-    }
-
-    public Builder setLocation(String location) {
-      this.location = location;
-      return this;
-    }
-
-    public Builder setURI(String URI) {
-      this.URI = URI;
-      return this;
-    }
-
-    public Builder setHttpMethod(HttpMethod httpMethod) {
-      this.httpMethod = httpMethod;
-      return this;
-    }
-
-    public TaskScheduler build() {
-      return new TaskScheduler(projectID, queueName, location, URI, httpMethod);
     }
   }
 }

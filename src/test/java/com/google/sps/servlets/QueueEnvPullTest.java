@@ -47,9 +47,6 @@ public class QueueEnvPullTest {
 
   private final String IMAGE = "IMAGE";
   private final String TAG = "TAG";
-
-  private final String PROJECT_ID = "PROJECT_ID";
-  private final String LOCATION = "LOCATION";
   private final String QUEUE_NAME = "QUEUE_NAME";
 
   @Before
