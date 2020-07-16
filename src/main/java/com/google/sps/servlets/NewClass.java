@@ -99,9 +99,8 @@ public class NewClass extends HttpServlet {
           user.setProperty("taClasses", Collections.emptyList());
 
           datastore.put(user);
-        }
-        // For existing users, add the class to ownedClasses
-        else {
+        } else {
+          // For existing users, add the class to ownedClasses
           user = queryUser.asSingleEntity();
           List<Key> ownedClassesList = (List<Key>) user.getProperty("ownedClasses");
           ownedClassesList.add(classEntity.getKey());

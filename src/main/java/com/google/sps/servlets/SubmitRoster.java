@@ -74,9 +74,8 @@ public class SubmitRoster extends HttpServlet {
         user.setProperty("taClasses", Collections.emptyList());
 
         datastore.put(user);
-      }
-      // If student already exists, update their registered class list
-      else {
+      } else {
+        // If student already exists, update their registered class list
         user = queryUser.asSingleEntity();
         List<Key> regClassesList = (List<Key>) user.getProperty("registeredClasses");
         regClassesList.add(classKey);

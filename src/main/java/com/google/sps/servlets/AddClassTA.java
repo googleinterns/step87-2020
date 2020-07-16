@@ -83,9 +83,8 @@ public class AddClassTA extends HttpServlet {
             user.setProperty("taClasses", taClassesList);
 
             datastore.put(txn, user);
-          }
-          // If TA user already exists, update their ta class list
-          else {
+          } else { 
+            // If TA user already exists, update their ta class list
             user = queryUser.asSingleEntity();
             List<Key> taClassesList = (List<Key>) user.getProperty("taClasses");
             taClassesList.add(classKey);
