@@ -129,6 +129,12 @@
         <artifactId>docker-java-transport-httpclient5</artifactId>
         <version>3.2.3</version>
     </dependency>
+
+    <dependency>
+        <groupId>org.json</groupId>
+        <artifactId>json</artifactId>
+        <version>20160810</version>
+    </dependency>
   </dependencies>
 
   <build>
