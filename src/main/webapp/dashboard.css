@@ -138,10 +138,12 @@ body {
   background-color: #031430;
 }
 
+/* Roster textarea */
 #roster {
   background-color: #C2E1FF;
 }
 
+/* Roster field */
 .roster-section {
   width: 80%;
   border-radius: 10px;
