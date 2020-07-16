@@ -131,7 +131,7 @@ public class EndHelpTest {
     assertThat((EmbeddedEntity) got.getProperty("test1")).isNull();
     assertThat((EmbeddedEntity) got.getProperty("test3")).isNotNull();
 
-    verify(taskSchedulerFactory, times(1)).create(eq(QUEUE_NAME), eq("/tasks/deleteEnv"));
+    verify(taskSchedulerFactory, times(1)).create(eq(QUEUE_NAME), eq("/tasks/deleteWorkspace"));
     verify(scheduler, times(1)).schedule(eq("workspaceID"), eq(TimeUnit.HOURS.toSeconds(1)));
   }
 }

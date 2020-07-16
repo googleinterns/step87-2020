@@ -80,7 +80,7 @@ public class EndHelp extends HttpServlet {
           EmbeddedEntity studentEntity = (EmbeddedEntity) beingHelped.getProperty(studentID);
 
           taskSchedulerFactory
-              .create(QUEUE_NAME, "/tasks/deleteEnv")
+              .create(QUEUE_NAME, "/tasks/deleteWorkspace")
               .schedule(
                   (String) studentEntity.getProperty("workspaceID"), TimeUnit.HOURS.toSeconds(1));
 
