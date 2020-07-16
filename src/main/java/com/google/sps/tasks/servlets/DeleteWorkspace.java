@@ -1,4 +1,4 @@
-package com.google.sps.tasks;
+package com.google.sps.tasks.servlets;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;

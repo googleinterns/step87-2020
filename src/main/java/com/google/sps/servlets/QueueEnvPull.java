@@ -18,7 +18,7 @@ import com.google.cloud.tasks.v2.QueueName;
 import com.google.cloud.tasks.v2.Task;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.ByteString;
-import com.google.sps.tasks.PullNewEnvironment;
+import com.google.sps.tasks.servlets.PullNewEnvironment;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import javax.servlet.ServletException;
