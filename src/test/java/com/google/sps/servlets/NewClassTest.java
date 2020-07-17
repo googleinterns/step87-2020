@@ -19,7 +19,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
@@ -97,6 +99,105 @@ public class NewClassTest {
 
     ArrayList<String> taList = (ArrayList<String>) testClassEntity.getProperty("taList");
     assertTrue(taList.isEmpty());
+  }
+
+  @Test
+  // User is already a TA, student, and owner; add another owned class
+  public void existingOwner() throws Exception {
+
+    Entity init1 = new Entity("Class");
+
+    init1.setProperty("owner", "ownerID1");
+    init1.setProperty("name", "testClass1");
+    init1.setProperty("beingHelped", new EmbeddedEntity());
+    init1.setProperty("studentQueue", Collections.emptyList());
+    init1.setProperty("taList", Collections.emptyList());
+
+    Entity init2 = new Entity("Class");
+
+    init2.setProperty("owner", "ownerID2");
+    init2.setProperty("name", "testClass2");
+    init2.setProperty("beingHelped", new EmbeddedEntity());
+    init2.setProperty("studentQueue", Collections.emptyList());
+    init2.setProperty("taList", Collections.emptyList());
+
+    Entity init3 = new Entity("Class");
+
+    init3.setProperty("owner", "ownerID");
+    init3.setProperty("name", "testClass3");
+    init3.setProperty("beingHelped", new EmbeddedEntity());
+    init3.setProperty("studentQueue", Collections.emptyList());
+    init3.setProperty("taList", Collections.emptyList());
+
+    datastore.put(init1);
+    datastore.put(init2);
+    datastore.put(init3);
+
+    // Example owner
+    Entity owner = new Entity("User");
+
+    List<Key> reg1 = Arrays.asList(init1.getKey());
+    List<Key> ta1 = Arrays.asList(init2.getKey());
+    List<Key> own1 = Arrays.asList(init3.getKey());
+
+    owner.setProperty("userEmail", "ownerEmail@google.com");
+    owner.setProperty("registeredClasses", reg1);
+    owner.setProperty("taClasses", ta1);
+    owner.setProperty("ownedClasses", own1);
+
+    datastore.put(owner);
+
+    when(httpRequest.getParameter("className")).thenReturn("testClass");
+    when(httpRequest.getParameter("idToken")).thenReturn("testID");
+
+    FirebaseToken mockToken = mock(FirebaseToken.class);
+    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
+    when(mockToken.getUid()).thenReturn("ownerID");
+
+    // Get owner info
+    UserRecord mockUser = mock(UserRecord.class);
+    when(authInstance.getUser("ownerID")).thenReturn(mockUser);
+    when(mockUser.getEmail()).thenReturn("ownerEmail@google.com");
+
+    addNew.doPost(httpRequest, httpResponse);
+
+    Query query = new Query("User");
+    PreparedQuery results = datastore.prepare(query);
+
+    // Search for owner user entity in datastore and verify updates
+    for (Entity user : results.asIterable()) {
+      if (user.getProperty("userEmail") == "ownerEmail@google.com") {
+        ArrayList<Key> testOwned = (ArrayList<Key>) user.getProperty("ownedClasses");
+        ArrayList<Key> testRegistered = (ArrayList<Key>) user.getProperty("registeredClasses");
+        ArrayList<Key> testTA = (ArrayList<Key>) user.getProperty("taClasses");
+
+        assertTrue(testOwned.contains(init3.getKey()));
+        assertEquals(2, testOwned.size());
+        assertTrue(testRegistered.contains(init1.getKey()));
+        assertEquals(1, testRegistered.size());
+        assertTrue(testTA.contains(init2.getKey()));
+        assertEquals(1, testTA.size());
+      }
+    }
+
+    Query query2 = new Query("Class");
+    PreparedQuery results2 = datastore.prepare(query);
+
+    // Verify class was created properly
+    for (Entity testClassEntity : results.asIterable()) {
+      if (testClassEntity.getProperty("className") == "testClass") {
+        assertEquals(testClassEntity.getProperty("owner"), "ownerID");
+        assertEquals(testClassEntity.getProperty("name"), "testClass");
+        assertEquals(testClassEntity.getProperty("beingHelped"), new EmbeddedEntity());
+
+        ArrayList<String> testQueue =
+            (ArrayList<String>) testClassEntity.getProperty("studentQueue");
+        assertTrue(testQueue.isEmpty());
+
+        ArrayList<String> taList = (ArrayList<String>) testClassEntity.getProperty("taList");
+        assertTrue(taList.isEmpty());
+      }
+    }
   }
 
   @Test
