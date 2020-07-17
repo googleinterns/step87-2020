@@ -57,9 +57,9 @@ public class PullNewEnvironment extends HttpServlet {
             .exec(new ResultCallback.Adapter<>())
             .awaitCompletion(5, TimeUnit.MINUTES)) {
 
-          docker.tagImageCmd(image, getImageName(classID, image), tag).exec();
+          docker.tagImageCmd(image + ":" + tag, getImageName(classID, image), tag).exec();
 
-          docker.removeImageCmd(image).exec();
+          docker.removeImageCmd(image + ":" + tag).exec();
 
           Entity e = datastore.get(KeyFactory.stringToKey(entityID));
           e.setProperty("status", "ready");

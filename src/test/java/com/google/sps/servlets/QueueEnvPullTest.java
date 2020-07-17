@@ -112,6 +112,7 @@ public class QueueEnvPullTest {
     Entity conflicting = new Entity("Environment");
     conflicting.setProperty("class", classEntity.getKey());
     conflicting.setProperty("image", PullNewEnvironment.getImageName(classID, IMAGE));
+    conflicting.setProperty("tag", TAG);
     datastore.put(conflicting);
 
     QueueEnvPull servlet = spy(new QueueEnvPull());

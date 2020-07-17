@@ -70,7 +70,8 @@ public class QueueEnvPull extends HttpServlet {
                             "image",
                             FilterOperator.EQUAL,
                             PullNewEnvironment.getImageName(classID, image)),
-                        new FilterPredicate("class", FilterOperator.EQUAL, classKey))));
+                        new FilterPredicate("class", FilterOperator.EQUAL, classKey),
+                        new FilterPredicate("tag", FilterOperator.EQUAL, tag))));
 
     if (q.countEntities(FetchOptions.Builder.withLimit(1)) == 0) {
       Entity e = new Entity("Environment");
