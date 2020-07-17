@@ -13,8 +13,12 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.gson.Gson;
 import com.google.sps.firebase.FirebaseAppManager;
+import com.google.sps.queue.Queue;
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Optional;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -47,8 +51,11 @@ public class GetQueue extends HttpServlet {
     try {
       // Retrieve class entity
       String classCode = request.getParameter("classCode").trim();
+      String idToken = request.getParameter("idToken");
       Key classKey = KeyFactory.stringToKey(classCode);
       Entity classEntity = datastore.get(classKey);
+
+      String TaID = authInstance.verifyIdToken(idToken).getUid();
 
       // Get queue
       ArrayList<EmbeddedEntity> entityQueue =
@@ -63,8 +70,21 @@ public class GetQueue extends HttpServlet {
         queue.add(studentName);
       }
 
+      Optional<Queue.Helping> beingHelpedEntity = ((EmbeddedEntity) classEntity.getProperty("beingHelped")).getProperties().entrySet().stream()
+            .filter(entry -> ((EmbeddedEntity) entry.getValue()).getProperty("taID").equals(TaID))
+            .map(entry -> {
+            try {
+              return new Queue.Helping(authInstance.getUser(entry.getKey()).getEmail(),
+                  (String) ((EmbeddedEntity) entry.getValue()).getProperty("workspaceID"));
+            } catch (FirebaseAuthException e) {
+              throw new RuntimeException(e);
+            }
+          }).findFirst();
+
+
+
       response.setContentType("application/json;");
-      response.getWriter().print(gson.toJson(queue));
+      response.getWriter().print(gson.toJson(new Queue(queue, beingHelpedEntity.orElse(null))));
 
     } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
