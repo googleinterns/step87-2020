@@ -88,7 +88,7 @@
       var params = window.location.search + "&studentToken=" + studentToken;
       const request = new Request("/check-student" + params, {method: "GET"});
       fetch(request).then(response => response.json()).then((studentPosition) => {
-        if (studentPosition.location === 0) {
+        if (studentPosition.position === 0) {
           document.getElementById("queue_status").innerText = "";
           getTA();
 
@@ -97,7 +97,7 @@
             notifyBool = false;
           }    
         } else {
-            document.getElementById("studentPosition").innerText = "You are #" + studentPosition.location + " on the queue.";
+            document.getElementById("studentPosition").innerText = "You are #" + studentPosition.position + " on the queue.";
             
             document.getElementById("workspaceRedirect").href = studentPosition.workspace;
             document.getElementById("workspaceRedirect").innerText = "go to workspace";
