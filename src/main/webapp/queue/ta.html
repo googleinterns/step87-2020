@@ -14,7 +14,7 @@
   </head>
 
   <script>
-    var repeat = setInterval(getQueue, 10000);
+    var repeat = setInterval(getQueue, 1000);
     var taToken;
 
     function getToken() {
@@ -65,6 +65,9 @@
           const beinghelpedEle = document.getElementById('beingHelped');
           beinghelpedEle.innerHTML = "";
           document.getElementById('beingHelped').appendChild(createHelpedElem(queue.helping.email, queue.helping.workspace));
+        }else {
+          const beinghelpedEle = document.getElementById('beingHelped');
+          beinghelpedEle.innerHTML = "";
         }
       });
     }
@@ -72,7 +75,6 @@
     function notifyStudent(studentEmail){
       var params = window.location.search + "&studentEmail=" + studentEmail + "&taToken=" + taToken;
       const request = new Request("/notify-student" + params, {method: "POST"});
-      document.getElementById('beingHelped').appendChild(createHelpedElem(studentEmail, params));
       
       fetch(request).then(getQueue);
 
@@ -83,9 +85,11 @@
     function endHelp(studentEmail){
       var params = window.location.search + "&studentEmail=" + studentEmail + "&taToken=" + taToken;
       const request = new Request("/end-help" + params, {method: "POST"});
-      document.getElementById('beingHelped').innerText = "";
       
-      fetch(request).then(getQueue());
+      fetch(request).then(() => {
+        document.getElementById('beingHelped').innerText = "";
+        getQueue()
+        });
 
       
     }
@@ -140,6 +144,7 @@
       link.target= "_blank";
       link.href = url;
       link.style = "text-decoration: none;"
+      link.innerText = "Go to Workspace";
 
       return link;
     }
