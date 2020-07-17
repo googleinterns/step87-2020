@@ -52,14 +52,20 @@
 
     function getQueue() {
       var params = window.location.search;
-      const request = new Request("/get-queue" + params, {method: "GET"});
+      const request = new Request("/get-queue" + params + "&idToken=" + taToken, {method: "GET"});
 
       fetch(request).then(response => response.json()).then((queue) => {
         const queueListElement = document.getElementById('queue');
         queueListElement.innerText = "";
-        queue.forEach((studentEmail) => {
+        queue.queue.forEach((studentEmail) => {
           queueListElement.appendChild(createListElement(studentEmail));
-        })
+        });
+
+        if (queue.helping) {
+          const beinghelpedEle = document.getElementById('beingHelped');
+          beinghelpedEle.innerHTML = "";
+          document.getElementById('beingHelped').appendChild(createHelpedElem(queue.helping.email, queue.helping.workspace));
+        }
       });
     }
 
@@ -68,18 +74,11 @@
       const request = new Request("/notify-student" + params, {method: "POST"});
       document.getElementById('beingHelped').appendChild(createHelpedElem(studentEmail, params));
       
-      fetch(request).then(getWorkspace(params));
+      fetch(request).then(getQueue);
 
       getQueue();
     }
 
-    function getWorkspace(params){ //params include student email and TA token 
-      const request = new Request("/get-workspace" + params, {method: "GET"});
-      fetch(request).then(response => response.json()).then((link) => {
-        document.getElementById("workspaceRedirect").href = link;
-        document.getElementById("workspaceRedirect").innerText = "go to workspace";
-      });
-    }
 
     function endHelp(studentEmail){
       var params = window.location.search + "&studentEmail=" + studentEmail + "&taToken=" + taToken;
@@ -112,7 +111,7 @@
       return notifyElem;
     }
 
-    function createHelpedElem(studentEmail, params){
+    function createHelpedElem(studentEmail, url){
       let studentElem = document.createElement("div");
       studentElem.className = "help-container";
 
@@ -129,17 +128,17 @@
 
       studentElem.appendChild(student);
       studentElem.appendChild(btn);
-      studentElem.appendChild(createLink(params));
+      studentElem.appendChild(createLink(url));
 
       return studentElem;
     }
 
-    function createLink(params){
+    function createLink(url){
       let link = document.createElement("a");
       link.id = "workspaceRedirect";
       link.rel= "noopener noreferrer";
       link.target= "_blank";
-      link.href = getWorkspace(params);
+      link.href = url;
       link.style = "text-decoration: none;"
 
       return link;
