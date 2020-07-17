@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.queue.Queue;
 import java.io.IOException;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Optional;
 import javax.servlet.ServletConfig;
@@ -73,16 +74,17 @@ public class GetQueue extends HttpServlet {
       Optional<Queue.Helping> beingHelpedEntity =
           ((EmbeddedEntity) classEntity.getProperty("beingHelped"))
               .getProperties().entrySet().stream()
-                  .filter(
-                      entry -> ((EmbeddedEntity) entry.getValue()).getProperty("taID").equals(TaID))
+                  .map(
+                      entry ->
+                          new SimpleEntry<String, EmbeddedEntity>(
+                              entry.getKey(), (EmbeddedEntity) entry.getValue()))
+                  .filter(entry -> entry.getValue().getProperty("taID").equals(TaID))
                   .map(
                       wrap(
                           entry ->
                               new Queue.Helping(
                                   authInstance.getUser(entry.getKey()).getEmail(),
-                                  (String)
-                                      ((EmbeddedEntity) entry.getValue())
-                                          .getProperty("workspaceID"))))
+                                  (String) entry.getValue().getProperty("workspaceID"))))
                   .findFirst();
 
       response.setContentType("application/json;");
