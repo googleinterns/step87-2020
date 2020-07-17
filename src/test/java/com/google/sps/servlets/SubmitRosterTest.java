@@ -145,17 +145,19 @@ public class SubmitRosterTest {
 
     submitRoster.doPost(httpRequest, httpResponse);
 
-    Query query = new Query("User");
-    PreparedQuery results = datastore.prepare(query);
+    // Look for the students in the user datastore
+    PreparedQuery queryUser =
+        datastore.prepare(
+            new Query("User")
+                .setFilter(
+                    new FilterPredicate("userEmail", FilterOperator.EQUAL, "test1@google.com")));
 
-    for (Entity user : results.asIterable()) {
-      if ((user.getProperty("userEmail") == "test1@google.com")) {
-        List<Key> testRegistered = (List<Key>) user.getProperty("registeredClasses");
-        assertTrue(testRegistered.contains(class1.getKey()));
-        assertTrue(testRegistered.contains(class2.getKey()));
-        assertTrue(testRegistered.size() == 2);
-      }
-    }
+    Entity userStudent = queryUser.asSingleEntity();
+
+    List<Key> testRegistered = (List<Key>) userStudent.getProperty("registeredClasses");
+    assertTrue(testRegistered.contains(class1.getKey()));
+    assertTrue(testRegistered.contains(class2.getKey()));
+    assertTrue(testRegistered.size() == 2);
   }
 
   @Test
