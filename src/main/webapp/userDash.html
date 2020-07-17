@@ -41,6 +41,7 @@
           console.log("User is signed in");
           user.getIdToken().then((token) => {
               userToken = token;
+              document.getElementsByName("idToken").value = token;
 
               getClasses("registeredClasses");
               getClasses("ownedClasses");
@@ -60,8 +61,8 @@
       const request = new Request("/get-user" + params, {method: "GET"});
 
       fetch(request).then(response => response.json()).then((classMap) => {
+        const sectionElement = document.getElementById(type);
         if (classMap){
-            const sectionElement = document.getElementById(type);
             for (var key in classMap) {
                 if (classMap.hasOwnProperty(key)) {
                     sectionElement.appendChild(createClassElement(key, classMap[key], type));
@@ -109,12 +110,27 @@
         });
     }
     
-    
   </script>
 
   <body onload="init()">
-    <div id = "registeredClasses" class = "wrapper"> </div>
-    <div id = "ownedClasses" class = "wrapper"></div>
-    <div id = "taClasses" class = "wrapper"></div>
+    <div class = "wrapper">
+        <h1 class = "section-name">Classes you are registered in:</h1>
+        <div id = "registeredClasses"> </div>
+
+        <h1 class = "section-name">Classes you are on teaching staff:</h1>
+        <div id = "taClasses"></div>
+
+        <h1 class = "section-name">Classes you own:</h1>
+        <div id = "ownedClasses"></div>
+
+        <div id = "createClass">
+          <form action="/newclass" method="POST">
+            <textarea name="className" placeholder="Enter class name:"></textarea>
+            <br>
+            <input type="hidden" name="idToken" value=""/>
+            <input type="submit" value="create a new class!"/>
+          </form>
+        </div>
+    </div>
   </body>
 </html>
