@@ -98,7 +98,7 @@ public class AddClassTA extends HttpServlet {
           }
 
           // Redirect to the class dashboard page
-          response.sendRedirect("/dashboard.html?classCode=" + classCode);
+          // response.sendRedirect("/dashboard.html?classCode=" + classCode);
 
           txn.commit();
           break;

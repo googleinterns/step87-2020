@@ -80,14 +80,12 @@ public class SubmitRoster extends HttpServlet {
         List<Key> regClassesList = (List<Key>) user.getProperty("registeredClasses");
 
         // Do not add a class that is already in the registered list
-        if (regClassesList.contains(classKey)) {
-          response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        if (!regClassesList.contains(classKey)) {
+          regClassesList.add(classKey);
+          user.setProperty("registeredClasses", regClassesList);
+
+          datastore.put(user);
         }
-
-        regClassesList.add(classKey);
-        user.setProperty("registeredClasses", regClassesList);
-
-        datastore.put(user);
       }
     }
 
