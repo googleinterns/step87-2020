@@ -78,6 +78,12 @@ public class SubmitRoster extends HttpServlet {
         // If student already exists, update their registered class list
         user = queryUser.asSingleEntity();
         List<Key> regClassesList = (List<Key>) user.getProperty("registeredClasses");
+
+        // Do not add a class that is already in the registered list
+        if (regClassesList.contains(classKey)) {
+          response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        }
+
         regClassesList.add(classKey);
         user.setProperty("registeredClasses", regClassesList);
 

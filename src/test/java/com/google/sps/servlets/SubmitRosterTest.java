@@ -2,6 +2,7 @@ package com.google.sps.servlets;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -143,6 +144,42 @@ public class SubmitRosterTest {
         assertTrue(testRegistered.size() == 2);
       }
     }
+  }
+
+  @Test
+  // If owner adds the same class to a user's registered list, verify error
+  public void duplicates() throws Exception {
+
+    // Create a class
+    Entity class1 = new Entity("Class");
+
+    class1.setProperty("owner", "ownerID");
+    class1.setProperty("name", "testClass");
+    class1.setProperty("beingHelped", new EmbeddedEntity());
+    class1.setProperty("studentQueue", Collections.emptyList());
+    class1.setProperty("taList", Collections.emptyList());
+
+    datastore.put(class1);
+
+    // Add one student user with one registered class
+    Entity user1 = new Entity("User");
+
+    List<Key> reg1 = Arrays.asList(class1.getKey());
+
+    user1.setProperty("userEmail", "test1@google.com");
+    user1.setProperty("registeredClasses", reg1);
+    user1.setProperty("taClasses", Collections.emptyList());
+    user1.setProperty("ownedClasses", Collections.emptyList());
+
+    datastore.put(user1);
+
+    // Attempt to add the same class to user's registered list
+    when(httpRequest.getParameter("roster")).thenReturn("test1@google.com");
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(class1.getKey()));
+
+    submitRoster.doPost(httpRequest, httpResponse);
+
+    verify(httpResponse).sendError(HttpServletResponse.SC_FORBIDDEN);
   }
 
   @Test
