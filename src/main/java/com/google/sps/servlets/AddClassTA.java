@@ -89,14 +89,12 @@ public class AddClassTA extends HttpServlet {
             List<Key> taClassesList = (List<Key>) user.getProperty("taClasses");
 
             // Do not add a class that is already in the TA list
-            if (taClassesList.contains(classKey)) {
-              response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            if (!taClassesList.contains(classKey)) {
+              taClassesList.add(classKey);
+              user.setProperty("taClasses", taClassesList);
+
+              datastore.put(txn, user);
             }
-
-            taClassesList.add(classKey);
-            user.setProperty("taClasses", taClassesList);
-
-            datastore.put(txn, user);
           }
 
           // Redirect to the class dashboard page
