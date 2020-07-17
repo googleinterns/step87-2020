@@ -31,13 +31,11 @@ import javax.servlet.http.HttpServletResponse;
 public class GetQueue extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
-  private Gson gson;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
     try {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
-      gson = new Gson();
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -88,6 +86,8 @@ public class GetQueue extends HttpServlet {
                   .findFirst();
 
       response.setContentType("application/json;");
+
+      Gson gson = new Gson();
       response.getWriter().print(gson.toJson(new Queue(queue, beingHelpedEntity.orElse(null))));
 
     } catch (EntityNotFoundException e) {
