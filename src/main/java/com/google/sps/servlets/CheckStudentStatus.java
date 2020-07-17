@@ -76,7 +76,7 @@ public class CheckStudentStatus extends HttpServlet {
                         (String) embeddedEntity.getProperty("workspaceID"))));
       } else {
         EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
-        if (beingHelped.hasProperty("studentID")) {
+        if (beingHelped.hasProperty(studentID)) {
           EmbeddedEntity queueInfo = (EmbeddedEntity) beingHelped.getProperty(studentID);
 
           // Get workspace id
