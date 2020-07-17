@@ -7,7 +7,7 @@ function drawBasic() {
   var data = new google.visualization.DataTable();
   data.addColumn('date', 'Date');
   data.addColumn('number', 'Visits');
-
+ 
   // Organize visit data through visit-by-date servlet
   fetch(`/visit-date?classCode=` + getParam("classCode"))
     .then(response => response.json()).then(visits=> {
@@ -77,6 +77,7 @@ function drawBasic() {
 
 google.charts.setOnLoadCallback(drawBasic);
 
+// Provide a link to the TA queue and display class code
 function setRedirect(){
   var params = window.location.search;
   document.getElementById("redirect").href = "/queue/ta.html" + params;
@@ -87,9 +88,16 @@ function setRedirect(){
 function getClassCode() {
   document.getElementById("hiddenClassCode").value = getParam("classCode");
   return true;
+}  
+
+// Obtain the class's specific code from URL parameter
+function getRosterClassCode() {
+  document.getElementById("hiddenRosterClassCode").value = getParam("classCode");
+  return true;
 } 
 
 function addEnvRow(name, status) {
+
   const template = document.getElementById("envRowTemplate");
   const copy = template.content.cloneNode(true).querySelector("tr");
 
@@ -98,7 +106,6 @@ function addEnvRow(name, status) {
 
   const deleteButton = copy.querySelector(".envDelete");
   deleteButton.disabled = status !== "ready" && status !== "failed";
-  
 
   document.getElementById("envTable").appendChild(copy);
 
@@ -134,10 +141,12 @@ function checkEnvStatus(envID, row) {
 }
 
 function pullImage() {
+
   const name = document.getElementById("envName").value;
   const image = document.getElementById("envImage").value;
   const tag = document.getElementById("envTag").value;
   const row = addEnvRow(name, "queueing");
+
   fetch(`/queueEnvPull?classID=${getParam("classCode")}&name=${name}&image=${image}&tag=${tag}`)
     .then(resp => resp.text()).then(envID => {
       checkEnvStatus(envID, row);
@@ -146,8 +155,10 @@ function pullImage() {
 
 function getEnvs() {
   fetch(`/getEnvironments?classID=${getParam("classCode")}`).then(resp => resp.json()).then(envs => {
+
     for (var env of envs) {
      const row = addEnvRow(env.name, env.status);
+
      row.querySelector(".envDelete").onclick = () => {
       row.querySelector(".envStatus").innerText = "deleting";
       fetch(`/environment?envID=${env.id}`, {method: 'DELETE'});
@@ -157,6 +168,7 @@ function getEnvs() {
   });
 }
 
+// Display the queue redirect link and environments once page loads
 function onload() {
   setRedirect();
   getEnvs();

@@ -3,17 +3,20 @@ package com.google.sps.servlets;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
+import java.util.List;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -22,8 +25,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 // Once class owner submits a TA email, retrieve that user and add them as a TA to the class
-@WebServlet("/add-ta")
-public class AddTA extends HttpServlet {
+@WebServlet("/add-class-ta")
+public class AddClassTA extends HttpServlet {
 
   private FirebaseAuth authInstance;
 
@@ -37,7 +40,7 @@ public class AddTA extends HttpServlet {
     }
   }
 
-  // Add a TA to the class datastore
+  // Add a TA to the user datastore
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
@@ -53,20 +56,46 @@ public class AddTA extends HttpServlet {
 
           // Obtain the teaching assistant email and search for the user
           String teachingAssistantEmail = request.getParameter("taEmail").trim();
-          UserRecord userRecord = authInstance.getUserByEmail(teachingAssistantEmail);
 
-          // Find the corresponding Class Entity
+          // Find the corresponding class Key
           String classCode = request.getParameter("classCode").trim();
           Key classKey = KeyFactory.stringToKey(classCode);
-          Entity classEntity = datastore.get(txn, classKey);
 
-          // Get the list of TAs
-          ArrayList<String> listOfClassTAs = (ArrayList) classEntity.getProperty("taList");
+          // Look for the TA in the user datastore
+          PreparedQuery queryUser =
+              datastore.prepare(
+                  new Query("User")
+                      .setFilter(
+                          new FilterPredicate(
+                              "userEmail", FilterOperator.EQUAL, teachingAssistantEmail)));
 
-          // Update the class's TA list to include the new TA
-          listOfClassTAs.add(teachingAssistantEmail);
-          classEntity.setProperty("taList", listOfClassTAs);
-          datastore.put(txn, classEntity);
+          Entity user;
+
+          // If the TA user entity doesnt exist yet, create one
+          if (queryUser.countEntities() == 0) {
+
+            List<Key> taClassesList = Arrays.asList(classKey);
+
+            user = new Entity("User");
+            user.setProperty("userEmail", teachingAssistantEmail);
+            user.setProperty("registeredClasses", Collections.emptyList());
+            user.setProperty("ownedClasses", Collections.emptyList());
+            user.setProperty("taClasses", taClassesList);
+
+            datastore.put(txn, user);
+          } else {
+            // If TA user already exists, update their ta class list
+            user = queryUser.asSingleEntity();
+            List<Key> taClassesList = (List<Key>) user.getProperty("taClasses");
+
+            // Do not add a class that is already in the TA list
+            if (!taClassesList.contains(classKey)) {
+              taClassesList.add(classKey);
+              user.setProperty("taClasses", taClassesList);
+
+              datastore.put(txn, user);
+            }
+          }
 
           // Redirect to the class dashboard page
           response.sendRedirect("/dashboard.html?classCode=" + classCode);
@@ -88,12 +117,8 @@ public class AddTA extends HttpServlet {
         }
       }
 
-    } catch (FirebaseAuthException e) {
-      response.sendError(HttpServletResponse.SC_NOT_FOUND);
     } catch (IllegalArgumentException e) {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-    } catch (EntityNotFoundException e) {
-      response.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
   }
 }
