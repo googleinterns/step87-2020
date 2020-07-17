@@ -90,6 +90,62 @@ public class SubmitRosterTest {
   }
 
   @Test
+  // User is already registered for one class, add another
+  public void existingUserAddClass() throws Exception {
+
+    // Create 2 classes
+    Entity class1 = new Entity("Class");
+
+    class1.setProperty("owner", "ownerID");
+    class1.setProperty("name", "testClass");
+    class1.setProperty("beingHelped", new EmbeddedEntity());
+    class1.setProperty("studentQueue", Collections.emptyList());
+    class1.setProperty("taList", Collections.emptyList());
+
+    datastore.put(class1);
+
+    Entity class2 = new Entity("Class");
+
+    class2.setProperty("owner", "ownerID2");
+    class2.setProperty("name", "testClass2");
+    class2.setProperty("beingHelped", new EmbeddedEntity());
+    class2.setProperty("studentQueue", Collections.emptyList());
+    class2.setProperty("taList", Collections.emptyList());
+
+    datastore.put(class2);
+
+    // Add one student user with one registered class
+    Entity user1 = new Entity("User");
+
+    List<Key> reg1 = Arrays.asList(class1.getKey());
+
+    user1.setProperty("userEmail", "test1@google.com");
+    user1.setProperty("registeredClasses", reg1);
+    user1.setProperty("taClasses", Collections.emptyList());
+    user1.setProperty("ownedClasses", Collections.emptyList());
+
+    datastore.put(user1);
+
+    // Submit a roster of 1 student
+    when(httpRequest.getParameter("roster")).thenReturn("test1@google.com");
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(class2.getKey()));
+
+    submitRoster.doPost(httpRequest, httpResponse);
+
+    Query query = new Query("User");
+    PreparedQuery results = datastore.prepare(query);
+
+    for (Entity user : results.asIterable()) {
+      if ((user.getProperty("userEmail") == "test1@google.com")) {
+        List<Key> testRegistered = (List<Key>) user.getProperty("registeredClasses");
+        assertTrue(testRegistered.contains(class1.getKey()));
+        assertTrue(testRegistered.contains(class2.getKey()));
+        assertTrue(testRegistered.size() == 2);
+      }
+    }
+  }
+
+  @Test
   // For existing users, just update registration list
   public void preventDuplicateStudentRoster() throws Exception {
 
