@@ -88,7 +88,7 @@
       var params = window.location.search + "&studentToken=" + studentToken;
       const request = new Request("/check-student" + params, {method: "GET"});
       fetch(request).then(response => response.json()).then((studentPosition) => {
-        if (studentPosition == "0") {
+        if (studentPosition.location === 0) {
           document.getElementById("queue_status").innerText = "";
           getTA();
 
@@ -96,13 +96,11 @@
             sendNotification();
             notifyBool = false;
           }    
-        } 
-        else {
-            document.getElementById("studentPosition").innerText = "You are #" + studentPosition + " on the queue.";
-            if (!gotWorkspaceID) {
-              getWorkspace(params);
-              gotWorkspaceID = true;
-            }
+        } else {
+            document.getElementById("studentPosition").innerText = "You are #" + studentPosition.location + " on the queue.";
+            
+            document.getElementById("workspaceRedirect").href = studentPosition.workspace;
+            document.getElementById("workspaceRedirect").innerText = "go to workspace";
         }
       });
     }
@@ -121,23 +119,6 @@
 
         } else {
             document.getElementById("beingHelped").innerText = "You are being helped by " + helpedBy;
-            if (!gotWorkspaceID) {
-              getWorkspace(params);
-              gotWorkspaceID = true;
-            }
-        }
-      });
-    }
-
-    function getWorkspace(params){ //params include student token
-      const request = new Request("/get-workspace" + params, {method: "GET"});
-      fetch(request).then(response => response.json()).then((link) => {
-        if (link == "null") {
-          document.getElementById("workspaceRedirect").href = "";
-          document.getElementById("workspaceRedirect").innerText = "";
-        } else {
-          document.getElementById("workspaceRedirect").href = link;
-          document.getElementById("workspaceRedirect").innerText = "go to workspace";
         }
       });
     }
