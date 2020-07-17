@@ -33,7 +33,7 @@ public class QueueDownload extends HttpServlet {
     super.init();
     workspaceFactory = WorkspaceFactory.getInstance();
     taskSchedulerFactory = TaskSchedulerFactory.getInstance();
-    QUEUE_NAME = System.getenv("DOWNLOAD_QUEUE_ID");
+    QUEUE_NAME = System.getenv("WORKSPACE_QUEUE_ID");
     try {
       auth = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
     } catch (IOException e) {

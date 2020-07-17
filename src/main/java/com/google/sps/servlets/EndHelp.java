@@ -36,7 +36,7 @@ public class EndHelp extends HttpServlet {
 
   @Override
   public void init(ServletConfig config) throws ServletException {
-    QUEUE_NAME = System.getenv("DOWNLOAD_QUEUE_ID");
+    QUEUE_NAME = System.getenv("WORKSPACE_QUEUE_ID");
     taskSchedulerFactory = TaskSchedulerFactory.getInstance();
 
     try {
