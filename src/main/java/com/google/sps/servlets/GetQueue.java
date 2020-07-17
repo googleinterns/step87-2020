@@ -14,11 +14,9 @@ import com.google.firebase.auth.UserRecord;
 import com.google.gson.Gson;
 import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.queue.Queue;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -70,18 +68,23 @@ public class GetQueue extends HttpServlet {
         queue.add(studentName);
       }
 
-      Optional<Queue.Helping> beingHelpedEntity = ((EmbeddedEntity) classEntity.getProperty("beingHelped")).getProperties().entrySet().stream()
-            .filter(entry -> ((EmbeddedEntity) entry.getValue()).getProperty("taID").equals(TaID))
-            .map(entry -> {
-            try {
-              return new Queue.Helping(authInstance.getUser(entry.getKey()).getEmail(),
-                  (String) ((EmbeddedEntity) entry.getValue()).getProperty("workspaceID"));
-            } catch (FirebaseAuthException e) {
-              throw new RuntimeException(e);
-            }
-          }).findFirst();
-
-
+      Optional<Queue.Helping> beingHelpedEntity =
+          ((EmbeddedEntity) classEntity.getProperty("beingHelped"))
+              .getProperties().entrySet().stream()
+                  .filter(
+                      entry -> ((EmbeddedEntity) entry.getValue()).getProperty("taID").equals(TaID))
+                  .map(
+                      entry -> {
+                        try {
+                          return new Queue.Helping(
+                              authInstance.getUser(entry.getKey()).getEmail(),
+                              (String)
+                                  ((EmbeddedEntity) entry.getValue()).getProperty("workspaceID"));
+                        } catch (FirebaseAuthException e) {
+                          throw new RuntimeException(e);
+                        }
+                      })
+                  .findFirst();
 
       response.setContentType("application/json;");
       response.getWriter().print(gson.toJson(new Queue(queue, beingHelpedEntity.orElse(null))));
