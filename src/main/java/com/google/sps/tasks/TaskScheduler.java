@@ -14,6 +14,10 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Objects;
 
+/**
+ * This is a utility class to schedule Cloud Tasks on a given queue at some point in the
+ * future
+ */
 public class TaskScheduler {
   private final String projectID;
   private final String queueName;
@@ -21,6 +25,14 @@ public class TaskScheduler {
   private final String URI;
   private final HttpMethod httpMethod;
 
+  /**
+   * Creates a TaskScheduler
+   * @param projectID projectID of the task queue.
+   * @param queueName name of the task queue.
+   * @param location location of the task queue.
+   * @param URI URI of the task servlet.
+   * @param httpMethod HTTP Method to use to call the servlet.
+   */
   protected TaskScheduler(
       String projectID, String queueName, String location, String URI, HttpMethod httpMethod) {
     this.projectID = Objects.requireNonNull(projectID);
@@ -40,10 +52,21 @@ public class TaskScheduler {
     return Instant.now(Clock.systemUTC());
   }
 
+  /**
+   * Schedules the task to run as soon as possible
+   * @param payload Payload for the task
+   * @throws IOException
+   */
   public void schedule(String payload) throws IOException {
     schedule(payload, 0);
   }
 
+  /**
+   * Schedules the task to run in the future.
+   * @param payload Payload for the task
+   * @param seconds seconds in the future when the task should run.
+   * @throws IOException
+   */
   public void schedule(String payload, long seconds) throws IOException {
     try (CloudTasksClient client = getClient()) {
       String queuePath = QueueName.of(projectID, location, queueName).toString();
