@@ -1,5 +1,7 @@
 package com.google.sps.servlets;
 
+import static com.google.sps.utils.ExceptionWrapper.wrap;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -74,16 +76,13 @@ public class GetQueue extends HttpServlet {
                   .filter(
                       entry -> ((EmbeddedEntity) entry.getValue()).getProperty("taID").equals(TaID))
                   .map(
-                      entry -> {
-                        try {
-                          return new Queue.Helping(
-                              authInstance.getUser(entry.getKey()).getEmail(),
-                              (String)
-                                  ((EmbeddedEntity) entry.getValue()).getProperty("workspaceID"));
-                        } catch (FirebaseAuthException e) {
-                          throw new RuntimeException(e);
-                        }
-                      })
+                      wrap(
+                          entry ->
+                              new Queue.Helping(
+                                  authInstance.getUser(entry.getKey()).getEmail(),
+                                  (String)
+                                      ((EmbeddedEntity) entry.getValue())
+                                          .getProperty("workspaceID"))))
                   .findFirst();
 
       response.setContentType("application/json;");
