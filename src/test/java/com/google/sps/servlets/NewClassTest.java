@@ -174,9 +174,9 @@ public class NewClassTest {
 
     Entity userOwner = queryUser.asSingleEntity();
 
-    ArrayList<Key> testOwned = (ArrayList<Key>) userOwner.getProperty("ownedClasses");
-    ArrayList<Key> testRegistered = (ArrayList<Key>) userOwner.getProperty("registeredClasses");
-    ArrayList<Key> testTA = (ArrayList<Key>) userOwner.getProperty("taClasses");
+    List<Key> testOwned = (List<Key>) userOwner.getProperty("ownedClasses");
+    List<Key> testRegistered = (List<Key>) userOwner.getProperty("registeredClasses");
+    List<Key> testTA = (List<Key>) userOwner.getProperty("taClasses");
 
     assertTrue(testOwned.contains(init3.getKey()));
     assertEquals(2, testOwned.size());
