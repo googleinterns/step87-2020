@@ -13,6 +13,8 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
@@ -76,17 +78,18 @@ public class NewClassTest {
 
     addNew.doPost(httpRequest, httpResponse);
 
-    Query query = new Query("User");
-    PreparedQuery results = datastore.prepare(query);
+    // Look for the owner in the user datastore
+    PreparedQuery queryUser =
+        datastore.prepare(
+            new Query("User")
+                .setFilter(
+                    new FilterPredicate(
+                        "userEmail", FilterOperator.EQUAL, "ownerEmail@google.com")));
 
-    // Search for owner user entity in datastore
-    for (Entity user : results.asIterable()) {
-      if (user.getProperty("userEmail") == "ownerEmail@google.com") {
-        ArrayList<Key> testOwned = (ArrayList<Key>) user.getProperty("ownedClasses");
-        assertTrue(!testOwned.isEmpty());
-        assertTrue(testOwned.size() == 1);
-      }
-    }
+    Entity userOwner = queryUser.asSingleEntity();
+
+    ArrayList<Key> testOwned = (ArrayList<Key>) userOwner.getProperty("ownedClasses");
+    assertTrue(testOwned.size() == 1);
 
     Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
 
@@ -161,30 +164,32 @@ public class NewClassTest {
 
     addNew.doPost(httpRequest, httpResponse);
 
-    Query query = new Query("User");
-    PreparedQuery results = datastore.prepare(query);
+    // Look for the owner in the user datastore
+    PreparedQuery queryUser =
+        datastore.prepare(
+            new Query("User")
+                .setFilter(
+                    new FilterPredicate(
+                        "userEmail", FilterOperator.EQUAL, "ownerEmail@google.com")));
 
-    // Search for owner user entity in datastore and verify updates
-    for (Entity user : results.asIterable()) {
-      if (user.getProperty("userEmail") == "ownerEmail@google.com") {
-        ArrayList<Key> testOwned = (ArrayList<Key>) user.getProperty("ownedClasses");
-        ArrayList<Key> testRegistered = (ArrayList<Key>) user.getProperty("registeredClasses");
-        ArrayList<Key> testTA = (ArrayList<Key>) user.getProperty("taClasses");
+    Entity userOwner = queryUser.asSingleEntity();
 
-        assertTrue(testOwned.contains(init3.getKey()));
-        assertEquals(2, testOwned.size());
-        assertTrue(testRegistered.contains(init1.getKey()));
-        assertEquals(1, testRegistered.size());
-        assertTrue(testTA.contains(init2.getKey()));
-        assertEquals(1, testTA.size());
-      }
-    }
+    ArrayList<Key> testOwned = (ArrayList<Key>) userOwner.getProperty("ownedClasses");
+    ArrayList<Key> testRegistered = (ArrayList<Key>) userOwner.getProperty("registeredClasses");
+    ArrayList<Key> testTA = (ArrayList<Key>) userOwner.getProperty("taClasses");
+
+    assertTrue(testOwned.contains(init3.getKey()));
+    assertEquals(2, testOwned.size());
+    assertTrue(testRegistered.contains(init1.getKey()));
+    assertEquals(1, testRegistered.size());
+    assertTrue(testTA.contains(init2.getKey()));
+    assertEquals(1, testTA.size());
 
     Query query2 = new Query("Class");
-    PreparedQuery results2 = datastore.prepare(query);
+    PreparedQuery results2 = datastore.prepare(query2);
 
     // Verify class was created properly
-    for (Entity testClassEntity : results.asIterable()) {
+    for (Entity testClassEntity : results2.asIterable()) {
       if (testClassEntity.getProperty("className") == "testClass") {
         assertEquals(testClassEntity.getProperty("owner"), "ownerID");
         assertEquals(testClassEntity.getProperty("name"), "testClass");
