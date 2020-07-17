@@ -137,7 +137,7 @@ public class AddClassTATest {
 
   @Test
   // Verify that duplicate classes don't get added
-  public void preventDuplicateTAClasses() throws Exception {
+  public void preventDuplicates() throws Exception {
 
     // Create some classes
     Entity init = new Entity("Class");
@@ -175,6 +175,8 @@ public class AddClassTATest {
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
 
     addTA.doPost(httpRequest, httpResponse);
+
+    verify(httpResponse).sendError(HttpServletResponse.SC_FORBIDDEN);
 
     Query query = new Query("User");
     PreparedQuery results = datastore.prepare(query);

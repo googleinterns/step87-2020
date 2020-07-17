@@ -87,6 +87,12 @@ public class AddClassTA extends HttpServlet {
             // If TA user already exists, update their ta class list
             user = queryUser.asSingleEntity();
             List<Key> taClassesList = (List<Key>) user.getProperty("taClasses");
+
+            // Do not add a class that is already in the TA list
+            if (taClassesList.contains(classKey)) {
+              response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            }
+
             taClassesList.add(classKey);
             user.setProperty("taClasses", taClassesList);
 
