@@ -145,7 +145,7 @@ public class SubmitRosterTest {
 
     submitRoster.doPost(httpRequest, httpResponse);
 
-    // Look for the students in the user datastore
+    // Look for the student in the user datastore
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
@@ -161,7 +161,7 @@ public class SubmitRosterTest {
   }
 
   @Test
-  // If owner adds the same class to a user's registered list, verify error
+  // If owner adds the same class to a user's registered list, verify that it doesn't get added
   public void duplicates() throws Exception {
 
     // Create a class
@@ -193,7 +193,18 @@ public class SubmitRosterTest {
 
     submitRoster.doPost(httpRequest, httpResponse);
 
-    // verify(httpResponse).sendError(HttpServletResponse.SC_FORBIDDEN);
+    // Look for the student in the user datastore
+    PreparedQuery queryUser =
+        datastore.prepare(
+            new Query("User")
+                .setFilter(
+                    new FilterPredicate("userEmail", FilterOperator.EQUAL, "test1@google.com")));
+
+    Entity userStudent = queryUser.asSingleEntity();
+
+    List<Key> testRegistered = (List<Key>) userStudent.getProperty("registeredClasses");
+    assertTrue(testRegistered.contains(class1.getKey()));
+    assertTrue(testRegistered.size() == 1);
   }
 
   @Test
