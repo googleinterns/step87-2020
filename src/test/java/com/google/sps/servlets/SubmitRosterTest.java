@@ -1,6 +1,5 @@
 package com.google.sps.servlets;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -91,7 +90,7 @@ public class SubmitRosterTest {
                     new FilterPredicate("userEmail", FilterOperator.EQUAL, "second@google.com")));
 
     Entity userStudent = queryUser.asSingleEntity();
-    Entity userStudent2 = queryUser.asSingleEntity();
+    Entity userStudent2 = queryUser2.asSingleEntity();
 
     List<Key> testRegistered = (List<Key>) userStudent.getProperty("registeredClasses");
     List<Key> testRegistered2 = (List<Key>) userStudent2.getProperty("registeredClasses");
@@ -208,8 +207,7 @@ public class SubmitRosterTest {
   }
 
   @Test
-  // For existing users, just update registration list
-  public void preventDuplicateStudentRoster() throws Exception {
+  public void preventDuplicateMultipleStudents() throws Exception {
 
     // Create a class
     Entity init = new Entity("Class");
@@ -251,34 +249,43 @@ public class SubmitRosterTest {
 
     submitRoster.doPost(httpRequest, httpResponse);
 
-    Query query = new Query("User");
-    PreparedQuery results = datastore.prepare(query);
+    // Look for the students in the user datastore
+    PreparedQuery queryUser =
+        datastore.prepare(
+            new Query("User")
+                .setFilter(
+                    new FilterPredicate("userEmail", FilterOperator.EQUAL, "test1@google.com")));
+    PreparedQuery queryUser2 =
+        datastore.prepare(
+            new Query("User")
+                .setFilter(
+                    new FilterPredicate("userEmail", FilterOperator.EQUAL, "test2@google.com")));
 
-    // Verify size and contents of registeredClass list for each student
-    for (Entity user : results.asIterable()) {
-      if ((user.getProperty("userEmail") == "test1@google.com")
-          || (user.getProperty("userEmail") == "test2@google.com")) {
-        List<Key> testRegistered = (List<Key>) user.getProperty("registeredClasses");
-        assertTrue(testRegistered.contains(init.getKey()));
-        assertEquals(1, testRegistered.size());
-      }
-    }
+    Entity userStudent = queryUser.asSingleEntity();
+    Entity userStudent2 = queryUser2.asSingleEntity();
+
+    List<Key> testRegistered = (List<Key>) userStudent.getProperty("registeredClasses");
+    List<Key> testRegistered2 = (List<Key>) userStudent2.getProperty("registeredClasses");
+
+    assertTrue(testRegistered.contains(init.getKey()));
+    assertTrue(testRegistered.size() == 1);
+    assertTrue(testRegistered2.contains(init.getKey()));
+    assertTrue(testRegistered2.size() == 1);
   }
 
   @Test
-  // If owner submits a roster with the same student twice, only add the student once
   public void existingStudents() throws Exception {
 
     // Create a class
-    Entity init = new Entity("Class");
+    Entity classExample = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Collections.emptyList());
-    init.setProperty("taList", Collections.emptyList());
+    classExample.setProperty("owner", "ownerID");
+    classExample.setProperty("name", "testClass");
+    classExample.setProperty("beingHelped", new EmbeddedEntity());
+    classExample.setProperty("studentQueue", Collections.emptyList());
+    classExample.setProperty("taList", Collections.emptyList());
 
-    datastore.put(init);
+    datastore.put(classExample);
 
     // Example student 1
     Entity user1 = new Entity("User");
@@ -301,21 +308,32 @@ public class SubmitRosterTest {
 
     // Submit a roster of 2 students
     when(httpRequest.getParameter("roster")).thenReturn("test1@google.com, test2@google.com");
-    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("classCode"))
+        .thenReturn(KeyFactory.keyToString(classExample.getKey()));
 
     submitRoster.doPost(httpRequest, httpResponse);
 
-    Query query = new Query("User");
-    PreparedQuery results = datastore.prepare(query);
+    // Look for the students in the user datastore
+    PreparedQuery queryUser =
+        datastore.prepare(
+            new Query("User")
+                .setFilter(
+                    new FilterPredicate("userEmail", FilterOperator.EQUAL, "test1@google.com")));
+    PreparedQuery queryUser2 =
+        datastore.prepare(
+            new Query("User")
+                .setFilter(
+                    new FilterPredicate("userEmail", FilterOperator.EQUAL, "test2@google.com")));
 
-    // Verify size and contents of registeredClass list for each student
-    for (Entity user : results.asIterable()) {
-      if ((user.getProperty("userEmail") == "test1@google.com")
-          || (user.getProperty("userEmail") == "test2@google.com")) {
-        List<Key> testRegistered = (List<Key>) user.getProperty("registeredClasses");
-        assertTrue(testRegistered.contains(init.getKey()));
-        assertTrue(testRegistered.size() == 1);
-      }
-    }
+    Entity userStudent = queryUser.asSingleEntity();
+    Entity userStudent2 = queryUser2.asSingleEntity();
+
+    List<Key> testRegistered = (List<Key>) userStudent.getProperty("registeredClasses");
+    List<Key> testRegistered2 = (List<Key>) userStudent2.getProperty("registeredClasses");
+
+    assertTrue(testRegistered.contains(classExample.getKey()));
+    assertTrue(testRegistered.size() == 1);
+    assertTrue(testRegistered2.contains(classExample.getKey()));
+    assertTrue(testRegistered2.size() == 1);
   }
 }
