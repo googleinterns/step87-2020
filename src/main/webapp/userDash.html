@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Queue</title>
+    <!-- Firebase App (the core Firebase SDK) must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.15.1/firebase-app.js"></script>
+    <!-- Firebase Authentication -->
+    <script src="https://www.gstatic.com/firebasejs/7.15.1/firebase-auth.js"></script>
+    <script src="/script/auth.js"></script>
+
+    <link rel="stylesheet" href="userDash.css">
+    <!--Font-->
+    <link href='https://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'></link>
+  </head>
+
+  <script>
+    let userToken;
+    
+    let registeredClasses;
+    let ownedClasses;
+    let taClasses;
+
+    let firebaseConfig = {
+      apiKey: "AIzaSyA1r_PfVDCXfTgoUNisci5Ag2MKEEwsZCE",
+      authDomain: "fulfillment-deco-step-2020.firebaseapp.com",
+      databaseURL: "https://fulfillment-deco-step-2020.firebaseio.com",
+      projectId: "fulfillment-deco-step-2020",
+      storageBucket: "fulfillment-deco-step-2020.appspot.com",
+      messagingSenderId: "7165833112",
+      appId: "1:7165833112:web:3b4af53c5de6aa73b7c5ed"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    function init() {
+      var user = firebase.auth().currentUser;
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          console.log("User is signed in");
+          user.getIdToken().then((token) => {
+              userToken = token;
+              console.log(userToken);
+
+              getClasses("registeredClasses");
+              getClasses("ownedClasses");
+              getClasses("taClasses");
+          });
+        } 
+        // Redirect to home page if not logged in
+        else {
+          console.log("User is not logged in");
+          window.location.href = "/";
+        }
+      });
+    }
+
+    function getClasses(type){
+      var params ="?idToken=" + userToken + "&" + type + "=" + type;
+      const request = new Request("/get-user" + params, {method: "GET"});
+
+      fetch(request).then(response => response.json()).then((classMap) => {
+        if (classMap){
+            console.log(classMap);
+            const sectionElement = document.getElementById(type);
+            for (var key in classMap) {
+                if (classMap.hasOwnProperty(key)) {
+                    sectionElement.appendChild(createClassElement(key, classMap[key], type));
+                }
+            }
+        }
+      });
+    }
+
+    function createClassElement(classCode, nameClass, type) {
+        var params;
+        if (type != "registeredClasses"){
+            params = "?classCode="+classCode+"&idToken="+userToken+ "&enterTA=" + "isTA";
+        } else {
+            params = "?classCode="+classCode+"&idToken="+userToken;
+            console.log(params)
+        }
+
+        let enterElem = document.createElement("div");
+        enterElem.className = "class-container";
+        enterElem.id = params;
+        enterElem.onclick = function(){enterQueue(this.id);};
+
+        let enter = document.createElement('p');
+        enter.innerText = "enter";
+
+        let classElem = document.createElement('p');
+        classElem.innerText = nameClass;
+        classElem.className = "class-info";
+
+        enterElem.appendChild(enter);
+        enterElem.appendChild(classElem);
+
+        return enterElem;
+    }
+
+    function enterQueue(params){
+        const request = new Request("/enterqueue" + params, {method: "POST"});
+        fetch(request);
+    }
+    
+    
+  </script>
+
+  <body onload="init()">
+    <div id = "registeredClasses" class = "wrapper"> </div>
+    <div id = "ownedClasses" class = "wrapper"></div>
+    <div id = "taClasses" class = "wrapper"></div>
+  </body>
+</html>
