@@ -136,7 +136,7 @@ public class AddClassTATest {
   }
 
   @Test
-  // For a user that already TAs for one class, add more classes
+  // Verify that duplicate classes don't get added
   public void preventDuplicateTAClasses() throws Exception {
 
     // Create some classes
