@@ -2,6 +2,7 @@ body {
   text-align: center;
   background-color: #C2E1FF;
   font-family: 'Noto Sans', sans-serif;
+  overflow: scroll;
 }
 
 #line-chart{
@@ -28,6 +29,7 @@ body {
   position: fixed;
   z-index: 1;
   top: 0;
+  margin: auto;
   overflow-x: hidden;
   padding-top: 20px;
   right: 0;
@@ -62,7 +64,7 @@ body {
   font-family: 'Noto Sans', sans-serif;
 }
 
-.ta-form fieldset, .side-section{
+.ta-form fieldset, .side-section {
   border-radius: 10px;
   margin: 0px 0px 10px 0px;
   border: 1px solid #C2E1FF;
@@ -114,7 +116,7 @@ body {
   font-weight: normal;
 }
 
-#submitButton, .side-section button {
+#submitButton, .side-section button, .roster-button {
   background-color: #031430;
   color: #C2E1FF;
   margin-top: 10px;
@@ -128,4 +130,28 @@ body {
 
 #envTable {
   width: 100%;
+}
+
+.footer {
+  text-align: center;
+  color: white;
+  background-color: #031430;
+}
+
+/* Roster textarea */
+#roster {
+  background-color: #C2E1FF;
+}
+
+/* Roster field */
+.roster-section {
+  width: 80%;
+  border-radius: 10px;
+  margin: 0 auto;
+  border: 1px solid #C2E1FF;
+  padding: 20px;
+  color: #C2E1FF;
+  background: #2457AA;
+  box-shadow: inset 0px 0px 15px #C2E1FF;
+  font-family: 'Noto Sans', sans-serif;
 }
