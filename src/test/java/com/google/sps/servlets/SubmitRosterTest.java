@@ -80,11 +80,8 @@ public class SubmitRosterTest {
     PreparedQuery results = datastore.prepare(query);
 
     for (Entity user : results.asIterable()) {
-      if (user.getProperty("userEmail") == "first@google.com") {
-        List<Key> testRegistered = (List<Key>) user.getProperty("registeredClasses");
-        assertTrue(testRegistered.contains(init.getKey()));
-        assertTrue(testRegistered.size() == 1);
-      } else if (user.getProperty("userEmail") == "second@google.com") {
+      if ((user.getProperty("userEmail") == "first@google.com")
+          || (user.getProperty("userEmail") == "second@google.com")) {
         List<Key> testRegistered = (List<Key>) user.getProperty("registeredClasses");
         assertTrue(testRegistered.contains(init.getKey()));
         assertTrue(testRegistered.size() == 1);
@@ -141,11 +138,8 @@ public class SubmitRosterTest {
 
     // Verify size and contents of registeredClass list for each student
     for (Entity user : results.asIterable()) {
-      if (user.getProperty("userEmail") == "test1@google.com") {
-        List<Key> testRegistered = (List<Key>) user.getProperty("registeredClasses");
-        assertTrue(testRegistered.contains(init.getKey()));
-        assertEquals(1, testRegistered.size());
-      } else if (user.getProperty("userEmail") == "test2@google.com") {
+      if ((user.getProperty("userEmail") == "test1@google.com")
+          || (user.getProperty("userEmail") == "test2@google.com")) {
         List<Key> testRegistered = (List<Key>) user.getProperty("registeredClasses");
         assertTrue(testRegistered.contains(init.getKey()));
         assertEquals(1, testRegistered.size());
@@ -198,11 +192,8 @@ public class SubmitRosterTest {
 
     // Verify size and contents of registeredClass list for each student
     for (Entity user : results.asIterable()) {
-      if (user.getProperty("userEmail") == "test1@google.com") {
-        List<Key> testRegistered = (List<Key>) user.getProperty("registeredClasses");
-        assertTrue(testRegistered.contains(init.getKey()));
-        assertTrue(testRegistered.size() == 1);
-      } else if (user.getProperty("userEmail") == "test2@google.com") {
+      if ((user.getProperty("userEmail") == "test1@google.com")
+          || (user.getProperty("userEmail") == "test2@google.com")) {
         List<Key> testRegistered = (List<Key>) user.getProperty("registeredClasses");
         assertTrue(testRegistered.contains(init.getKey()));
         assertTrue(testRegistered.size() == 1);
