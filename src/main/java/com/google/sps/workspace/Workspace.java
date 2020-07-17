@@ -25,6 +25,10 @@ public class Workspace {
     this.reference = Objects.requireNonNull(reference);
   }
 
+  public void setStudentUID(String id) throws InterruptedException, ExecutionException {
+    reference.child("student").setValueAsync(id).get();
+  }
+
   /** @return the studentUID */
   public Future<String> getStudentUID() {
     CompletableFuture<String> future = new CompletableFuture<>();
@@ -46,6 +50,10 @@ public class Workspace {
             });
 
     return future;
+  }
+
+  public void setTaUID(String id) throws InterruptedException, ExecutionException {
+    reference.child("ta").setValueAsync(id).get();
   }
 
   /** @return the taUID */
@@ -100,32 +108,6 @@ public class Workspace {
             });
 
     return future;
-  }
-
-  public Future<String> getEnvironment() {
-    CompletableFuture<String> future = new CompletableFuture<>();
-
-    reference
-        .child("environment")
-        .addListenerForSingleValueEvent(
-            new ValueEventListener() {
-
-              @Override
-              public void onDataChange(DataSnapshot snapshot) {
-                future.complete((String) snapshot.getValue());
-              }
-
-              @Override
-              public void onCancelled(DatabaseError error) {
-                future.completeExceptionally(error.toException());
-              }
-            });
-
-    return future;
-  }
-
-  public void setEnvironment(String envKey) throws InterruptedException, ExecutionException {
-    reference.child("environment").setValueAsync(envKey).get();
   }
 
   public String newDownloadID() {

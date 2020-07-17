@@ -16,45 +16,30 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class WorkspaceFactoryTest {
   @Mock DatabaseReference reference;
-  @Mock DatabaseReference studentRef;
-  @Mock DatabaseReference taRef;
-  @Mock ApiFuture<Void> apiFutureStudent;
-  @Mock ApiFuture<Void> apiFutureTA;
+  @Mock DatabaseReference classRef;
+  @Mock ApiFuture<Void> apiFutureClass;
 
   @Test(expected = NullPointerException.class)
   public void workspaceNullRef() throws Exception {
-    WorkspaceFactory.getInstance().fromStudentAndTA("", "", null);
+    WorkspaceFactory.getInstance().create("", null);
   }
 
   @Test(expected = NullPointerException.class)
-  public void workspaceNullTA() throws Exception {
-    WorkspaceFactory.getInstance().fromStudentAndTA("", null, reference);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void workspaceNullStudent() throws Exception {
-    WorkspaceFactory.getInstance().fromStudentAndTA(null, "", reference);
+  public void workspaceNullClass() throws Exception {
+    WorkspaceFactory.getInstance().create(null, reference);
   }
 
   @Test
   public void workspace() throws Exception {
-    String STUDENT = "STUDENT";
-    String TA = "TA";
+    String CLASS = "CLASS";
 
-    when(reference.child(eq("student"))).thenReturn(studentRef);
-    when(reference.child(eq("ta"))).thenReturn(taRef);
-    when(studentRef.setValueAsync(any())).thenReturn(apiFutureStudent);
-    when(taRef.setValueAsync(any())).thenReturn(apiFutureTA);
+    when(reference.child(eq("classID"))).thenReturn(classRef);
+    when(classRef.setValueAsync(any())).thenReturn(apiFutureClass);
 
-    WorkspaceFactory.getInstance().fromStudentAndTA(STUDENT, TA, reference);
+    WorkspaceFactory.getInstance().create(CLASS, reference);
 
-    verify(reference, times(1)).child(eq("student"));
-    verify(reference, times(1)).child(eq("ta"));
-
-    verify(studentRef, times(1)).setValueAsync(eq(STUDENT));
-    verify(taRef, times(1)).setValueAsync(eq(TA));
-
-    verify(apiFutureStudent, times(1)).get();
-    verify(apiFutureTA, times(1)).get();
+    verify(reference, times(1)).child(eq("classID"));
+    verify(classRef, times(1)).setValueAsync(eq(CLASS));
+    verify(apiFutureClass, times(1)).get();
   }
 }

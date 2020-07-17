@@ -15,6 +15,8 @@ import com.google.firebase.auth.UserRecord;
 import com.google.gson.Gson;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -64,11 +66,24 @@ public class GetWorkspace extends HttpServlet {
         studentID = decodedToken.getUid();
       }
 
-      EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
-      EmbeddedEntity queueInfo = (EmbeddedEntity) beingHelped.getProperty(studentID);
+      List<EmbeddedEntity> queue = (List<EmbeddedEntity>) classEntity.getProperty("studentQueue");
 
-      // Get workspace id
-      String workspaceID = (String) queueInfo.getProperty("workspaceID");
+      Optional<EmbeddedEntity> studentEntity =
+          queue.stream().filter(elem -> elem.hasProperty(studentID)).findFirst();
+
+      String workspaceID;
+      if (studentEntity.isPresent()) {
+        workspaceID =
+            (String)
+                ((EmbeddedEntity) studentEntity.get().getProperty(studentID))
+                    .getProperty("workspaceID");
+      } else {
+        EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
+        EmbeddedEntity queueInfo = (EmbeddedEntity) beingHelped.getProperty(studentID);
+
+        // Get workspace id
+        workspaceID = (String) queueInfo.getProperty("workspaceID");
+      }
 
       // Build workspace link
       String workspaceLink = WORKSPACE + workspaceID;

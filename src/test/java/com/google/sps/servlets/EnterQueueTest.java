@@ -2,8 +2,11 @@ package com.google.sps.servlets;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,6 +28,8 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
+import com.google.sps.workspace.Workspace;
+import com.google.sps.workspace.WorkspaceFactory;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -59,6 +64,9 @@ public class EnterQueueTest {
   @Mock FirebaseAuth authInstance;
 
   @Mock Clock clock;
+
+  @Mock WorkspaceFactory workspaceFactory;
+  @Mock Workspace workspace;
 
   @InjectMocks EnterQueue addFirst;
 
@@ -123,6 +131,8 @@ public class EnterQueueTest {
     when(authInstance.verifyIdToken("token")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("studentID");
 
+    when(workspaceFactory.create(anyString())).thenReturn(workspace);
+
     addFirst.doPost(httpRequest, httpResponse);
 
     Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
@@ -134,6 +144,9 @@ public class EnterQueueTest {
     Entity testVisitEntity = datastore.prepare(visitQuery).asSingleEntity();
     assertEquals(1, (long) testVisitEntity.getProperty("numVisits"));
     assertEquals(DATE, (Date) testVisitEntity.getProperty("date"));
+
+    verify(workspaceFactory, times(1)).create(eq(KeyFactory.keyToString(init.getKey())));
+    verify(workspace, times(1)).setStudentUID(eq("studentID"));
   }
 
   @Test
@@ -168,6 +181,8 @@ public class EnterQueueTest {
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("uID");
 
+    when(workspaceFactory.create(anyString())).thenReturn(workspace);
+
     addFirst.doPost(httpRequest, httpResponse);
 
     Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
@@ -183,6 +198,9 @@ public class EnterQueueTest {
     Entity testVisitEntity = datastore.prepare(visitQuery).asSingleEntity();
     assertEquals(2, (long) testVisitEntity.getProperty("numVisits"));
     assertEquals(DATE, (Date) testVisitEntity.getProperty("date"));
+
+    verify(workspaceFactory, times(1)).create(eq(KeyFactory.keyToString(init.getKey())));
+    verify(workspace, times(1)).setStudentUID(eq("uID"));
   }
 
   @Test

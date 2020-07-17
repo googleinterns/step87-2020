@@ -48,8 +48,6 @@ public class PullNewEnvironment extends HttpServlet {
     String image = args[2];
     String tag = args[3];
 
-    String dockerSafeClassID = classID.replace("-", "").toLowerCase();
-
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
     try {
@@ -59,13 +57,13 @@ public class PullNewEnvironment extends HttpServlet {
             .exec(new ResultCallback.Adapter<>())
             .awaitCompletion(5, TimeUnit.MINUTES)) {
 
-          docker.tagImageCmd(image, dockerSafeClassID + '-' + image, tag).exec();
+          docker.tagImageCmd(image + ":" + tag, getImageName(classID, image), tag).exec();
 
-          docker.removeImageCmd(image).exec();
+          docker.removeImageCmd(image + ":" + tag).exec();
 
           Entity e = datastore.get(KeyFactory.stringToKey(entityID));
           e.setProperty("status", "ready");
-          e.setProperty("image", dockerSafeClassID + '-' + image);
+          e.setProperty("image", getImageName(classID, image));
           e.setProperty("tag", tag);
           datastore.put(e);
         } else {
@@ -81,5 +79,9 @@ public class PullNewEnvironment extends HttpServlet {
     } catch (EntityNotFoundException e) {
       resp.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
+  }
+
+  public static String getImageName(String classID, String image) {
+    return classID.replace("-", "").toLowerCase() + '-' + image;
   }
 }

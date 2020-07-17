@@ -129,7 +129,8 @@ public class NotifyStudent extends HttpServlet {
           queue.remove(delEntity);
 
           // Get workspace ID
-          String workspaceID = factory.fromStudentAndTA(studentID, taID).getWorkspaceID();
+          String workspaceID = (String) studentEntity.getProperty("workspaceID");
+          factory.fromWorkspaceID(workspaceID).setTaUID(taID);
 
           // Update beingHelped
           EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");

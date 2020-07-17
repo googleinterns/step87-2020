@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -94,6 +96,8 @@ public class NotifyStudentTest {
 
   @Test
   public void takeOff() throws Exception {
+    String WORKSPACE_ID = "WORKSPACE_ID";
+
     Entity init = new Entity("Class");
 
     init.setProperty("owner", "ownerID");
@@ -102,18 +106,16 @@ public class NotifyStudentTest {
     EmbeddedEntity addQueue1 = new EmbeddedEntity();
     EmbeddedEntity studentInfo1 = new EmbeddedEntity();
     studentInfo1.setProperty("timeEntered", START_DATE);
+    studentInfo1.setProperty("workspaceID", WORKSPACE_ID);
     addQueue1.setProperty("studentID", studentInfo1);
 
     EmbeddedEntity addQueue2 = new EmbeddedEntity();
     EmbeddedEntity studentInfo2 = new EmbeddedEntity();
     studentInfo2.setProperty("timeEntered", START_DATE);
+    studentInfo2.setProperty("workspaceID", WORKSPACE_ID);
     addQueue2.setProperty("test2", studentInfo2);
 
     init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2));
-
-    EmbeddedEntity queueInfo = new EmbeddedEntity();
-    queueInfo.setProperty("taID", "taID");
-    queueInfo.setProperty("workspaceID", "workspaceID");
 
     EmbeddedEntity beingHelped = new EmbeddedEntity();
     init.setProperty("beingHelped", beingHelped);
@@ -134,8 +136,7 @@ public class NotifyStudentTest {
     when(mockUser.getUid()).thenReturn("studentID");
     doReturn(fixedClock.instant()).when(clock).instant();
 
-    when(factory.fromStudentAndTA("studentID", "taID")).thenReturn(workspace);
-    when(workspace.getWorkspaceID()).thenReturn("workspaceID");
+    when(factory.fromWorkspaceID(WORKSPACE_ID)).thenReturn(workspace);
 
     alertStudent.doPost(httpRequest, httpResponse);
 
@@ -147,7 +148,9 @@ public class NotifyStudentTest {
     assertThat((String) gotQueue.getProperty("taID")).named("got.taID").isEqualTo("taID");
     assertThat((String) gotQueue.getProperty("workspaceID"))
         .named("got.workspaceID")
-        .isEqualTo("workspaceID");
+        .isEqualTo(WORKSPACE_ID);
+
+    verify(workspace, times(1)).setTaUID("taID");
 
     ArrayList<EmbeddedEntity> testQueue =
         (ArrayList<EmbeddedEntity>) testClassEntity.getProperty("studentQueue");

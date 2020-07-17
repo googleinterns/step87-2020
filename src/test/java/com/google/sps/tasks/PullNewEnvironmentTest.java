@@ -91,9 +91,9 @@ public class PullNewEnvironmentTest {
     verify(docker, times(1)).pullImageCmd(eq(IMAGE + ':' + TAG));
     verify(adapter, times(1)).awaitCompletion(anyLong(), any(TimeUnit.class));
     verify(docker, times(1))
-        .tagImageCmd(eq(IMAGE), eq(CLASS_ID.toLowerCase() + '-' + IMAGE), eq(TAG));
+        .tagImageCmd(eq(IMAGE + ':' + TAG), eq(CLASS_ID.toLowerCase() + '-' + IMAGE), eq(TAG));
     verify(tagCmd, times(1)).exec();
-    verify(docker, times(1)).removeImageCmd(IMAGE);
+    verify(docker, times(1)).removeImageCmd(IMAGE + ':' + TAG);
     verify(rmCmd, times(1)).exec();
 
     envEntity = datastore.get(KeyFactory.stringToKey(envID));

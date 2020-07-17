@@ -22,6 +22,8 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
+import com.google.sps.workspace.Workspace;
+import com.google.sps.workspace.WorkspaceFactory;
 import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDate;
@@ -31,6 +33,7 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -42,12 +45,14 @@ import javax.servlet.http.HttpServletResponse;
 public final class EnterQueue extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
+  private WorkspaceFactory workspaceFactory;
   private Clock clock;
   private static final String TA_QUEUE = "/queue/ta.html?classCode=";
   private static final String STUDENT_QUEUE = "/queue/student.html?classCode=";
 
   @Override
   public void init(ServletConfig config) throws ServletException {
+    workspaceFactory = WorkspaceFactory.getInstance();
     try {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
       clock = Clock.systemUTC();
@@ -124,6 +129,10 @@ public final class EnterQueue extends HttpServlet {
               EmbeddedEntity studentInfo = new EmbeddedEntity();
               studentInfo.setProperty("timeEntered", currTime);
 
+              Workspace w = workspaceFactory.create(classCode);
+              w.setStudentUID(userID);
+              studentInfo.setProperty("workspaceID", w.getWorkspaceID());
+
               queueInfo.setProperty(userID, studentInfo);
 
               updatedQueue.add(queueInfo);
@@ -174,6 +183,8 @@ public final class EnterQueue extends HttpServlet {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
     } catch (FirebaseAuthException e) {
       response.sendError(HttpServletResponse.SC_FORBIDDEN);
+    } catch (InterruptedException | ExecutionException e) {
+      response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
   }
 }

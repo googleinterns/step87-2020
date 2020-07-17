@@ -88,3 +88,76 @@ function getClassCode() {
   document.getElementById("hiddenClassCode").value = getParam("classCode");
   return true;
 } 
+
+function addEnvRow(name, status) {
+  const template = document.getElementById("envRowTemplate");
+  const copy = template.content.cloneNode(true).querySelector("tr");
+
+  copy.querySelector(".envName").innerText = name;
+  copy.querySelector(".envStatus").innerText = status;
+
+  const deleteButton = copy.querySelector(".envDelete");
+  deleteButton.disabled = status !== "ready" && status !== "failed";
+  
+
+  document.getElementById("envTable").appendChild(copy);
+
+  return copy;
+}
+
+function checkDeletionStatus(envID, row) {
+  fetch(`/environment?envID=${envID}`).then(resp => {
+    if (resp.status === 404) {
+      row.remove();
+    } else {
+      setTimeout(() => checkDeletionStatus(envID, row), 1000);
+    }
+  });
+}
+
+function checkEnvStatus(envID, row) {
+  fetch(`/environment?envID=${envID}`).then(resp => resp.ok ? resp.json() : "failed").then(env => {
+    row.querySelector(".envStatus").innerText = env.status;
+
+    if (env.status === "pulling") {
+      setTimeout(() => checkEnvStatus(envID, row), 1000);
+    } else {
+      const deleteButton = row.querySelector(".envDelete");
+      deleteButton.disabled = false;
+      deleteButton.onclick = () => {
+        row.querySelector(".envStatus").innerText = "deleting";
+        fetch(`/environment?envID=${envID}`, {method: 'DELETE'});
+        checkDeletionStatus(envID, row);
+      };
+    }
+  });
+}
+
+function pullImage() {
+  const name = document.getElementById("envName").value;
+  const image = document.getElementById("envImage").value;
+  const tag = document.getElementById("envTag").value;
+  const row = addEnvRow(name, "queueing");
+  fetch(`/queueEnvPull?classID=${getParam("classCode")}&name=${name}&image=${image}&tag=${tag}`)
+    .then(resp => resp.text()).then(envID => {
+      checkEnvStatus(envID, row);
+    });
+}
+
+function getEnvs() {
+  fetch(`/getEnvironments?classID=${getParam("classCode")}`).then(resp => resp.json()).then(envs => {
+    for (var env of envs) {
+     const row = addEnvRow(env.name, env.status);
+     row.querySelector(".envDelete").onclick = () => {
+      row.querySelector(".envStatus").innerText = "deleting";
+      fetch(`/environment?envID=${env.id}`, {method: 'DELETE'});
+      checkDeletionStatus(env.id, row);
+     }; 
+    }
+  });
+}
+
+function onload() {
+  setRedirect();
+  getEnvs();
+}
