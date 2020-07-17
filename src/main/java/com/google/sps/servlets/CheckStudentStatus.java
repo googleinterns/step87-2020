@@ -60,7 +60,6 @@ public class CheckStudentStatus extends HttpServlet {
           (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
       Optional<EmbeddedEntity> studentEntity =
           queue.stream().filter(elem -> elem.hasProperty(studentID)).findFirst();
-      int studentPosition = queue.indexOf(studentEntity) + 1;
 
       response.setContentType("application/json;");
 
