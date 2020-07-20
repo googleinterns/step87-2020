@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
+import com.google.sps.utils.TransportDelegate;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -22,7 +23,6 @@ import java.util.Properties;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletException;
@@ -34,12 +34,14 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/requestAccess")
 public class RequestAccess extends HttpServlet {
   private FirebaseAuth auth;
-  private String FROM_ADDRESS;
-  private static final String DASHBOARD = "/dashboard.html?classCode=";
+  private TransportDelegate transportDelegate;
+  protected String FROM_ADDRESS;
+  protected static final String DASHBOARD = "/dashboard.html?classCode=";
 
   @Override
   public void init() throws ServletException {
     FROM_ADDRESS = System.getenv("FROM_ADDRESS");
+    transportDelegate = new TransportDelegate();
 
     try {
       auth = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
@@ -67,9 +69,10 @@ public class RequestAccess extends HttpServlet {
                       new FilterPredicate("userEmail", FilterOperator.EQUAL, tok.getEmail())));
 
       Entity userEntity = query.asSingleEntity();
-      List<Key> registeredClasses = (List<Key>) userEntity.getProperty("registeredClasses");
+      List<Key> registeredClasses =
+          userEntity != null ? (List<Key>) userEntity.getProperty("registeredClasses") : null;
 
-      if (!registeredClasses.contains(classKey)) {
+      if (registeredClasses == null || !registeredClasses.contains(classKey)) {
         Entity classEntity = datastore.get(classKey);
         UserRecord owner = auth.getUser((String) classEntity.getProperty("owner"));
 
@@ -97,15 +100,10 @@ public class RequestAccess extends HttpServlet {
                 .append(classEntity.getProperty("name"))
                 .append(".\n\n")
                 .append("To grant them access to this class please add them via the dashboard: ")
-                .append(
-                    new URL(
-                        req.getScheme(),
-                        req.getServerName(),
-                        req.getServerPort(),
-                        DASHBOARD.concat(classCode)))
+                .append(new URL(req.getScheme(), req.getServerName(), DASHBOARD.concat(classCode)))
                 .toString());
 
-        Transport.send(msg);
+        transportDelegate.send(msg);
       }
     } catch (FirebaseAuthException e) {
       resp.sendError(HttpServletResponse.SC_FORBIDDEN);
