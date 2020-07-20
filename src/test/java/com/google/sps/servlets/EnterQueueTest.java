@@ -316,9 +316,8 @@ public class EnterQueueTest {
 
     addFirst.doPost(httpRequest, httpResponse);
 
-    // verify(httpResponse)
-    //     .addHeader("Location", "/queue/ta.html?classCode=" +
-    // KeyFactory.keyToString(init.getKey()));
+    verify(httpResponse)
+        .addHeader("Location", "/queue/ta.html?classCode=" + KeyFactory.keyToString(init.getKey()));
   }
 
   @Test
