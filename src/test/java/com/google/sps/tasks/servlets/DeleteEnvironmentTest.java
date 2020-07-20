@@ -1,4 +1,4 @@
-package com.google.sps.tasks;
+package com.google.sps.tasks.servlets;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
