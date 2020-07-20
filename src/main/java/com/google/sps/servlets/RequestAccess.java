@@ -85,6 +85,16 @@ public class RequestAccess extends HttpServlet {
             Message.RecipientType.TO,
             new InternetAddress(owner.getEmail(), owner.getDisplayName()));
 
+        PreparedQuery tas =
+            datastore.prepare(
+                new Query("User")
+                    .setFilter(new FilterPredicate("taClasses", FilterOperator.EQUAL, classKey)));
+
+        for (Entity ta : tas.asIterable()) {
+          msg.addRecipient(
+              Message.RecipientType.CC, new InternetAddress((String) ta.getProperty("userEmail")));
+        }
+
         msg.setSubject("Access request");
 
         msg.setText(
