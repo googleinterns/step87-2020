@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.gson.Gson;
+import com.google.sps.ApplicationDefaults;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.List;
@@ -29,7 +30,6 @@ public class GetWorkspace extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
   private Gson gson;
-  private static final String WORKSPACE = "/workspace/?workspaceID=";
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -86,7 +86,7 @@ public class GetWorkspace extends HttpServlet {
       }
 
       // Build workspace link
-      String workspaceLink = WORKSPACE + workspaceID;
+      String workspaceLink = ApplicationDefaults.WORKSPACE + workspaceID;
 
       response.setContentType("application/json;");
       response.getWriter().print(gson.toJson(workspaceLink));

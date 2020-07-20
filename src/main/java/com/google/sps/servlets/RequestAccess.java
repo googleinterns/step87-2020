@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
+import com.google.sps.ApplicationDefaults;
 import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.utils.TransportDelegate;
 import java.io.IOException;
@@ -36,7 +37,6 @@ public class RequestAccess extends HttpServlet {
   private FirebaseAuth auth;
   private TransportDelegate transportDelegate;
   protected String FROM_ADDRESS;
-  protected static final String DASHBOARD = "/dashboard.html?classCode=";
 
   @Override
   public void init() throws ServletException {
@@ -100,7 +100,11 @@ public class RequestAccess extends HttpServlet {
                 .append(classEntity.getProperty("name"))
                 .append(".\n\n")
                 .append("To grant them access to this class please add them via the dashboard: ")
-                .append(new URL(req.getScheme(), req.getServerName(), DASHBOARD.concat(classCode)))
+                .append(
+                    new URL(
+                        req.getScheme(),
+                        req.getServerName(),
+                        ApplicationDefaults.DASHBOARD.concat(classCode)))
                 .toString());
 
         transportDelegate.send(msg);
