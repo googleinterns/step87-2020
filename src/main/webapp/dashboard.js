@@ -84,7 +84,7 @@ function drawTime() {
   data.addColumn('number', 'Wait');
  
   // Organize wait data through wait-time servlet
-  fetch(`/visit-date?classCode=` + getParam("classCode"))
+  fetch(`/wait-time?classCode=` + getParam("classCode"))
     .then(response => response.json()).then(waits=> {
     
     var dates = waits.dates;
