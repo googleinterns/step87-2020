@@ -39,4 +39,39 @@ public class WaitTime extends HttpServlet {
       throw new ServletException(e);
     }
   }
+
+  // Obtain a query of class visits, filter by unique class, and store the visits by date
+  @Override
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    
+    try {
+      ArrayList<Date> dates = new ArrayList<Date>();
+      ArrayList<ArrayList<Long>> waitTimes = new ArrayList<ArrayList<Long>>();
+
+      // The class filter will be the unique class's key
+      String classCode = request.getParameter("classCode").trim(); // Hidden parameter
+      Key classKey = KeyFactory.stringToKey(classCode);
+
+      Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
+
+      // Obtain waits from datastore and filter them into results query;
+      // Sort by most recent date
+      Query query =
+          new Query("Wait").addSort("date", SortDirection.DESCENDING).setFilter(classFilter);
+      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+      PreparedQuery results = datastore.prepare(query);
+
+      // Store the date and wait time lists into two separate lists
+      for (Entity entity : results.asIterable()) {
+        Date date = (Date) entity.getProperty("date");
+        ArrayList<Long> waitTimeList = (ArrayList<Long>) entity.getProperty("waitDurations");
+
+        dates.add(date);
+        waitTimes.add(waitTimeList);
+      }
+
+    } catch (IllegalArgumentException e) {
+      response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+    }
+  }
 }
