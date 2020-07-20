@@ -174,7 +174,6 @@ public final class EnterQueue extends HttpServlet {
             }
           }
         }
-        response.setStatus(201);
         response.addHeader("Location", STUDENT_QUEUE + classCode);
 
       } else if (owned.contains(classKey) || ta.contains(classKey)) {
