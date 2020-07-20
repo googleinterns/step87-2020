@@ -91,6 +91,12 @@ public class WaitTime extends HttpServlet {
         finalWaitAverage.add(average);
       }
 
+      // Send both class dates list and wait-times to line chart function
+      WaitParent parent = new WaitParent(dates, finalWaitAverage);
+      Gson gson = new Gson();
+      String json = gson.toJson(parent);
+      response.getWriter().println(json);
+
     } catch (IllegalArgumentException e) {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
     }
