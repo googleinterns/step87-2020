@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 import javax.mail.Message;
@@ -95,11 +96,13 @@ public class RequestAccess extends HttpServlet {
                 .append(") has requested access to your class: ")
                 .append(classEntity.getProperty("name"))
                 .append(".\n\n")
+                .append("To grant them access to this class please add them via the dashboard: ")
                 .append(
-                    "To grant them access to this class please add them via the dashboard: https://")
-                .append(req.getServerName())
-                .append(DASHBOARD)
-                .append(classCode)
+                    new URL(
+                        req.getScheme(),
+                        req.getServerName(),
+                        req.getServerPort(),
+                        DASHBOARD.concat(classCode)))
                 .toString());
 
         Transport.send(msg);
