@@ -17,6 +17,7 @@ import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -41,21 +42,21 @@ public class WaitTime extends HttpServlet {
   }
 
   // Helper function to calculate average wait time for each date
-  private long calculateAverage(List <Long> times) {
+  private long calculateAverage(List<Long> times) {
     long sum = 0;
-    if(!times.isEmpty()) {
+    if (!times.isEmpty()) {
       for (long time : times) {
-      sum += time;
+        sum += time;
       }
-      return sum.doubleValue() / times.size();
+      return sum / times.size();
     }
     return sum;
-  }  
+  }
 
   // Obtain a query of class visits, filter by unique class, and store the visits by date
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    
+
     try {
       ArrayList<Date> dates = new ArrayList<Date>();
       ArrayList<ArrayList<Long>> waitTimes = new ArrayList<ArrayList<Long>>();
@@ -82,12 +83,12 @@ public class WaitTime extends HttpServlet {
         waitTimes.add(waitTimeList);
       }
 
-      // List that holds average wait time 
+      // List that holds average wait time
       ArrayList<Long> finalWaitAverage = new ArrayList<Long>();
 
       // Calculate average wait times for each date
-      for (int i = 0; i < waitTimes.size(); i++) {
-        long average = calculateAverage(waitTimes[i]);
+      for (ArrayList<Long> list : waitTimes) {
+        long average = calculateAverage(list);
         finalWaitAverage.add(average);
       }
 
