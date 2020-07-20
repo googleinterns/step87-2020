@@ -1,9 +1,23 @@
 package com.google.sps.servlets;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
+import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
-
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -15,22 +29,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.google.appengine.api.datastore.Query.FilterPredicate;
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseToken;
-import com.google.firebase.auth.UserRecord;
-import com.google.sps.firebase.FirebaseAppManager;
 
 @WebServlet("/requestAccess")
 public class RequestAccess extends HttpServlet {
@@ -50,7 +48,8 @@ public class RequestAccess extends HttpServlet {
   }
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
     String idToken = req.getParameter("idToken");
     String classCode = req.getParameter("classCode");
     Key classKey = KeyFactory.stringToKey(classCode);
@@ -60,33 +59,48 @@ public class RequestAccess extends HttpServlet {
 
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-      PreparedQuery query = datastore.prepare(new Query("User").setFilter(
-          new FilterPredicate("userEmail", FilterOperator.EQUAL, tok.getEmail())
-      ));
+      PreparedQuery query =
+          datastore.prepare(
+              new Query("User")
+                  .setFilter(
+                      new FilterPredicate("userEmail", FilterOperator.EQUAL, tok.getEmail())));
 
       Entity userEntity = query.asSingleEntity();
       List<Key> registeredClasses = (List<Key>) userEntity.getProperty("registeredClasses");
 
-
       if (!registeredClasses.contains(classKey)) {
         Entity classEntity = datastore.get(classKey);
-        UserRecord owner = auth.getUserByEmail((String) classEntity.getProperty("owner"));
+        UserRecord owner = auth.getUser((String) classEntity.getProperty("owner"));
 
         Properties props = new Properties();
         Session session = Session.getDefaultInstance(props, null);
 
         Message msg = new MimeMessage(session);
         msg.setFrom(new InternetAddress(FROM_ADDRESS));
-        msg.addRecipient(Message.RecipientType.TO, new InternetAddress(owner.getEmail(), owner.getDisplayName()));
+        msg.addRecipient(
+            Message.RecipientType.TO,
+            new InternetAddress(owner.getEmail(), owner.getDisplayName()));
 
         msg.setSubject("Access request");
 
-        msg.setText(new StringBuilder()
-          .append("Hello").append(owner.getDisplayName()).append(", \n\n")
-          .append("The user ").append(tok.getName()).append(" (").append(tok.getEmail()).append(") has requested access to your class: ").append(classEntity.getProperty("name")).append(".\n\n")
-          .append("To grant them access to this class please add them via the dashboard: https://").append(req.getServerName()).append(DASHBOARD).append(classCode)
-          .toString()
-        );
+        msg.setText(
+            new StringBuilder()
+                .append("Hello ")
+                .append(owner.getDisplayName())
+                .append(", \n\n")
+                .append("The user ")
+                .append(tok.getName())
+                .append(" (")
+                .append(tok.getEmail())
+                .append(") has requested access to your class: ")
+                .append(classEntity.getProperty("name"))
+                .append(".\n\n")
+                .append(
+                    "To grant them access to this class please add them via the dashboard: https://")
+                .append(req.getServerName())
+                .append(DASHBOARD)
+                .append(classCode)
+                .toString());
 
         Transport.send(msg);
       }
