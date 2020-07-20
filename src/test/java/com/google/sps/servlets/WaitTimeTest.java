@@ -164,4 +164,40 @@ public class WaitTimeTest {
     assertTrue(stringWriter.toString().contains("24"));    
     assertTrue(stringWriter.toString().contains("4"));  
   }
+
+  @Test  
+  // Class is deleted, verify empty wait time  
+  public void empty() throws Exception {    
+    Date date1 = new Date(2020, 1, 1);
+
+    Entity init = new Entity("Class");
+    init.setProperty("owner", "ownerID");    
+    init.setProperty("name", "testClass");    
+    init.setProperty("beingHelped", new EmbeddedEntity());    
+    init.setProperty("taList", Collections.emptyList());    
+    init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
+    
+    datastore.put(init);
+    
+    // Create a test entity in Wait    
+    Entity waitEntity = new Entity("Wait");    
+    waitEntity.setProperty("classKey", init.getKey());
+    ArrayList<Long> waitDurList = new ArrayList<Long>(Arrays.asList(10L, 3L, 6L, 1L));
+    waitEntity.setProperty("waitDurations", waitDurList);    
+    waitEntity.setProperty("date", date1);
+    
+    datastore.put(waitEntity);   
+    datastore.delete(waitEntity.getKey());
+    
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    
+    StringWriter stringWriter = new StringWriter();    
+    PrintWriter writer = new PrintWriter(stringWriter);
+    
+    when(httpResponse.getWriter()).thenReturn(writer);
+    
+    wait.doGet(httpRequest, httpResponse); // Servlet response
+
+    assertTrue(stringWriter.toString().contains(":[]"));  
+  }
 }
