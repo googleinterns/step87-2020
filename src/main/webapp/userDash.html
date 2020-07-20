@@ -117,6 +117,7 @@
 
         <h1 class = "section-name">Classes you are registered in:</h1>
         <div id = "registeredClasses"> </div>
+        <a class="button" href="#register-popup">Request access!</a>
 
         <h1 class = "section-name">Classes you are on teaching staff:</h1>
         <div id = "taClasses"></div>
@@ -125,6 +126,18 @@
         <div id = "ownedClasses"></div>
 
         <a class="button" href="#popup-container">Create new class!</a>
+
+        <div id="register-popup" class="overlay">
+          <div class="popup">
+              <a class="close" href="#">&times;</a>
+              <div>
+                  <input type="text" id="clsssCode" placeholder="Class Code"/>
+                  <br />
+                  <button onclick="requestAccess()">Request Access</button>
+                </form>
+              </div>
+          </div>
+      </div>
 
         <div id="popup-container" class="overlay">
             <div class="popup">
