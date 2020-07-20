@@ -3,7 +3,6 @@ package com.google.sps.servlets;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -18,6 +17,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.gson.Gson;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import javax.servlet.http.HttpServletRequest;
@@ -77,11 +78,13 @@ public class GetUserDataTest {
     when(authInstance.getUser("uID")).thenReturn(mockUser);
     when(mockUser.getEmail()).thenReturn("user@google.com");
 
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter writer = new PrintWriter(stringWriter);
+    when(httpResponse.getWriter()).thenReturn(writer);
+
     getUserData.doGet(httpRequest, httpResponse);
 
-    verify(httpResponse).addHeader("registeredClasses", new Gson().toJson(Collections.emptyList()));
-    verify(httpResponse).addHeader("ownedClasses", new Gson().toJson(Collections.emptyList()));
-    verify(httpResponse).addHeader("taClasses", new Gson().toJson(Collections.emptyList()));
+    assertEquals(new Gson().toJson(Collections.emptyList()), stringWriter.toString());
 
     Entity testUserEntity = datastore.prepare(new Query("User")).asSingleEntity();
     assertEquals(testUserEntity.getProperty("userEmail"), "user@google.com");
@@ -116,17 +119,19 @@ public class GetUserDataTest {
     when(authInstance.getUser("uID")).thenReturn(mockUser);
     when(mockUser.getEmail()).thenReturn("user@google.com");
 
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter writer = new PrintWriter(stringWriter);
+    when(httpResponse.getWriter()).thenReturn(writer);
+
     getUserData.doGet(httpRequest, httpResponse);
 
-    verify(httpResponse).addHeader("registeredClasses", new Gson().toJson(Collections.emptyList()));
-    verify(httpResponse).addHeader("ownedClasses", new Gson().toJson(Collections.emptyList()));
-    verify(httpResponse)
-        .addHeader(
-            "taClasses",
-            new Gson()
-                .toJson(
-                    Arrays.asList(
-                        new UserData(KeyFactory.keyToString(initClass.getKey()), "testClass"))));
+    assertEquals(
+        new Gson()
+            .toJson(
+                Arrays.asList(
+                    new UserData(
+                        KeyFactory.keyToString(initClass.getKey()), "testClass", "taClasses"))),
+        stringWriter.toString());
 
     Entity testUserEntity = datastore.prepare(new Query("User")).asSingleEntity();
     assertTrue(datastore.prepare(new Query("User")).countEntities() == 1);

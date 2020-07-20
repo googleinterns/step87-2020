@@ -58,20 +58,12 @@
       var params ="?idToken=" + userToken;
       const request = new Request("/get-user" + params, {method: "GET"});
 
-      fetch(request).then(response => { 
-        parseResp(response, "registeredClasses");
-        parseResp(response, "taClasses");
-        parseResp(response, "ownedClasses");
-      });
-    }
-
-    function parseResp(response, type){
-        var classList = JSON.parse(response.headers.get(type));
-        const sectionElement = document.getElementById(type);
-
-        classList.forEach(element => {
-            sectionElement.appendChild(createClassElement(element.code, element.name, type));
+      fetch(request).then(response => response.json()).then(userData => {
+        userData.forEach(element => {
+          var sectionElement = document.getElementById(element.type);
+          sectionElement.appendChild(createClassElement(element.code, element.name, element.type));
         });
+      });
     }
 
     function createClassElement(classCode, nameClass, type) {

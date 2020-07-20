@@ -79,34 +79,33 @@ public class GetUserData extends HttpServlet {
       List<Key> ownedClassesList = (List<Key>) userEntity.getProperty("ownedClasses");
       List<Key> taClassesList = (List<Key>) userEntity.getProperty("taClasses");
 
-      List<UserData> registeredClasses = new ArrayList<UserData>();
+      List<UserData> userClasses = new ArrayList<UserData>();
       for (Key classKey : registeredClassesList) {
-        String classCode = KeyFactory.keyToString(classKey);
-        String className = (String) datastore.get(classKey).getProperty("name");
+        String code = KeyFactory.keyToString(classKey);
+        String name = (String) datastore.get(classKey).getProperty("name");
+        String type = "registeredClasses";
 
-        registeredClasses.add(new UserData(classCode, className));
+        userClasses.add(new UserData(code, name, type));
       }
 
-      List<UserData> ownedClasses = new ArrayList<UserData>();
       for (Key classKey : ownedClassesList) {
-        String classCode = KeyFactory.keyToString(classKey);
-        String className = (String) datastore.get(classKey).getProperty("name");
+        String code = KeyFactory.keyToString(classKey);
+        String name = (String) datastore.get(classKey).getProperty("name");
+        String type = "ownedClasses";
 
-        ownedClasses.add(new UserData(classCode, className));
+        userClasses.add(new UserData(code, name, type));
       }
 
-      List<UserData> taClasses = new ArrayList<UserData>();
       for (Key classKey : taClassesList) {
-        String classCode = KeyFactory.keyToString(classKey);
-        String className = (String) datastore.get(classKey).getProperty("name");
+        String code = KeyFactory.keyToString(classKey);
+        String name = (String) datastore.get(classKey).getProperty("name");
+        String type = "taClasses";
 
-        taClasses.add(new UserData(classCode, className));
+        userClasses.add(new UserData(code, name, type));
       }
 
       response.setContentType("application/json;");
-      response.addHeader("registeredClasses", new Gson().toJson(registeredClasses));
-      response.addHeader("ownedClasses", new Gson().toJson(ownedClasses));
-      response.addHeader("taClasses", new Gson().toJson(taClasses));
+      response.getWriter().print(new Gson().toJson(userClasses));
 
     } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
