@@ -3,6 +3,7 @@ package com.google.sps.servlets;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -16,15 +17,11 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import com.google.gson.Gson;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,13 +77,11 @@ public class GetUserDataTest {
     when(authInstance.getUser("uID")).thenReturn(mockUser);
     when(mockUser.getEmail()).thenReturn("user@google.com");
 
-    StringWriter stringWriter = new StringWriter();
-    PrintWriter writer = new PrintWriter(stringWriter);
-    when(httpResponse.getWriter()).thenReturn(writer);
-
     getUserData.doGet(httpRequest, httpResponse);
 
-    assertEquals("null", stringWriter.toString());
+    verify(httpResponse).addHeader("registeredClasses", new Gson().toJson(Collections.emptyList()));
+    verify(httpResponse).addHeader("ownedClasses", new Gson().toJson(Collections.emptyList()));
+    verify(httpResponse).addHeader("taClasses", new Gson().toJson(Collections.emptyList()));
 
     Entity testUserEntity = datastore.prepare(new Query("User")).asSingleEntity();
     assertEquals(testUserEntity.getProperty("userEmail"), "user@google.com");
@@ -117,22 +112,21 @@ public class GetUserDataTest {
     when(authInstance.verifyIdToken("uID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("uID");
 
-    when(httpRequest.getParameter("taClasses")).thenReturn("taClasses");
-
     UserRecord mockUser = mock(UserRecord.class);
     when(authInstance.getUser("uID")).thenReturn(mockUser);
     when(mockUser.getEmail()).thenReturn("user@google.com");
 
-    StringWriter stringWriter = new StringWriter();
-    PrintWriter writer = new PrintWriter(stringWriter);
-    when(httpResponse.getWriter()).thenReturn(writer);
-
     getUserData.doGet(httpRequest, httpResponse);
 
-    Map<String, String> classMap = new HashMap<>();
-    classMap.put(KeyFactory.keyToString(initClass.getKey()), "testClass");
-
-    assertEquals(new JSONObject(classMap).toString(), stringWriter.toString());
+    verify(httpResponse).addHeader("registeredClasses", new Gson().toJson(Collections.emptyList()));
+    verify(httpResponse).addHeader("ownedClasses", new Gson().toJson(Collections.emptyList()));
+    verify(httpResponse)
+        .addHeader(
+            "taClasses",
+            new Gson()
+                .toJson(
+                    Arrays.asList(
+                        new UserData(KeyFactory.keyToString(initClass.getKey()), "testClass"))));
 
     Entity testUserEntity = datastore.prepare(new Query("User")).asSingleEntity();
     assertTrue(datastore.prepare(new Query("User")).countEntities() == 1);
