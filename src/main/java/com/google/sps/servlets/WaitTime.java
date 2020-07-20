@@ -40,6 +40,18 @@ public class WaitTime extends HttpServlet {
     }
   }
 
+  // Helper function to calculate average wait time for each date
+  private long calculateAverage(List <Long> times) {
+    long sum = 0;
+    if(!times.isEmpty()) {
+      for (long time : times) {
+      sum += time;
+      }
+      return sum.doubleValue() / times.size();
+    }
+    return sum;
+  }  
+
   // Obtain a query of class visits, filter by unique class, and store the visits by date
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -68,6 +80,15 @@ public class WaitTime extends HttpServlet {
 
         dates.add(date);
         waitTimes.add(waitTimeList);
+      }
+
+      // List that holds average wait time 
+      ArrayList<Long> finalWaitAverage = new ArrayList<Long>();
+
+      // Calculate average wait times for each date
+      for (int i = 0; i < waitTimes.size(); i++) {
+        long average = calculateAverage(waitTimes[i]);
+        finalWaitAverage.add(average);
       }
 
     } catch (IllegalArgumentException e) {
