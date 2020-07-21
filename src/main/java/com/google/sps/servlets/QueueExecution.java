@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.sps.authentication.Authenticator;
 import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.tasks.TaskSchedulerFactory;
 import com.google.sps.workspace.Workspace;
@@ -20,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 public class QueueExecution extends HttpServlet {
   private WorkspaceFactory workspaceFactory;
   private TaskSchedulerFactory taskSchedulerFactory;
-  private FirebaseAuth auth;
+  private Authenticator auth;
 
   @VisibleForTesting protected String QUEUE_NAME;
 
@@ -31,7 +32,7 @@ public class QueueExecution extends HttpServlet {
     taskSchedulerFactory = TaskSchedulerFactory.getInstance();
     QUEUE_NAME = System.getenv("EXECUTION_QUEUE_ID");
     try {
-      auth = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
+      auth = new Authenticator();
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -43,11 +44,9 @@ public class QueueExecution extends HttpServlet {
     String idToken = req.getParameter("idToken");
     String envID = req.getParameter("envID");
     try {
-      FirebaseToken tok = auth.verifyIdToken(idToken);
-
       Workspace w = workspaceFactory.fromWorkspaceID(req.getParameter("workspaceID"));
 
-      if (w.getStudentUID().get().equals(tok.getUid()) || w.getTaUID().get().equals(tok.getUid())) {
+      if (auth.verifyWorkspace(idToken, w)) {
         String execID = w.newExecutionID();
 
         taskSchedulerFactory
@@ -59,8 +58,6 @@ public class QueueExecution extends HttpServlet {
       } else {
         resp.sendError(HttpServletResponse.SC_FORBIDDEN);
       }
-    } catch (IllegalArgumentException | FirebaseAuthException e) {
-      resp.sendError(HttpServletResponse.SC_FORBIDDEN);
     } catch (InterruptedException | ExecutionException e) {
       resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
