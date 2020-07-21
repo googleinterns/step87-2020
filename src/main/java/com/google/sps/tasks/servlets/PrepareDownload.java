@@ -1,4 +1,4 @@
-package com.google.sps.tasks;
+package com.google.sps.tasks.servlets;
 
 import com.google.appengine.tools.cloudstorage.GcsFileOptions;
 import com.google.appengine.tools.cloudstorage.GcsFilename;

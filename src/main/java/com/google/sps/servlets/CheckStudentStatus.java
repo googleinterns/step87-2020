@@ -8,12 +8,15 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.sps.firebase.FirebaseAppManager;
+import com.google.sps.queue.StudentStatus;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Optional;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -55,12 +58,33 @@ public class CheckStudentStatus extends HttpServlet {
       // Find position in queue
       ArrayList<EmbeddedEntity> queue =
           (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
-      EmbeddedEntity studentEntity =
-          queue.stream().filter(elem -> elem.hasProperty(studentID)).findFirst().orElse(null);
-      int studentPosition = queue.indexOf(studentEntity) + 1;
+      Optional<EmbeddedEntity> studentEntity =
+          queue.stream().filter(elem -> elem.hasProperty(studentID)).findFirst();
 
       response.setContentType("application/json;");
-      response.getWriter().print(studentPosition);
+
+      Gson gson = new Gson();
+      if (studentEntity.isPresent()) {
+        EmbeddedEntity embeddedEntity = (EmbeddedEntity) studentEntity.get().getProperty(studentID);
+        response
+            .getWriter()
+            .print(
+                gson.toJson(
+                    new StudentStatus(
+                        queue.indexOf(studentEntity.get()) + 1,
+                        (String) embeddedEntity.getProperty("workspaceID"))));
+      } else {
+        EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
+        if (beingHelped.hasProperty(studentID)) {
+          EmbeddedEntity queueInfo = (EmbeddedEntity) beingHelped.getProperty(studentID);
+
+          // Get workspace id
+          String workspaceID = (String) queueInfo.getProperty("workspaceID");
+          response.getWriter().print(gson.toJson(new StudentStatus(0, workspaceID)));
+        } else {
+          response.getWriter().print(gson.toJson(new StudentStatus(0, "")));
+        }
+      }
 
     } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);

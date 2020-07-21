@@ -43,9 +43,7 @@
               userToken = token;
               document.getElementById("idToken").value = token;
 
-              getClasses("registeredClasses");
-              getClasses("ownedClasses");
-              getClasses("taClasses");
+              getClasses();
           });
         } 
         // Redirect to home page if not logged in
@@ -56,19 +54,15 @@
       });
     }
 
-    function getClasses(type){
-      var params ="?idToken=" + userToken + "&" + type + "=" + type;
+    function getClasses(){
+      var params ="?idToken=" + userToken;
       const request = new Request("/get-user" + params, {method: "GET"});
 
-      fetch(request).then(response => response.json()).then((classMap) => {
-        const sectionElement = document.getElementById(type);
-        if (classMap){
-            for (var key in classMap) {
-                if (classMap.hasOwnProperty(key)) {
-                    sectionElement.appendChild(createClassElement(key, classMap[key], type));
-                }
-            }
-        }
+      fetch(request).then(response => response.json()).then(userData => {
+        userData.forEach(element => {
+          var sectionElement = document.getElementById(element.type);
+          sectionElement.appendChild(createClassElement(element.code, element.name, element.type));
+        });
       });
     }
 

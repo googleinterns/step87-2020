@@ -16,15 +16,13 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
+import com.google.gson.Gson;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,7 +84,7 @@ public class GetUserDataTest {
 
     getUserData.doGet(httpRequest, httpResponse);
 
-    assertEquals("null", stringWriter.toString());
+    assertEquals(new Gson().toJson(Collections.emptyList()), stringWriter.toString());
 
     Entity testUserEntity = datastore.prepare(new Query("User")).asSingleEntity();
     assertEquals(testUserEntity.getProperty("userEmail"), "user@google.com");
@@ -117,8 +115,6 @@ public class GetUserDataTest {
     when(authInstance.verifyIdToken("uID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("uID");
 
-    when(httpRequest.getParameter("taClasses")).thenReturn("taClasses");
-
     UserRecord mockUser = mock(UserRecord.class);
     when(authInstance.getUser("uID")).thenReturn(mockUser);
     when(mockUser.getEmail()).thenReturn("user@google.com");
@@ -129,10 +125,13 @@ public class GetUserDataTest {
 
     getUserData.doGet(httpRequest, httpResponse);
 
-    Map<String, String> classMap = new HashMap<>();
-    classMap.put(KeyFactory.keyToString(initClass.getKey()), "testClass");
-
-    assertEquals(new JSONObject(classMap).toString(), stringWriter.toString());
+    assertEquals(
+        new Gson()
+            .toJson(
+                Arrays.asList(
+                    new UserData(
+                        KeyFactory.keyToString(initClass.getKey()), "testClass", "taClasses"))),
+        stringWriter.toString());
 
     Entity testUserEntity = datastore.prepare(new Query("User")).asSingleEntity();
     assertTrue(datastore.prepare(new Query("User")).countEntities() == 1);

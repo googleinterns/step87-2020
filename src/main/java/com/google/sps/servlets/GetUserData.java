@@ -15,20 +15,18 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
+import com.google.gson.Gson;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.json.JSONObject;
 
 @WebServlet("/get-user")
 public class GetUserData extends HttpServlet {
@@ -77,33 +75,37 @@ public class GetUserData extends HttpServlet {
         userEntity = queryUser.asSingleEntity();
       }
 
-      List<Key> classList = new ArrayList<Key>();
-      if (request.getParameter("registeredClasses") != null) {
-        classList = (List<Key>) userEntity.getProperty("registeredClasses");
+      List<Key> registeredClassesList = (List<Key>) userEntity.getProperty("registeredClasses");
+      List<Key> ownedClassesList = (List<Key>) userEntity.getProperty("ownedClasses");
+      List<Key> taClassesList = (List<Key>) userEntity.getProperty("taClasses");
 
-      } else if (request.getParameter("ownedClasses") != null) {
-        classList = (List<Key>) userEntity.getProperty("ownedClasses");
+      List<UserData> userClasses = new ArrayList<UserData>();
+      for (Key classKey : registeredClassesList) {
+        String code = KeyFactory.keyToString(classKey);
+        String name = (String) datastore.get(classKey).getProperty("name");
+        String type = "registeredClasses";
 
-      } else if (request.getParameter("taClasses") != null) {
-        classList = (List<Key>) userEntity.getProperty("taClasses");
+        userClasses.add(new UserData(code, name, type));
       }
 
-      Map<String, String> classMap = new HashMap<>();
-      for (Key classKey : classList) {
-        String classCode = KeyFactory.keyToString(classKey);
-        String className = (String) datastore.get(classKey).getProperty("name");
+      for (Key classKey : ownedClassesList) {
+        String code = KeyFactory.keyToString(classKey);
+        String name = (String) datastore.get(classKey).getProperty("name");
+        String type = "ownedClasses";
 
-        classMap.put(classCode, className);
+        userClasses.add(new UserData(code, name, type));
       }
 
-      if (classMap.isEmpty()) {
-        response.setContentType("application/json;");
-        response.getWriter().print("null");
+      for (Key classKey : taClassesList) {
+        String code = KeyFactory.keyToString(classKey);
+        String name = (String) datastore.get(classKey).getProperty("name");
+        String type = "taClasses";
 
-      } else {
-        response.setContentType("application/json;");
-        response.getWriter().print(new JSONObject(classMap).toString());
+        userClasses.add(new UserData(code, name, type));
       }
+
+      response.setContentType("application/json;");
+      response.getWriter().print(new Gson().toJson(userClasses));
 
     } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
