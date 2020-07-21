@@ -10,10 +10,12 @@ import static org.mockito.Mockito.when;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.gson.Gson;
+import com.google.sps.authentication.Authenticator;
 import com.google.sps.environment.Environment;
 import com.google.sps.tasks.TaskScheduler;
 import com.google.sps.tasks.TaskSchedulerFactory;
@@ -40,8 +42,11 @@ public class EnvironmentServletTest {
   @Mock PrintWriter printWriter;
   @Mock TaskSchedulerFactory taskSchedulerFactory;
   @Mock TaskScheduler scheduler;
+  @Mock Authenticator auth;
 
   @InjectMocks EnvironmentServlet servlet;
+
+  private final String ID_TOKEN = "ID_TOKEN";
 
   @Before
   public void setUp() {
@@ -87,14 +92,19 @@ public class EnvironmentServletTest {
     String NAME = "NAME";
     String QUEUE_NAME = "QUEUE_NAME";
 
+    Key classKey = datastore.put(new Entity("class"));
+
     Entity envEntity = new Entity("Environment");
     envEntity.setProperty("status", STATUS);
     envEntity.setProperty("name", NAME);
+    envEntity.setProperty("class", classKey);
     String envID = KeyFactory.keyToString(datastore.put(envEntity));
 
     when(req.getParameter(eq("envID"))).thenReturn(envID);
+    when(req.getParameter(eq("idToken"))).thenReturn(ID_TOKEN);
     when(resp.getWriter()).thenReturn(printWriter);
     when(taskSchedulerFactory.create(anyString(), anyString())).thenReturn(scheduler);
+    when(auth.verifyTaOrOwner(eq(ID_TOKEN), eq(classKey))).thenReturn(true);
     servlet.QUEUE_NAME = QUEUE_NAME;
 
     servlet.doDelete(req, resp);
@@ -103,5 +113,29 @@ public class EnvironmentServletTest {
     verify(scheduler, times(1)).schedule(eq(envID));
 
     assertEquals("deleting", datastore.get(envEntity.getKey()).getProperty("status"));
+  }
+
+  @Test
+  public void doDeleteAuthFail() throws Exception {
+    String STATUS = "STATUS";
+    String NAME = "NAME";
+    String QUEUE_NAME = "QUEUE_NAME";
+
+    Key classKey = datastore.put(new Entity("class"));
+
+    Entity envEntity = new Entity("Environment");
+    envEntity.setProperty("status", STATUS);
+    envEntity.setProperty("name", NAME);
+    envEntity.setProperty("class", classKey);
+    String envID = KeyFactory.keyToString(datastore.put(envEntity));
+
+    when(req.getParameter(eq("envID"))).thenReturn(envID);
+    when(req.getParameter(eq("idToken"))).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(eq(ID_TOKEN), eq(classKey))).thenReturn(false);
+    servlet.QUEUE_NAME = QUEUE_NAME;
+
+    servlet.doDelete(req, resp);
+
+    verify(resp, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
   }
 }

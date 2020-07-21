@@ -3,7 +3,6 @@ package com.google.sps.servlets;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,7 +13,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.sps.authentication.Authenticator;
 import com.google.sps.tasks.TaskScheduler;
 import com.google.sps.tasks.TaskSchedulerFactory;
 import com.google.sps.tasks.servlets.PullNewEnvironment;
@@ -36,7 +35,7 @@ public class QueueEnvPullTest {
   @Mock HttpServletRequest req;
   @Mock HttpServletResponse resp;
   @Mock PrintWriter writer;
-  @Mock FirebaseAuth auth;
+  @Mock Authenticator auth;
   @Mock TaskSchedulerFactory taskSchedulerFactory;
   @Mock TaskScheduler scheduler;
 
@@ -52,6 +51,7 @@ public class QueueEnvPullTest {
   private final String IMAGE = "IMAGE";
   private final String TAG = "TAG";
   private final String QUEUE_NAME = "QUEUE_NAME";
+  private final String ID_TOKEN = "ID_TOKEN";
 
   @Before
   public void setUp() {
@@ -73,6 +73,9 @@ public class QueueEnvPullTest {
     when(req.getParameter(eq("classID"))).thenReturn(classID);
     when(req.getParameter(eq("image"))).thenReturn(IMAGE);
     when(req.getParameter(eq("tag"))).thenReturn(TAG);
+    when(req.getParameter(eq("idToken"))).thenReturn(ID_TOKEN);
+
+    when(auth.verifyTaOrOwner(ID_TOKEN, classEntity.getKey())).thenReturn(true);
 
     when(taskSchedulerFactory.create(anyString(), anyString())).thenReturn(scheduler);
     servlet.QUEUE_NAME = QUEUE_NAME;
@@ -103,14 +106,39 @@ public class QueueEnvPullTest {
     conflicting.setProperty("tag", TAG);
     datastore.put(conflicting);
 
-    QueueEnvPull servlet = spy(new QueueEnvPull());
-
     when(req.getParameter(eq("classID"))).thenReturn(classID);
     when(req.getParameter(eq("image"))).thenReturn(IMAGE);
     when(req.getParameter(eq("tag"))).thenReturn(TAG);
+    when(req.getParameter(eq("idToken"))).thenReturn(ID_TOKEN);
+
+    when(auth.verifyTaOrOwner(ID_TOKEN, classEntity.getKey())).thenReturn(true);
 
     servlet.doGet(req, resp);
 
     verify(resp, times(1)).sendError(HttpServletResponse.SC_CONFLICT);
+  }
+
+  @Test
+  public void doGetTestAuthFail() throws Exception {
+    Entity classEntity = new Entity("Class");
+    datastore.put(classEntity);
+    String classID = KeyFactory.keyToString(classEntity.getKey());
+
+    Entity conflicting = new Entity("Environment");
+    conflicting.setProperty("class", classEntity.getKey());
+    conflicting.setProperty("image", PullNewEnvironment.getImageName(classID, IMAGE));
+    conflicting.setProperty("tag", TAG);
+    datastore.put(conflicting);
+
+    when(req.getParameter(eq("classID"))).thenReturn(classID);
+    when(req.getParameter(eq("image"))).thenReturn(IMAGE);
+    when(req.getParameter(eq("tag"))).thenReturn(TAG);
+    when(req.getParameter(eq("idToken"))).thenReturn(ID_TOKEN);
+
+    when(auth.verifyTaOrOwner(ID_TOKEN, classEntity.getKey())).thenReturn(false);
+
+    servlet.doGet(req, resp);
+
+    verify(resp, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
   }
 }
