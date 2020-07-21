@@ -29,7 +29,6 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.List;
@@ -76,13 +75,29 @@ public final class EnterQueue extends HttpServlet {
       FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
       String userID = decodedToken.getUid();
 
-      if (request.getParameter("enterTA") == null) {
+      // verify student status
+      UserRecord userRecord = authInstance.getUser(userID);
+      String userEmail = userRecord.getEmail();
+
+      Entity userEntity =
+          datastore
+              .prepare(
+                  new Query("User")
+                      .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, userEmail)))
+              .asSingleEntity();
+
+      Key classKey = KeyFactory.stringToKey(classCode);
+
+      List<Key> registered = (List<Key>) userEntity.getProperty("registeredClasses");
+      List<Key> ta = (List<Key>) userEntity.getProperty("taClasses");
+      List<Key> owned = (List<Key>) userEntity.getProperty("ownedClasses");
+
+      if (registered.contains(classKey)) {
         int retries = 10;
         while (true) {
           TransactionOptions options = TransactionOptions.Builder.withXG(true);
           Transaction txn = datastore.beginTransaction(options);
           try {
-            Key classKey = KeyFactory.stringToKey(classCode);
             Entity classEntity = datastore.get(txn, classKey);
 
             // Get date
@@ -114,8 +129,8 @@ public final class EnterQueue extends HttpServlet {
             }
 
             long numVisits = (long) visitEntity.getProperty("numVisits");
-            ArrayList<EmbeddedEntity> updatedQueue =
-                (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
+            List<EmbeddedEntity> updatedQueue =
+                (List<EmbeddedEntity>) classEntity.getProperty("studentQueue");
 
             // Update studentQueue and numVisit properties if student not already in queue
             if (!updatedQueue.stream()
@@ -159,24 +174,15 @@ public final class EnterQueue extends HttpServlet {
             }
           }
         }
-        response.sendRedirect(STUDENT_QUEUE + classCode);
+        response.addHeader("Location", STUDENT_QUEUE + classCode);
+
+      } else if (owned.contains(classKey) || ta.contains(classKey)) {
+
+        response.addHeader("Location", TA_QUEUE + classCode);
+
       } else {
-        Key classKey = KeyFactory.stringToKey(classCode);
-        Entity classEntity = datastore.get(classKey);
-
-        List<String> taList = (List<String>) classEntity.getProperty("taList");
-
-        // Get user email
-        UserRecord userRecord = authInstance.getUser(userID);
-        String userEmail = userRecord.getEmail();
-
-        if (taList.contains(userEmail)) {
-          response.sendRedirect(TA_QUEUE + classCode);
-        } else {
-          response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        }
+        response.sendError(HttpServletResponse.SC_FORBIDDEN);
       }
-
     } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
     } catch (IllegalArgumentException e) {
