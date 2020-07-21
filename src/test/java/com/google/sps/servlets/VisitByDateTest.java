@@ -311,7 +311,7 @@ public class VisitByDateTest {
 
     Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, init.getKey());
 
-    // Obtain visits from datastore 
+    // Obtain visits from datastore
     Query query =
         new Query("Visit").addSort("date", SortDirection.DESCENDING).setFilter(classFilter);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -341,7 +341,7 @@ public class VisitByDateTest {
     PrintWriter writer = new PrintWriter(stringWriter);
     when(httpResponse.getWriter()).thenReturn(writer);
 
-    checkVisits.doGet(httpRequest, httpResponse); 
+    checkVisits.doGet(httpRequest, httpResponse);
 
     Gson gson = new Gson();
 
@@ -403,7 +403,7 @@ public class VisitByDateTest {
 
     when(httpResponse.getWriter()).thenReturn(writer);
 
-    checkVisits.doGet(httpRequest, httpResponse); 
+    checkVisits.doGet(httpRequest, httpResponse);
 
     assertTrue(stringWriter.toString().contains(":[]"));
   }

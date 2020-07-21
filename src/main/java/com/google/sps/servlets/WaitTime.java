@@ -93,7 +93,7 @@ public class WaitTime extends HttpServlet {
       }
 
       // Send both class dates list and wait-times to line chart function
-      WaitParent parent = new WaitParent(dates, finalWaitAverage);
+      WaitData parent = new WaitData(dates, finalWaitAverage);
       Gson gson = new Gson();
       String json = gson.toJson(parent);
       response.getWriter().println(json);
