@@ -438,7 +438,7 @@ public class WaitTimeTest {
 
     when(httpResponse.getWriter()).thenReturn(writer);
 
-    wait.doGet(httpRequest, httpResponse); // Servlet response
+    wait.doGet(httpRequest, httpResponse);
 
     Gson gson = new Gson();
 

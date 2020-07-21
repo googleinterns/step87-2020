@@ -109,7 +109,7 @@ function drawTime() {
 
     // Loop through both lists and add info sets for each class 
     for (var i = 0; i < dates.length; i++) {
-      tempDataHolder.push([dates[i], waitAverages[i]]);
+      tempDataHolder.push([dates[i], Number(waitAverages[i])]);
     }
     
     data.addRows(tempDataHolder); // Populate datatable with final data
@@ -125,6 +125,7 @@ function drawTime() {
       },
       vAxis: {
         title: 'Wait Time (minutes)',
+        format: '0.00',
         textStyle: {
           bold:true
         },
