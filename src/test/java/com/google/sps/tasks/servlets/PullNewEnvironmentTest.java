@@ -1,4 +1,4 @@
-package com.google.sps.tasks;
+package com.google.sps.tasks.servlets;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;

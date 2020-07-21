@@ -1,4 +1,4 @@
-package com.google.sps.tasks;
+package com.google.sps.tasks.servlets;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.exception.NotFoundException;

@@ -9,13 +9,16 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Transaction;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
+import com.google.sps.tasks.TaskSchedulerFactory;
 import java.io.IOException;
 import java.util.ConcurrentModificationException;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -27,9 +30,15 @@ import javax.servlet.http.HttpServletResponse;
 public class EndHelp extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
+  private TaskSchedulerFactory taskSchedulerFactory;
+
+  @VisibleForTesting protected String QUEUE_NAME;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
+    QUEUE_NAME = System.getenv("WORKSPACE_QUEUE_ID");
+    taskSchedulerFactory = TaskSchedulerFactory.getInstance();
+
     try {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
     } catch (IOException e) {
@@ -67,6 +76,14 @@ public class EndHelp extends HttpServlet {
 
           // Update beingHelped
           EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
+
+          EmbeddedEntity studentEntity = (EmbeddedEntity) beingHelped.getProperty(studentID);
+
+          taskSchedulerFactory
+              .create(QUEUE_NAME, "/tasks/deleteWorkspace")
+              .schedule(
+                  (String) studentEntity.getProperty("workspaceID"), TimeUnit.HOURS.toSeconds(1));
+
           beingHelped.removeProperty(studentID);
 
           classEntity.setProperty("beingHelped", beingHelped);
