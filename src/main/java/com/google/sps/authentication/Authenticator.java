@@ -1,6 +1,7 @@
 package com.google.sps.authentication;
 
 import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
@@ -14,7 +15,6 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.workspace.Workspace;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -31,6 +31,8 @@ public class Authenticator {
   protected Authenticator(FirebaseAuth auth) {
     this.auth = Objects.requireNonNull(auth);
     datastore = DatastoreServiceFactory.getDatastoreService();
+    System.setProperty(
+        DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
   }
 
   public boolean verifyTaOrOwner(String idToken, String classCode) {
@@ -40,8 +42,11 @@ public class Authenticator {
   public boolean verifyTaOrOwner(String idToken, Key classKey) {
     try {
       FirebaseToken tok = auth.verifyIdToken(idToken);
-      PreparedQuery q = datastore
-          .prepare(new Query("User").setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, tok.getEmail())));
+      PreparedQuery q =
+          datastore.prepare(
+              new Query("User")
+                  .setFilter(
+                      new FilterPredicate("userEmail", FilterOperator.EQUAL, tok.getEmail())));
 
       if (q.countEntities(FetchOptions.Builder.withLimit(1)) > 0) {
         return ((List<Key>) q.asSingleEntity().getProperty("taClasses")).contains(classKey)
@@ -54,11 +59,13 @@ public class Authenticator {
     }
   }
 
-  public boolean verifyWorkspace(String idToken, Workspace w) throws InterruptedException, ExecutionException {
+  public boolean verifyWorkspace(String idToken, Workspace w)
+      throws InterruptedException, ExecutionException {
     try {
       FirebaseToken tok = auth.verifyIdToken(idToken);
 
-      return w.getStudentUID().get().equals(tok.getUid()) || w.getTaUID().get().equals(tok.getUid());
+      return w.getStudentUID().get().equals(tok.getUid())
+          || w.getTaUID().get().equals(tok.getUid());
     } catch (FirebaseAuthException | IllegalArgumentException e) {
       return false;
     }
