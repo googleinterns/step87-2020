@@ -181,7 +181,7 @@ public class VisitByDateTest {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
 
-    // Store the class name and number of visits into two separate lists
+    // Store the date and number of visits into two separate lists
     for (Entity entity : results.asIterable()) {
       Date date = (Date) entity.getProperty("date");
       long classVisits = (long) entity.getProperty("numVisits");

@@ -98,6 +98,13 @@ function drawTime() {
 
     var waitAverages = waits.waitTimes;
 
+    // Convert all times to minutes
+    for (var j = 0; j < waitAverages.length; j++) {
+      var timeInSeconds = waitAverages[j];
+      var timeInMinutes = timeInSeconds / 60.0;
+      waitAverages[j] = timeInMinutes.toFixed(2);  // Round to 2 decimal places
+    }
+
     var tempDataHolder = []; // To be pushed into datatable after updating
 
     // Loop through both lists and add info sets for each class 
@@ -117,7 +124,7 @@ function drawTime() {
         },
       },
       vAxis: {
-        title: 'Wait Time (s)',
+        title: 'Wait Time (minutes)',
         textStyle: {
           bold:true
         },

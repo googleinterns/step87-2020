@@ -1,5 +1,6 @@
 package com.google.sps.servlets;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -8,6 +9,12 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.gson.Gson;
@@ -16,6 +23,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
@@ -56,6 +64,9 @@ public class WaitTimeTest {
   public void basic() throws Exception {
     Date date1 = new Date(2020, 1, 1);
 
+    ArrayList<Date> listOfDates = new ArrayList<Date>();
+    ArrayList<ArrayList<Long>> averagesList = new ArrayList<ArrayList<Long>>();
+
     Entity init = new Entity("Class");
 
     init.setProperty("owner", "ownerID");
@@ -77,6 +88,29 @@ public class WaitTimeTest {
     datastore.put(waitEntity);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+
+    Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, init.getKey());
+
+    // Obtain waits from datastore and filter them into results query
+    Query query =
+        new Query("Wait").addSort("date", SortDirection.DESCENDING).setFilter(classFilter);
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery results = datastore.prepare(query);
+
+    // Store the date and time average into two separate lists
+    for (Entity entity : results.asIterable()) {
+      Date date = (Date) entity.getProperty("date");
+      ArrayList<Long> durationList = (ArrayList<Long>) entity.getProperty("waitDurations");
+
+      listOfDates.add(date);
+      averagesList.add(durationList);
+    }
+
+    // Verify content of lists
+    assertEquals(date1, (Date) listOfDates.get(0));
+    assertEquals((List<Long>) Arrays.asList(10L, 3L, 6L, 1L), (List<Long>) averagesList.get(0));
+    assertTrue(listOfDates.size() == 1);
+    assertTrue(averagesList.size() == 1);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
@@ -188,6 +222,52 @@ public class WaitTimeTest {
     datastore.delete(waitEntity.getKey());
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter writer = new PrintWriter(stringWriter);
+
+    when(httpResponse.getWriter()).thenReturn(writer);
+
+    wait.doGet(httpRequest, httpResponse); // Servlet response
+
+    assertTrue(stringWriter.toString().contains(":[]"));
+  }
+
+  @Test
+  // Verify empty wait time for a class that has no time averages
+  public void noWaits() throws Exception {
+    Date date1 = new Date(2020, 1, 1);
+
+    Entity init = new Entity("Class");
+
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
+
+    datastore.put(init);
+
+    Entity target = new Entity("Class");
+
+    target.setProperty("owner", "ownerID2");
+    target.setProperty("name", "testClass2");
+    target.setProperty("beingHelped", new EmbeddedEntity());
+    target.setProperty("studentQueue", Arrays.asList("test1"));
+
+    datastore.put(target);
+
+    // Create a test entity in Wait
+    Entity waitEntity = new Entity("Wait");
+    waitEntity.setProperty("classKey", init.getKey());
+
+    ArrayList<Long> waitDurList = new ArrayList<Long>(Arrays.asList(10L, 3L, 6L, 1L));
+
+    waitEntity.setProperty("waitDurations", waitDurList);
+    waitEntity.setProperty("date", date1);
+
+    datastore.put(waitEntity);
+
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(target.getKey()));
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
