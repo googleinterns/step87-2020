@@ -120,9 +120,17 @@ public class EnterQueueTest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
-    init.setProperty("taList", Collections.emptyList());
 
     datastore.put(init);
+
+    Entity initUser = new Entity("User");
+
+    initUser.setProperty("userEmail", "user@google.com");
+    initUser.setProperty("registeredClasses", Arrays.asList(init.getKey()));
+    initUser.setProperty("ownedClasses", Collections.emptyList());
+    initUser.setProperty("taClasses", Collections.emptyList());
+
+    datastore.put(initUser);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn("token");
@@ -130,6 +138,10 @@ public class EnterQueueTest {
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("token")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("studentID");
+
+    UserRecord mockUser = mock(UserRecord.class);
+    when(authInstance.getUser("studentID")).thenReturn(mockUser);
+    when(mockUser.getEmail()).thenReturn("user@google.com");
 
     when(workspaceFactory.create(anyString())).thenReturn(workspace);
 
@@ -154,7 +166,6 @@ public class EnterQueueTest {
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
-    init.setProperty("taList", Collections.emptyList());
 
     EmbeddedEntity addQueue = new EmbeddedEntity();
     EmbeddedEntity studentInfo = new EmbeddedEntity();
@@ -172,7 +183,14 @@ public class EnterQueueTest {
 
     datastore.put(visitInit);
 
-    when(httpRequest.getParameter("enterTA")).thenReturn(null);
+    Entity initUser = new Entity("User");
+
+    initUser.setProperty("userEmail", "user@google.com");
+    initUser.setProperty("registeredClasses", Arrays.asList(init.getKey()));
+    initUser.setProperty("ownedClasses", Collections.emptyList());
+    initUser.setProperty("taClasses", Collections.emptyList());
+
+    datastore.put(initUser);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
@@ -180,6 +198,10 @@ public class EnterQueueTest {
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("uID");
+
+    UserRecord mockUser = mock(UserRecord.class);
+    when(authInstance.getUser("uID")).thenReturn(mockUser);
+    when(mockUser.getEmail()).thenReturn("user@google.com");
 
     when(workspaceFactory.create(anyString())).thenReturn(workspace);
 
@@ -208,7 +230,6 @@ public class EnterQueueTest {
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
-    init.setProperty("taList", Collections.emptyList());
 
     EmbeddedEntity addQueue = new EmbeddedEntity();
     EmbeddedEntity studentInfo = new EmbeddedEntity();
@@ -226,7 +247,14 @@ public class EnterQueueTest {
 
     datastore.put(visitInit);
 
-    when(httpRequest.getParameter("enterTA")).thenReturn(null);
+    Entity initUser = new Entity("User");
+
+    initUser.setProperty("userEmail", "user@google.com");
+    initUser.setProperty("registeredClasses", Arrays.asList(init.getKey()));
+    initUser.setProperty("ownedClasses", Collections.emptyList());
+    initUser.setProperty("taClasses", Collections.emptyList());
+
+    datastore.put(initUser);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
@@ -234,6 +262,10 @@ public class EnterQueueTest {
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("uID");
+
+    UserRecord mockUser = mock(UserRecord.class);
+    when(authInstance.getUser("uID")).thenReturn(mockUser);
+    when(mockUser.getEmail()).thenReturn("user@google.com");
 
     addFirst.doPost(httpRequest, httpResponse);
 
@@ -259,11 +291,17 @@ public class EnterQueueTest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
     init.setProperty("studentQueue", Collections.emptyList());
-    init.setProperty("taList", Arrays.asList("taEmail"));
 
     datastore.put(init);
 
-    when(httpRequest.getParameter("enterTA")).thenReturn("isTA");
+    Entity initUser = new Entity("User");
+
+    initUser.setProperty("userEmail", "taEmail");
+    initUser.setProperty("registeredClasses", Collections.emptyList());
+    initUser.setProperty("ownedClasses", Collections.emptyList());
+    initUser.setProperty("taClasses", Arrays.asList(init.getKey()));
+
+    datastore.put(initUser);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
@@ -279,7 +317,7 @@ public class EnterQueueTest {
     addFirst.doPost(httpRequest, httpResponse);
 
     verify(httpResponse)
-        .sendRedirect("/queue/ta.html?classCode=" + KeyFactory.keyToString(init.getKey()));
+        .addHeader("Location", "/queue/ta.html?classCode=" + KeyFactory.keyToString(init.getKey()));
   }
 
   @Test
@@ -290,11 +328,17 @@ public class EnterQueueTest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
     init.setProperty("studentQueue", Collections.emptyList());
-    init.setProperty("taList", Arrays.asList("taEmail"));
 
     datastore.put(init);
 
-    when(httpRequest.getParameter("enterTA")).thenReturn("isTA");
+    Entity initUser = new Entity("User");
+
+    initUser.setProperty("userEmail", "dne");
+    initUser.setProperty("registeredClasses", Collections.emptyList());
+    initUser.setProperty("ownedClasses", Collections.emptyList());
+    initUser.setProperty("taClasses", Collections.emptyList());
+
+    datastore.put(initUser);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
