@@ -132,6 +132,9 @@ public class WaitTimeTest {
     Date date3 = new Date(2020, 1, 3);
     Date date4 = new Date(2020, 1, 4);
 
+    ArrayList<Date> listOfDates = new ArrayList<Date>();
+    ArrayList<ArrayList<Long>> averagesList = new ArrayList<ArrayList<Long>>();
+
     Entity init = new Entity("Class");
 
     init.setProperty("owner", "ownerID");
@@ -176,12 +179,41 @@ public class WaitTimeTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
 
+    Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, init.getKey());
+
+    // Obtain waits from datastore and filter them into results query
+    Query query =
+        new Query("Wait").addSort("date", SortDirection.DESCENDING).setFilter(classFilter);
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery results = datastore.prepare(query);
+
+    // Store the date and time average into two separate lists
+    for (Entity entity : results.asIterable()) {
+      Date date = (Date) entity.getProperty("date");
+      ArrayList<Long> durationList = (ArrayList<Long>) entity.getProperty("waitDurations");
+
+      listOfDates.add(date);
+      averagesList.add(durationList);
+    }
+
+    // Date/time pairs should be from most recent
+    assertEquals(date4, (Date) listOfDates.get(0));
+    assertEquals(date3, (Date) listOfDates.get(1));
+    assertEquals(date2, (Date) listOfDates.get(2));
+    assertEquals(date1, (Date) listOfDates.get(3));
+    assertEquals((List<Long>) Arrays.asList(10L, 33L, 6L, 19L), (List<Long>) averagesList.get(0));
+    assertEquals((List<Long>) Arrays.asList(45L, 17L, 11L), (List<Long>) averagesList.get(1));
+    assertEquals((List<Long>) Arrays.asList(3L, 6L), (List<Long>) averagesList.get(2));
+    assertEquals((List<Long>) Arrays.asList(10L, 3L, 6L, 1L), (List<Long>) averagesList.get(3));
+    assertTrue(listOfDates.size() == 4);
+    assertTrue(averagesList.size() == 4);
+
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
 
     when(httpResponse.getWriter()).thenReturn(writer);
 
-    wait.doGet(httpRequest, httpResponse); // Servlet response
+    wait.doGet(httpRequest, httpResponse);
 
     Gson gson = new Gson();
 
@@ -289,6 +321,9 @@ public class WaitTimeTest {
     Date date5 = new Date(2020, 1, 5);
     Date date6 = new Date(2020, 1, 6);
 
+    ArrayList<Date> listOfDates = new ArrayList<Date>();
+    ArrayList<ArrayList<Long>> averagesList = new ArrayList<ArrayList<Long>>();
+
     Entity init = new Entity("Class");
 
     init.setProperty("owner", "ownerID");
@@ -368,6 +403,35 @@ public class WaitTimeTest {
     datastore.put(waitEntity7);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+
+    Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, init.getKey());
+
+    // Obtain waits from datastore and filter them into results query
+    Query query =
+        new Query("Wait").addSort("date", SortDirection.DESCENDING).setFilter(classFilter);
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery results = datastore.prepare(query);
+
+    // Store the date and time average into two separate lists
+    for (Entity entity : results.asIterable()) {
+      Date date = (Date) entity.getProperty("date");
+      ArrayList<Long> durationList = (ArrayList<Long>) entity.getProperty("waitDurations");
+
+      listOfDates.add(date);
+      averagesList.add(durationList);
+    }
+
+    // Date/time pairs should be from most recent
+    assertEquals(date4, (Date) listOfDates.get(0));
+    assertEquals(date3, (Date) listOfDates.get(1));
+    assertEquals(date2, (Date) listOfDates.get(2));
+    assertEquals(date1, (Date) listOfDates.get(3));
+    assertEquals((List<Long>) Arrays.asList(10L, 33L, 6L, 19L), (List<Long>) averagesList.get(0));
+    assertEquals((List<Long>) Arrays.asList(45L, 17L, 11L), (List<Long>) averagesList.get(1));
+    assertEquals((List<Long>) Arrays.asList(3L, 6L), (List<Long>) averagesList.get(2));
+    assertEquals((List<Long>) Arrays.asList(10L, 3L, 6L, 1L), (List<Long>) averagesList.get(3));
+    assertTrue(listOfDates.size() == 4);
+    assertTrue(averagesList.size() == 4);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
