@@ -45,15 +45,18 @@ public class EnvironmentServlet extends HttpServlet {
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
       Entity e = datastore.get(KeyFactory.stringToKey(envID));
 
-      resp.getWriter()
-          .print(
-              new Gson()
-                  .toJson(
-                      new Environment(
-                          (String) e.getProperty("name"),
-                          (String) e.getProperty("status"),
-                          KeyFactory.keyToString(e.getKey()))));
-
+      if (auth.verifyInClass(idToken, (Key) e.getProperty("class"))) {
+        resp.getWriter()
+            .print(
+                new Gson()
+                    .toJson(
+                        new Environment(
+                            (String) e.getProperty("name"),
+                            (String) e.getProperty("status"),
+                            KeyFactory.keyToString(e.getKey()))));
+      } else {
+        resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+      }
     } catch (EntityNotFoundException | IllegalArgumentException e) {
       resp.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
