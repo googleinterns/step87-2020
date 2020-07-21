@@ -311,13 +311,13 @@ public class VisitByDateTest {
 
     Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, init.getKey());
 
-    // Obtain visits from datastore and filter them into results query
+    // Obtain visits from datastore 
     Query query =
         new Query("Visit").addSort("date", SortDirection.DESCENDING).setFilter(classFilter);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
 
-    // Store the class name and number of visits into two separate lists
+    // Store the class name and number of visits
     for (Entity entity : results.asIterable()) {
       Date date = (Date) entity.getProperty("date");
       long classVisits = (long) entity.getProperty("numVisits");
@@ -341,7 +341,7 @@ public class VisitByDateTest {
     PrintWriter writer = new PrintWriter(stringWriter);
     when(httpResponse.getWriter()).thenReturn(writer);
 
-    checkVisits.doGet(httpRequest, httpResponse); // Fetch servlet response
+    checkVisits.doGet(httpRequest, httpResponse); 
 
     Gson gson = new Gson();
 
@@ -382,12 +382,10 @@ public class VisitByDateTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
 
-    // Obtain visits from datastore and filter them into results query
     Query query = new Query("Visit");
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
 
-    // Store the class name and number of visits into two separate lists
     for (Entity entity : results.asIterable()) {
       Date date = (Date) entity.getProperty("date");
       long classVisits = (long) entity.getProperty("numVisits");
@@ -405,7 +403,7 @@ public class VisitByDateTest {
 
     when(httpResponse.getWriter()).thenReturn(writer);
 
-    checkVisits.doGet(httpRequest, httpResponse); // Servlet response
+    checkVisits.doGet(httpRequest, httpResponse); 
 
     assertTrue(stringWriter.toString().contains(":[]"));
   }
