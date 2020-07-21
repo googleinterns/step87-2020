@@ -64,15 +64,20 @@ public class EnvironmentServletTest {
     String STATUS = "STATUS";
     String NAME = "NAME";
 
+    Key classKey = datastore.put(new Entity("class"));
+
     Entity envEntity = new Entity("Environment");
     envEntity.setProperty("status", STATUS);
     envEntity.setProperty("name", NAME);
+    envEntity.setProperty("class", classKey);
     String envID = KeyFactory.keyToString(datastore.put(envEntity));
 
     when(req.getParameter(eq("envID"))).thenReturn(envID);
+    when(req.getParameter(eq("idToken"))).thenReturn(ID_TOKEN);
+    when(auth.verifyInClass(eq(ID_TOKEN), eq(classKey))).thenReturn(true);
     when(resp.getWriter()).thenReturn(printWriter);
 
-    new EnvironmentServlet().doGet(req, resp);
+    servlet.doGet(req, resp);
 
     verify(printWriter, times(1)).print(new Gson().toJson(new Environment(NAME, STATUS, envID)));
   }
@@ -84,6 +89,28 @@ public class EnvironmentServletTest {
     new EnvironmentServlet().doGet(req, resp);
 
     verify(resp).sendError(HttpServletResponse.SC_NOT_FOUND);
+  }
+
+  @Test
+  public void doGetTestAuthFail() throws Exception {
+    String STATUS = "STATUS";
+    String NAME = "NAME";
+
+    Key classKey = datastore.put(new Entity("class"));
+
+    Entity envEntity = new Entity("Environment");
+    envEntity.setProperty("status", STATUS);
+    envEntity.setProperty("name", NAME);
+    envEntity.setProperty("class", classKey);
+    String envID = KeyFactory.keyToString(datastore.put(envEntity));
+
+    when(req.getParameter(eq("envID"))).thenReturn(envID);
+    when(req.getParameter(eq("idToken"))).thenReturn(ID_TOKEN);
+    when(auth.verifyInClass(eq(ID_TOKEN), eq(classKey))).thenReturn(false);
+
+    servlet.doGet(req, resp);
+
+    verify(resp, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
   }
 
   @Test
