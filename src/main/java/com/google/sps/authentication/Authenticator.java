@@ -35,6 +35,31 @@ public class Authenticator {
         DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
   }
 
+  public boolean verifyInClass(String idToken, String classCode) {
+    return verifyInClass(idToken, KeyFactory.stringToKey(classCode));
+  }
+
+  public boolean verifyInClass(String idToken, Key classKey) {
+    try {
+      FirebaseToken tok = auth.verifyIdToken(idToken);
+      PreparedQuery q =
+          datastore.prepare(
+              new Query("User")
+                  .setFilter(
+                      new FilterPredicate("userEmail", FilterOperator.EQUAL, tok.getEmail())));
+
+      if (q.countEntities(FetchOptions.Builder.withLimit(1)) > 0) {
+        return ((List<Key>) q.asSingleEntity().getProperty("taClasses")).contains(classKey)
+            || ((List<Key>) q.asSingleEntity().getProperty("ownedClasses")).contains(classKey)
+            || ((List<Key>) q.asSingleEntity().getProperty("registeredClasses")).contains(classKey);
+      } else {
+        return false;
+      }
+    } catch (FirebaseAuthException | IllegalArgumentException e) {
+      return false;
+    }
+  }
+
   public boolean verifyTaOrOwner(String idToken, String classCode) {
     return verifyTaOrOwner(idToken, KeyFactory.stringToKey(classCode));
   }
