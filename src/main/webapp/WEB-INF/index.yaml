@@ -5,3 +5,9 @@ indexes:
   - name: classKey
   - name: date
     direction: desc
+
+- kind: Wait
+  properties:
+  - name: classKey
+  - name: date
+    direction: desc
