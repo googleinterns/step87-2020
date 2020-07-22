@@ -14,7 +14,6 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
-import com.google.firebase.auth.UserRecord;
 import com.google.gson.Gson;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
@@ -53,8 +52,7 @@ public class GetUserData extends HttpServlet {
       String idToken = request.getParameter("idToken");
       FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
       String userID = decodedToken.getUid();
-      UserRecord userRecord = authInstance.getUser(userID);
-      String userEmail = userRecord.getEmail();
+      String userEmail = decodedToken.getEmail();
 
       PreparedQuery queryUser =
           datastore.prepare(
