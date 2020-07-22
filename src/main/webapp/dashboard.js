@@ -196,30 +196,32 @@ function addEnvRow(name, status) {
 }
 
 function checkDeletionStatus(envID, row) {
-  fetch(`/environment?envID=${envID}`).then(resp => {
+  getToken().then(tok => fetch(`/environment?envID=${envID}&idToken=${tok}`).then(resp => {
     if (resp.status === 404) {
       row.remove();
     } else {
       setTimeout(() => checkDeletionStatus(envID, row), 1000);
     }
-  });
+  }));
 }
 
 function checkEnvStatus(envID, row) {
-  fetch(`/environment?envID=${envID}`).then(resp => resp.ok ? resp.json() : "failed").then(env => {
-    row.querySelector(".envStatus").innerText = env.status;
-
-    if (env.status === "pulling") {
-      setTimeout(() => checkEnvStatus(envID, row), 1000);
-    } else {
-      const deleteButton = row.querySelector(".envDelete");
-      deleteButton.disabled = false;
-      deleteButton.onclick = () => {
-        row.querySelector(".envStatus").innerText = "deleting";
-        fetch(`/environment?envID=${envID}`, {method: 'DELETE'});
-        checkDeletionStatus(envID, row);
-      };
-    }
+  getToken().then(tok => {
+    fetch(`/environment?envID=${envID}&idToken=${tok}`).then(resp => resp.ok ? resp.json() : "failed").then(env => {
+      row.querySelector(".envStatus").innerText = env.status;
+  
+      if (env.status === "pulling") {
+        setTimeout(() => checkEnvStatus(envID, row), 1000);
+      } else {
+        const deleteButton = row.querySelector(".envDelete");
+        deleteButton.disabled = false;
+        deleteButton.onclick = () => {
+          row.querySelector(".envStatus").innerText = "deleting";
+          getToken().then(tok => fetch(`/environment?envID=${envID}&idToken=${tok}`, {method: 'DELETE'}));
+          checkDeletionStatus(envID, row);
+        };
+      }
+    });
   });
 }
 
@@ -230,29 +232,35 @@ function pullImage() {
   const tag = document.getElementById("envTag").value;
   const row = addEnvRow(name, "queueing");
 
-  fetch(`/queueEnvPull?classID=${getParam("classCode")}&name=${name}&image=${image}&tag=${tag}`)
-    .then(resp => resp.text()).then(envID => {
-      checkEnvStatus(envID, row);
+  getToken().then(tok => {
+    fetch(`/queueEnvPull?classID=${getParam("classCode")}&name=${name}&image=${image}&tag=${tag}&idToken=${tok}`)
+      .then(resp => resp.text()).then(envID => {
+        checkEnvStatus(envID, row);
     });
+  });
 }
 
 function getEnvs() {
-  fetch(`/getEnvironments?classID=${getParam("classCode")}`).then(resp => resp.json()).then(envs => {
+  getToken().then(tok => {
+    fetch(`/getEnvironments?classID=${getParam("classCode")}&idToken=${tok}`).then(resp => resp.json()).then(envs => {
 
-    for (var env of envs) {
-     const row = addEnvRow(env.name, env.status);
-
-     row.querySelector(".envDelete").onclick = () => {
-      row.querySelector(".envStatus").innerText = "deleting";
-      fetch(`/environment?envID=${env.id}`, {method: 'DELETE'});
-      checkDeletionStatus(env.id, row);
-     }; 
-    }
+      for (var env of envs) {
+       const row = addEnvRow(env.name, env.status);
+  
+       row.querySelector(".envDelete").onclick = () => {
+        row.querySelector(".envStatus").innerText = "deleting";
+        fetch(`/environment?envID=${env.id}`, {method: 'DELETE'});
+        checkDeletionStatus(env.id, row);
+       }; 
+      }
+    });
   });
 }
 
 // Display the queue redirect link and environments once page loads
 function onload() {
   setRedirect();
-  getEnvs();
+  firebase.auth().onAuthStateChanged(function(user) {
+    getEnvs();
+  });
 }

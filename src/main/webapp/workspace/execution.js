@@ -16,19 +16,21 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 getFirebaseRef().child("classID").once("value", snap => {
-  fetch(`/getEnvironments?classID=${snap.val()}`).then(resp => resp.json()).then(envs => {
-    const select = document.getElementById("envSelect");
-    for (var env of envs) {
-      const option = document.createElement("option");
-      option.value = env.id;
-      option.innerText = env.name;
-      select.appendChild(option);
-    }
-
-    if (envs.length > 0) {
-      document.getElementById("envSelectWrapper").classList.remove("hidden");
-      document.getElementById("executeButton").classList.remove("hidden");
-    }
+  getToken().then(tok => {
+    fetch(`/getEnvironments?classID=${snap.val()}&idToken=${tok}&status=ready`).then(resp => resp.json()).then(envs => {
+      const select = document.getElementById("envSelect");
+      for (var env of envs) {
+        const option = document.createElement("option");
+        option.value = env.id;
+        option.innerText = env.name;
+        select.appendChild(option);
+      }
+  
+      if (envs.length > 0) {
+        document.getElementById("envSelectWrapper").classList.remove("hidden");
+        document.getElementById("executeButton").classList.remove("hidden");
+      }
+    });
   });
 });
 
