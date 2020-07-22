@@ -1,7 +1,6 @@
 package com.google.sps.firebase;
 
 import com.google.appengine.api.utils.SystemProperty;
-import com.google.apphosting.api.ApiProxy;
 import com.google.auth.appengine.AppEngineCredentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
@@ -39,7 +38,7 @@ public class FirebaseAppManager {
           new FirebaseOptions.Builder()
               .setCredentials(getCredentials())
               .setDatabaseUrl(System.getenv("FIREBASE_DB_URL"))
-              .setProjectId(ApiProxy.getCurrentEnvironment().getAppId())
+              .setProjectId(System.getenv("FIREBASE_PROJECT_ID"))
               .setThreadManager(
                   new ThreadManager() {
 
