@@ -1,6 +1,7 @@
 package com.google.sps.firebase;
 
 import com.google.appengine.api.utils.SystemProperty;
+import com.google.apphosting.api.ApiProxy;
 import com.google.auth.appengine.AppEngineCredentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
@@ -37,8 +38,8 @@ public class FirebaseAppManager {
       FirebaseOptions options =
           new FirebaseOptions.Builder()
               .setCredentials(getCredentials())
-              .setDatabaseUrl("https://fulfillment-deco-step-2020.firebaseio.com")
-              .setProjectId("fulfillment-deco-step-2020")
+              .setDatabaseUrl(System.getenv("FIREBASE_DB_URL"))
+              .setProjectId(ApiProxy.getCurrentEnvironment().getAppId())
               .setThreadManager(
                   new ThreadManager() {
 
