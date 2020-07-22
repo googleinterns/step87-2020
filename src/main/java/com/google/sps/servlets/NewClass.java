@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
+import com.google.sps.ApplicationDefaults;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.Arrays;
@@ -32,7 +33,6 @@ import javax.servlet.http.HttpServletResponse;
 public class NewClass extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
-  private static final String DASHBOARD = "/dashboard.html?classCode=";
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -109,7 +109,8 @@ public class NewClass extends HttpServlet {
           datastore.put(user);
         }
 
-        response.sendRedirect(DASHBOARD + KeyFactory.keyToString(classEntity.getKey()));
+        response.sendRedirect(
+            ApplicationDefaults.DASHBOARD + KeyFactory.keyToString(classEntity.getKey()));
 
       } else {
         response.sendError(HttpServletResponse.SC_FORBIDDEN);

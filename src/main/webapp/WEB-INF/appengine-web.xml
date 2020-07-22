@@ -17,6 +17,7 @@
     <env-var name="LOCATION_ID" value="us-central1" />
     <env-var name="DOCKER_HOST" value="tcp://docker-host.c.fulfillment-deco-step-2020.internal:2376" />
     <env-var name="DOCKER_TLS_VERIFY" value="false" />
+    <env-var name="FROM_ADDRESS" value="noreply@fulfillment-deco-step-2020.appspotmail.com" />
   </env-variables>
   <vpc-access-connector>
     <name>projects/fulfillment-deco-step-2020/locations/us-central1/connectors/appengine-connector</name>

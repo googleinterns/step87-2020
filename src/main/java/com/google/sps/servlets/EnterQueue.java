@@ -20,6 +20,8 @@ import com.google.appengine.api.datastore.TransactionOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
+import com.google.sps.ApplicationDefaults;
 import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.workspace.Workspace;
 import com.google.sps.workspace.WorkspaceFactory;
@@ -45,8 +47,6 @@ public final class EnterQueue extends HttpServlet {
   private DatastoreService datastore;
   private WorkspaceFactory workspaceFactory;
   private Clock clock;
-  private static final String TA_QUEUE = "/queue/ta.html?classCode=";
-  private static final String STUDENT_QUEUE = "/queue/student.html?classCode=";
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -170,11 +170,11 @@ public final class EnterQueue extends HttpServlet {
             }
           }
         }
-        response.addHeader("Location", STUDENT_QUEUE + classCode);
+        response.addHeader("Location", ApplicationDefaults.STUDENT_QUEUE + classCode);
 
       } else if (owned.contains(classKey) || ta.contains(classKey)) {
 
-        response.addHeader("Location", TA_QUEUE + classCode);
+        response.addHeader("Location", ApplicationDefaults.TA_QUEUE + classCode);
 
       } else {
         response.sendError(HttpServletResponse.SC_FORBIDDEN);

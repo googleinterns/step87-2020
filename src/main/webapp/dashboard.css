@@ -156,3 +156,15 @@ body {
   box-shadow: inset 0px 0px 15px #C2E1FF;
   font-family: 'Noto Sans', sans-serif;
 }
+
+#env-header h3 {
+  display: inline;
+  margin: 0;
+}
+
+#env-header a {
+  font-size: smaller;
+  float: right;
+  padding: 5px;
+  color: #C2E1FF;
+}
