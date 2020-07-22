@@ -6,4 +6,4 @@
   <listener>
     <listener-class>com.google.sps.OnStart</listener-class>
   </listener>
-</web>
+</web-app>
