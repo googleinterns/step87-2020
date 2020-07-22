@@ -49,8 +49,6 @@ public class NewClass extends HttpServlet {
     // Navigate to /_ah/admin to view Datastore
 
     datastore = DatastoreServiceFactory.getDatastoreService();
-    System.setProperty(
-        DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
 
     try {
       String className = request.getParameter("className").trim();

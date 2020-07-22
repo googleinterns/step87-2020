@@ -52,8 +52,6 @@ public class EndHelp extends HttpServlet {
     // navigate to /_ah/admin to view Datastore
 
     datastore = DatastoreServiceFactory.getDatastoreService();
-    System.setProperty(
-        DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
 
     try {
       String classCode = request.getParameter("classCode").trim();

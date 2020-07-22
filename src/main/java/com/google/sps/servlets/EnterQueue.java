@@ -64,8 +64,6 @@ public final class EnterQueue extends HttpServlet {
     // Get the input from the form.
 
     datastore = DatastoreServiceFactory.getDatastoreService();
-    System.setProperty(
-        DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
 
     try {
       String classCode = request.getParameter("classCode").trim();

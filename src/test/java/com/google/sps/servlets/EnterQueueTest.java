@@ -85,8 +85,6 @@ public class EnterQueueTest {
   public void setUp() {
     helper.setUp();
     datastore = DatastoreServiceFactory.getDatastoreService();
-    System.setProperty(
-        DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
 
     fixedClock =
         Clock.fixed(

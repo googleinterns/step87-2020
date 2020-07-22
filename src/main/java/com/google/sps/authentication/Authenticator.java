@@ -31,8 +31,6 @@ public class Authenticator {
   protected Authenticator(FirebaseAuth auth) {
     this.auth = Objects.requireNonNull(auth);
     datastore = DatastoreServiceFactory.getDatastoreService();
-    System.setProperty(
-        DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
   }
 
   public boolean verifyInClass(String idToken, String classCode) {
