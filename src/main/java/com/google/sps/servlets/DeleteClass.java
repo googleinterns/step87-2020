@@ -15,6 +15,8 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.tasks.TaskSchedulerFactory;
 import com.google.sps.workspace.WorkspaceFactory;
@@ -57,122 +59,135 @@ public class DeleteClass extends HttpServlet {
         DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
 
     try {
-      String classCode = request.getParameter("classCode").trim();
+      String classCode = request.getParameter("classCode");
+      Key classKey = KeyFactory.stringToKey(classCode);
 
-      int retries = 10;
-      Key classKey;
-      EmbeddedEntity beingHelped;
-      List<EmbeddedEntity> queue;
-      while (true) {
-        Transaction txn = datastore.beginTransaction();
-        try {
-          // Retrive class entity
-          classKey = KeyFactory.stringToKey(classCode);
-          Entity classEntity = datastore.get(txn, classKey);
+      String idToken = request.getParameter("idToken");
+      FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
 
-          // Delete Class entity
-          beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
-          queue = (List<EmbeddedEntity>) classEntity.getProperty("studentQueue");
+      Entity ownerCheck = datastore.get(classKey);
+      if (ownerCheck.getProperty("owner").equals(decodedToken.getUid())) {
+        int retries = 10;
+        EmbeddedEntity beingHelped;
+        List<EmbeddedEntity> queue;
 
-          datastore.delete(txn, classKey);
-          txn.commit();
-          break;
-        } catch (ConcurrentModificationException e) {
-          if (retries == 0) {
-            throw e;
-          }
-          // Allow retry to occur
-          --retries;
-        } finally {
-          if (txn.isActive()) {
-            txn.rollback();
+        while (true) {
+          Transaction txn = datastore.beginTransaction();
+          try {
+            // Retrive class entity
+            Entity classEntity = datastore.get(txn, classKey);
+
+            // Delete Class entity
+            beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
+            queue = (List<EmbeddedEntity>) classEntity.getProperty("studentQueue");
+
+            datastore.delete(txn, classKey);
+            txn.commit();
+            break;
+          } catch (ConcurrentModificationException e) {
+            if (retries == 0) {
+              throw e;
+            }
+            // Allow retry to occur
+            --retries;
+          } finally {
+            if (txn.isActive()) {
+              txn.rollback();
+            }
           }
         }
+
+        // Delete Visit entities
+        Filter classVisitFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
+        Query visitQuery = new Query("Visit").setFilter(classVisitFilter);
+
+        for (Entity elem : datastore.prepare(visitQuery.setKeysOnly()).asIterable()) {
+          datastore.delete(elem.getKey());
+        }
+
+        // Delete Wait entities
+        Filter classWaitFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
+        Query waitQuery = new Query("Wait").setFilter(classWaitFilter);
+
+        for (Entity elem : datastore.prepare(waitQuery.setKeysOnly()).asIterable()) {
+          datastore.delete(elem.getKey());
+        }
+
+        // Delete class key from every user
+        Filter registeredClassesFilter =
+            new FilterPredicate("registeredClasses", FilterOperator.EQUAL, classKey);
+        Query registeredClassesQuery = new Query("User").setFilter(registeredClassesFilter);
+        for (Entity entity : datastore.prepare(registeredClassesQuery).asIterable()) {
+          ArrayList<Key> classes = (ArrayList<Key>) entity.getProperty("registeredClasses");
+          classes.remove(classKey);
+          entity.setProperty("registeredClasses", classes);
+          datastore.put(entity);
+        }
+
+        Filter ownedClassesFilter =
+            new FilterPredicate("ownedClasses", FilterOperator.EQUAL, classKey);
+        Query ownedClassesQuery = new Query("User").setFilter(ownedClassesFilter);
+        for (Entity entity : datastore.prepare(ownedClassesQuery).asIterable()) {
+          ArrayList<Key> classes = (ArrayList<Key>) entity.getProperty("ownedClasses");
+          classes.remove(classKey);
+          entity.setProperty("ownedClasses", classes);
+          datastore.put(entity);
+        }
+
+        Filter taClassesFilter = new FilterPredicate("taClasses", FilterOperator.EQUAL, classKey);
+        Query taClassesQuery = new Query("User").setFilter(taClassesFilter);
+        for (Entity entity : datastore.prepare(taClassesQuery).asIterable()) {
+          ArrayList<Key> classes = (ArrayList<Key>) entity.getProperty("taClasses");
+          classes.remove(classKey);
+          entity.setProperty("taClasses", classes);
+          datastore.put(entity);
+        }
+
+        // Schedule environment deletion
+        Filter classEnvironFilter = new FilterPredicate("class", FilterOperator.EQUAL, classKey);
+        Query environQuery = new Query("Environment").setFilter(classEnvironFilter);
+
+        for (Entity elem : datastore.prepare(environQuery).asIterable()) {
+
+          elem.setProperty("status", "deleting");
+          datastore.put(elem);
+
+          taskSchedulerFactory
+              .create(QUEUE_NAME, "/tasks/deleteEnv")
+              .schedule(KeyFactory.keyToString(elem.getKey()));
+        }
+
+        // Delete dangling workspaces in beingHelped
+        for (String studentID : beingHelped.getProperties().keySet()) {
+          EmbeddedEntity helpInfo = (EmbeddedEntity) beingHelped.getProperty(studentID);
+          String workspaceID = (String) helpInfo.getProperty("workspaceID");
+
+          workspaceFactory.fromWorkspaceID(workspaceID).delete();
+        }
+
+        // Delete dangling workspaces in queue
+        for (EmbeddedEntity student : queue) {
+          EmbeddedEntity studentInfo =
+              (EmbeddedEntity)
+                  student.getProperty(
+                      (String) student.getProperties().keySet().stream().findFirst().orElse(null));
+          String workspaceID = (String) studentInfo.getProperty("workspaceID");
+
+          workspaceFactory.fromWorkspaceID(workspaceID).delete();
+        }
+
+      } else {
+        response.sendError(HttpServletResponse.SC_FORBIDDEN);
       }
-
-      // Delete Visit entities
-      Filter classVisitFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
-      Query visitQuery = new Query("Visit").setFilter(classVisitFilter);
-
-      for (Entity elem : datastore.prepare(visitQuery.setKeysOnly()).asIterable()) {
-        datastore.delete(elem.getKey());
-      }
-
-      // Delete Wait entities
-      Filter classWaitFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
-      Query waitQuery = new Query("Wait").setFilter(classWaitFilter);
-
-      for (Entity elem : datastore.prepare(waitQuery.setKeysOnly()).asIterable()) {
-        datastore.delete(elem.getKey());
-      }
-
-      // Delete class key from every user
-      Filter registeredClassesFilter =
-          new FilterPredicate("registeredClasses", FilterOperator.EQUAL, classKey);
-      Query registeredClassesQuery = new Query("User").setFilter(registeredClassesFilter);
-      for (Entity entity : datastore.prepare(registeredClassesQuery).asIterable()) {
-        ArrayList<Key> classes = (ArrayList<Key>) entity.getProperty("registeredClasses");
-        classes.remove(classKey);
-        entity.setProperty("registeredClasses", classes);
-        datastore.put(entity);
-      }
-
-      Filter ownedClassesFilter =
-          new FilterPredicate("ownedClasses", FilterOperator.EQUAL, classKey);
-      Query ownedClassesQuery = new Query("User").setFilter(ownedClassesFilter);
-      for (Entity entity : datastore.prepare(ownedClassesQuery).asIterable()) {
-        ArrayList<Key> classes = (ArrayList<Key>) entity.getProperty("ownedClasses");
-        classes.remove(classKey);
-        entity.setProperty("ownedClasses", classes);
-        datastore.put(entity);
-      }
-
-      Filter taClassesFilter = new FilterPredicate("taClasses", FilterOperator.EQUAL, classKey);
-      Query taClassesQuery = new Query("User").setFilter(taClassesFilter);
-      for (Entity entity : datastore.prepare(taClassesQuery).asIterable()) {
-        ArrayList<Key> classes = (ArrayList<Key>) entity.getProperty("taClasses");
-        classes.remove(classKey);
-        entity.setProperty("taClasses", classes);
-        datastore.put(entity);
-      }
-
-      // Schedule environment deletion
-      Filter classEnvironFilter = new FilterPredicate("class", FilterOperator.EQUAL, classKey);
-      Query environQuery = new Query("Environment").setFilter(classEnvironFilter);
-
-      for (Entity elem : datastore.prepare(environQuery.setKeysOnly()).asIterable()) {
-        elem.setProperty("status", "deleting");
-        datastore.put(elem);
-
-        taskSchedulerFactory
-            .create(QUEUE_NAME, "/tasks/deleteEnv")
-            .schedule(KeyFactory.keyToString(elem.getKey()));
-      }
-
-      // Delete dangling workspaces in beingHelped
-      for (String studentID : beingHelped.getProperties().keySet()) {
-        EmbeddedEntity helpInfo = (EmbeddedEntity) beingHelped.getProperty(studentID);
-        String workspaceID = (String) helpInfo.getProperty("workspaceID");
-
-        workspaceFactory.fromWorkspaceID(workspaceID).delete();
-      }
-
-      // Delete dangling workspaces in queue
-      for (EmbeddedEntity student : queue) {
-        EmbeddedEntity studentInfo =
-            (EmbeddedEntity)
-                student.getProperty(
-                    (String) student.getProperties().keySet().stream().findFirst().orElse(null));
-        String workspaceID = (String) studentInfo.getProperty("workspaceID");
-
-        workspaceFactory.fromWorkspaceID(workspaceID).delete();
-      }
-    } catch (EntityNotFoundException e) {
+    } catch (EntityNotFoundException | FirebaseAuthException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
+      e.printStackTrace();
     } catch (IllegalArgumentException e) {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+      e.printStackTrace();
     } catch (InterruptedException | ExecutionException e) {
       response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      e.printStackTrace();
     }
   }
 }

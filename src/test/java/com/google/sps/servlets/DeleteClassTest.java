@@ -3,6 +3,7 @@ package com.google.sps.servlets;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,6 +21,7 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseToken;
 import com.google.sps.tasks.TaskScheduler;
 import com.google.sps.tasks.TaskSchedulerFactory;
 import com.google.sps.workspace.Workspace;
@@ -176,6 +178,13 @@ public class DeleteClassTest {
     datastore.put(environInit2);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+
+    when(httpRequest.getParameter("idToken")).thenReturn("testID");
+
+    FirebaseToken mockToken = mock(FirebaseToken.class);
+    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
+    when(mockToken.getUid()).thenReturn("ownerID");
+
     when(taskSchedulerFactory.create(anyString(), anyString())).thenReturn(scheduler);
     deleteClass.QUEUE_NAME = QUEUE_NAME;
     when(workspaceFactory.fromWorkspaceID("WORKSPACE_ID")).thenReturn(workspace);
@@ -213,5 +222,27 @@ public class DeleteClassTest {
     verify(taskSchedulerFactory, times(2)).create(eq(QUEUE_NAME), eq("/tasks/deleteEnv"));
     verify(scheduler, times(1)).schedule(eq(KeyFactory.keyToString(environInit.getKey())));
     verify(scheduler, times(1)).schedule(eq(KeyFactory.keyToString(environInit2.getKey())));
+  }
+
+  @Test
+  public void forbiddenDelete() throws Exception {
+    Entity init = new Entity("Class");
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("studentQueue", Collections.emptyList());
+
+    datastore.put(init);
+
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn("testID");
+
+    FirebaseToken mockToken = mock(FirebaseToken.class);
+    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
+    when(mockToken.getUid()).thenReturn("studentID");
+
+    deleteClass.doPost(httpRequest, httpResponse);
+
+    verify(httpResponse).sendError(403);
   }
 }
