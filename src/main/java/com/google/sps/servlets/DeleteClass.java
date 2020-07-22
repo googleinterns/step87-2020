@@ -181,13 +181,10 @@ public class DeleteClass extends HttpServlet {
       }
     } catch (EntityNotFoundException | FirebaseAuthException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
-      e.printStackTrace();
     } catch (IllegalArgumentException e) {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-      e.printStackTrace();
     } catch (InterruptedException | ExecutionException e) {
       response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-      e.printStackTrace();
     }
   }
 }

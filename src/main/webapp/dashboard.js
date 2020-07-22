@@ -263,7 +263,12 @@ function deleteClass(){
           user.getIdToken().then((token) => {
               var params = window.location.search + "&idToken=" + token;
               const request = new Request("/delete-class" + params, {method: "POST"});
-              fetch(request);
+              fetch(request).then(response => {
+                window.location.assign("/userDash.html");
+              })
+              .catch(function(err) {
+                console.info(err);
+              });
           });
         } 
         // Redirect to home page if not logged in
