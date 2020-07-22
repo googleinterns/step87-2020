@@ -1,8 +1,8 @@
 package com.google.sps;
 
+import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import com.google.appengine.api.datastore.DatastoreServiceConfig;
 
 public class OnStart implements ServletContextListener {
   @Override
