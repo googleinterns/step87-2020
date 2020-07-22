@@ -37,8 +37,8 @@ public class FirebaseAppManager {
       FirebaseOptions options =
           new FirebaseOptions.Builder()
               .setCredentials(getCredentials())
-              .setDatabaseUrl("https://fulfillment-deco-step-2020.firebaseio.com")
-              .setProjectId("fulfillment-deco-step-2020")
+              .setDatabaseUrl(System.getenv("FIREBASE_DB_URL"))
+              .setProjectId(System.getenv("FIREBASE_PROJECT_ID"))
               .setThreadManager(
                   new ThreadManager() {
 

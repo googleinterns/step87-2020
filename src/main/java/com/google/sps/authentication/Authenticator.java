@@ -1,7 +1,6 @@
 package com.google.sps.authentication;
 
 import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
@@ -31,8 +30,6 @@ public class Authenticator {
   protected Authenticator(FirebaseAuth auth) {
     this.auth = Objects.requireNonNull(auth);
     datastore = DatastoreServiceFactory.getDatastoreService();
-    System.setProperty(
-        DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
   }
 
   public boolean verifyInClass(String idToken, String classCode) {
