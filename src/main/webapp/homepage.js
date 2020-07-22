@@ -47,6 +47,7 @@ function checkSignIn() {
   if (user) {
     // User is signed in, they need to have the option of logging out
     button.style.visibility = "visible";
+    window.location.href = "/userDash.html";
   } else {
     // No user is signed in
     button.style.visibility = "hidden";
