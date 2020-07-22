@@ -186,11 +186,10 @@ public class DeleteClassTest {
     assertEquals(2, datastore.prepare(new Query("Environment")).countEntities());
 
     Filter registeredClassesFilter =
-        new FilterPredicate("registeredClasses", FilterOperator.IN, Arrays.asList(init.getKey()));
+        new FilterPredicate("registeredClasses", FilterOperator.EQUAL, init.getKey());
     Filter ownedClassesFilter =
-        new FilterPredicate("ownedClasses", FilterOperator.IN, Arrays.asList(init.getKey()));
-    Filter taClassesFilter =
-        new FilterPredicate("taClasses", FilterOperator.IN, Arrays.asList(init.getKey()));
+        new FilterPredicate("ownedClasses", FilterOperator.EQUAL, init.getKey());
+    Filter taClassesFilter = new FilterPredicate("taClasses", FilterOperator.EQUAL, init.getKey());
 
     assertEquals(
         1, datastore.prepare(new Query("User").setFilter(registeredClassesFilter)).countEntities());

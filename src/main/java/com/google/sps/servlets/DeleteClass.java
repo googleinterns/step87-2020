@@ -12,6 +12,7 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.datastore.Transaction;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.sps.firebase.FirebaseAppManager;
@@ -19,7 +20,7 @@ import com.google.sps.tasks.TaskSchedulerFactory;
 import com.google.sps.workspace.WorkspaceFactory;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.servlet.ServletConfig;
@@ -58,14 +59,36 @@ public class DeleteClass extends HttpServlet {
     try {
       String classCode = request.getParameter("classCode").trim();
 
-      // Retrive class entity
-      Key classKey = KeyFactory.stringToKey(classCode);
-      Entity classEntity = datastore.get(classKey);
+      int retries = 10;
+      Key classKey;
+      EmbeddedEntity beingHelped;
+      List<EmbeddedEntity> queue;
+      while (true) {
+        Transaction txn = datastore.beginTransaction();
+        try {
+          // Retrive class entity
+          classKey = KeyFactory.stringToKey(classCode);
+          Entity classEntity = datastore.get(txn, classKey);
 
-      // Delete Class entity
-      EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
-      List<EmbeddedEntity> queue = (List<EmbeddedEntity>) classEntity.getProperty("studentQueue");
-      datastore.delete(classKey);
+          // Delete Class entity
+          beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
+          queue = (List<EmbeddedEntity>) classEntity.getProperty("studentQueue");
+
+          datastore.delete(txn, classKey);
+          txn.commit();
+          break;
+        } catch (ConcurrentModificationException e) {
+          if (retries == 0) {
+            throw e;
+          }
+          // Allow retry to occur
+          --retries;
+        } finally {
+          if (txn.isActive()) {
+            txn.rollback();
+          }
+        }
+      }
 
       // Delete Visit entities
       Filter classVisitFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
@@ -85,7 +108,7 @@ public class DeleteClass extends HttpServlet {
 
       // Delete class key from every user
       Filter registeredClassesFilter =
-          new FilterPredicate("registeredClasses", FilterOperator.IN, Arrays.asList(classKey));
+          new FilterPredicate("registeredClasses", FilterOperator.EQUAL, classKey);
       Query registeredClassesQuery = new Query("User").setFilter(registeredClassesFilter);
       for (Entity entity : datastore.prepare(registeredClassesQuery).asIterable()) {
         ArrayList<Key> classes = (ArrayList<Key>) entity.getProperty("registeredClasses");
@@ -95,7 +118,7 @@ public class DeleteClass extends HttpServlet {
       }
 
       Filter ownedClassesFilter =
-          new FilterPredicate("ownedClasses", FilterOperator.IN, Arrays.asList(classKey));
+          new FilterPredicate("ownedClasses", FilterOperator.EQUAL, classKey);
       Query ownedClassesQuery = new Query("User").setFilter(ownedClassesFilter);
       for (Entity entity : datastore.prepare(ownedClassesQuery).asIterable()) {
         ArrayList<Key> classes = (ArrayList<Key>) entity.getProperty("ownedClasses");
@@ -104,8 +127,7 @@ public class DeleteClass extends HttpServlet {
         datastore.put(entity);
       }
 
-      Filter taClassesFilter =
-          new FilterPredicate("taClasses", FilterOperator.IN, Arrays.asList(classKey));
+      Filter taClassesFilter = new FilterPredicate("taClasses", FilterOperator.EQUAL, classKey);
       Query taClassesQuery = new Query("User").setFilter(taClassesFilter);
       for (Entity entity : datastore.prepare(taClassesQuery).asIterable()) {
         ArrayList<Key> classes = (ArrayList<Key>) entity.getProperty("taClasses");
