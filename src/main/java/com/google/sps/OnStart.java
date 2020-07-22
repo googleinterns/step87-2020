@@ -10,4 +10,9 @@ public class OnStart implements ServletContextListener {
     System.setProperty(
         DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
   }
+
+  @Override
+  public void contextDestroyed(ServletContextEvent sce) {
+    ServletContextListener.super.contextDestroyed(sce);
+  }
 }
