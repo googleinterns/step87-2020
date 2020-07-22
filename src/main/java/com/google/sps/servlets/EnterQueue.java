@@ -73,10 +73,7 @@ public final class EnterQueue extends HttpServlet {
       String idToken = request.getParameter("idToken");
       FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
       String userID = decodedToken.getUid();
-
-      // verify student status
-      UserRecord userRecord = authInstance.getUser(userID);
-      String userEmail = userRecord.getEmail();
+      String userEmail = decodedToken.getEmail();
 
       Entity userEntity =
           datastore

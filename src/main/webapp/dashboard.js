@@ -226,7 +226,6 @@ function checkEnvStatus(envID, row) {
 }
 
 function pullImage() {
-
   const name = document.getElementById("envName").value;
   const image = document.getElementById("envImage").value;
   const tag = document.getElementById("envTag").value;
@@ -263,4 +262,27 @@ function onload() {
   firebase.auth().onAuthStateChanged(function(user) {
     getEnvs();
   });
+}
+
+function deleteClass(){
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          console.log("User is signed in");
+          user.getIdToken().then((token) => {
+              var params = window.location.search + "&idToken=" + token;
+              const request = new Request("/delete-class" + params, {method: "POST"});
+              fetch(request).then(response => {
+                window.location.assign("/userDash.html");
+              })
+              .catch(function(err) {
+                console.info(err);
+              });
+          });
+        } 
+        // Redirect to home page if not logged in
+        else {
+          console.log("User is not logged in");
+          window.location.href = "/";
+        }
+      });
 }
