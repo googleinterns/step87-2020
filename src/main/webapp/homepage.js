@@ -61,6 +61,7 @@ function addAuthStateListener() {
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
       button.style.visibility = "visible";
+      window.location.href = "/userDash.html";
     } else {
       button.style.visibility = "hidden";
     }
