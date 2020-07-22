@@ -1,8 +1,27 @@
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   text-align: center;
   background-color: #C2E1FF;
   font-family: 'Noto Sans', sans-serif;
   overflow: scroll;
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  height:100%;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  /*
+  text-align: center;
+  background-color: #C2E1FF;
+  font-family: 'Noto Sans', sans-serif;
+  overflow: scroll;
+  display: flex;
+  flex-wrap: nowrap;*/
 }
 
 #line-chart{
@@ -12,6 +31,24 @@ body {
 
 .left {
   height: 100%;
+  min-width: 275px;
+  margin: 0;
+  display: flex;
+  z-index: 1;
+  flex-shrink: 0;
+  flex: 0;
+  top: 0;
+  overflow-x: scroll;
+  padding-top: 20px;
+  left: 0;
+  background-color: #031430;
+  color: white;
+  flex-wrap: nowrap;
+  flex-direction: column;
+  text-align: center;
+
+  /*
+  height: 100%;
   width: 20%;
   position: fixed;
   z-index: 1;
@@ -20,10 +57,24 @@ body {
   padding-top: 20px;
   left: 0;
   background-color: #031430;
-  color: white;
+  color: white;*/
 }
 
 .right {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  z-index: 1;
+  top: 0;
+  margin: auto;
+  overflow-x: hidden;
+  flex-direction: column;
+  padding-top: 20px;
+  word-wrap: break-word;
+  right: 0;
+  background-color: #C2E1FF;
+
+  /*
   height: 100%;
   width: 80%;
   position: fixed;
@@ -33,20 +84,29 @@ body {
   overflow-x: hidden;
   padding-top: 20px;
   right: 0;
-  background-color: #C2E1FF;
+  background-color: #C2E1FF;*/
 }
 
 .centered {
+  text-align: center;
+  margin: 0 auto;
+
+  /*
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  text-align: center;
+  text-align: center;*/
 }
 
 .ta-form{
-  max-width: 400px;
+  margin: 0 auto;
+  width: 90%;
   font-family: 'Noto Sans', sans-serif;
+
+  /*
+  max-width: 400px;
+  font-family: 'Noto Sans', sans-serif; */
 }
 
 .ta-form label{
@@ -56,7 +116,7 @@ body {
 
 .ta-form label > span{
   float: left;
-  width: 200px;
+  width: 95%;
   color: #C2E1FF;
   font-weight: normal;
   font-size: 15px;
@@ -136,6 +196,7 @@ body {
   text-align: center;
   color: white;
   background-color: #031430;
+  width:100%;
 }
 
 /* Roster textarea */
