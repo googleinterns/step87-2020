@@ -27,7 +27,6 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
-import com.google.firebase.auth.UserRecord;
 import com.google.sps.workspace.Workspace;
 import com.google.sps.workspace.WorkspaceFactory;
 import java.time.Clock;
@@ -138,10 +137,7 @@ public class EnterQueueTest {
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("token")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("studentID");
-
-    UserRecord mockUser = mock(UserRecord.class);
-    when(authInstance.getUser("studentID")).thenReturn(mockUser);
-    when(mockUser.getEmail()).thenReturn("user@google.com");
+    when(mockToken.getEmail()).thenReturn("user@google.com");
 
     when(workspaceFactory.create(anyString())).thenReturn(workspace);
 
@@ -198,10 +194,7 @@ public class EnterQueueTest {
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("uID");
-
-    UserRecord mockUser = mock(UserRecord.class);
-    when(authInstance.getUser("uID")).thenReturn(mockUser);
-    when(mockUser.getEmail()).thenReturn("user@google.com");
+    when(mockToken.getEmail()).thenReturn("user@google.com");
 
     when(workspaceFactory.create(anyString())).thenReturn(workspace);
 
@@ -262,10 +255,7 @@ public class EnterQueueTest {
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("uID");
-
-    UserRecord mockUser = mock(UserRecord.class);
-    when(authInstance.getUser("uID")).thenReturn(mockUser);
-    when(mockUser.getEmail()).thenReturn("user@google.com");
+    when(mockToken.getEmail()).thenReturn("user@google.com");
 
     addFirst.doPost(httpRequest, httpResponse);
 
@@ -309,10 +299,7 @@ public class EnterQueueTest {
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("uID");
-
-    UserRecord mockTA = mock(UserRecord.class);
-    when(authInstance.getUser("uID")).thenReturn(mockTA);
-    when(mockTA.getEmail()).thenReturn("taEmail");
+    when(mockToken.getEmail()).thenReturn("taEmail");
 
     addFirst.doPost(httpRequest, httpResponse);
 
@@ -346,10 +333,7 @@ public class EnterQueueTest {
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("uID");
-
-    UserRecord mockTA = mock(UserRecord.class);
-    when(authInstance.getUser("uID")).thenReturn(mockTA);
-    when(mockTA.getEmail()).thenReturn("dne");
+    when(mockToken.getEmail()).thenReturn("dne");
 
     addFirst.doPost(httpRequest, httpResponse);
 
