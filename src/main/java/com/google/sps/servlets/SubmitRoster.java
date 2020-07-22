@@ -10,6 +10,7 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.sps.ApplicationDefaults;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.Arrays;
@@ -90,6 +91,6 @@ public class SubmitRoster extends HttpServlet {
     }
 
     // Redirect to the class dashboard page
-    response.sendRedirect("/dashboard.html?classCode=" + classCode);
+    response.sendRedirect(ApplicationDefaults.DASHBOARD + classCode);
   }
 }
