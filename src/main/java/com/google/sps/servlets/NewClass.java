@@ -70,7 +70,6 @@ public class NewClass extends HttpServlet {
         classEntity.setProperty("beingHelped", beingHelped);
 
         classEntity.setProperty("studentQueue", Collections.emptyList());
-        classEntity.setProperty("taList", Collections.emptyList());
 
         datastore.put(classEntity);
 

@@ -68,7 +68,6 @@ public class AddClassTATest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
-    init.setProperty("taList", Collections.emptyList());
 
     datastore.put(init);
 
@@ -113,7 +112,6 @@ public class AddClassTATest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
-    init.setProperty("taList", Collections.emptyList());
 
     Entity init2 = new Entity("Class");
 
@@ -170,7 +168,6 @@ public class AddClassTATest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
-    init.setProperty("taList", Collections.emptyList());
 
     Entity init2 = new Entity("Class");
 
@@ -178,7 +175,6 @@ public class AddClassTATest {
     init2.setProperty("name", "testClass2");
     init2.setProperty("beingHelped", new EmbeddedEntity());
     init2.setProperty("studentQueue", Collections.emptyList());
-    init2.setProperty("taList", Collections.emptyList());
 
     datastore.put(init);
     datastore.put(init2);
@@ -228,7 +224,6 @@ public class AddClassTATest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
-    init.setProperty("taList", Collections.emptyList());
 
     Entity init2 = new Entity("Class");
 
@@ -236,15 +231,12 @@ public class AddClassTATest {
     init2.setProperty("name", "testClass2");
     init2.setProperty("beingHelped", new EmbeddedEntity());
     init2.setProperty("studentQueue", Collections.emptyList());
-    init2.setProperty("taList", Collections.emptyList());
-
     Entity init3 = new Entity("Class");
 
     init3.setProperty("owner", "ownerID3");
     init3.setProperty("name", "testClass3");
     init3.setProperty("beingHelped", new EmbeddedEntity());
     init3.setProperty("studentQueue", Collections.emptyList());
-    init3.setProperty("taList", Collections.emptyList());
 
     Entity init4 = new Entity("Class");
 
@@ -252,7 +244,6 @@ public class AddClassTATest {
     init4.setProperty("name", "testClass4");
     init4.setProperty("beingHelped", new EmbeddedEntity());
     init4.setProperty("studentQueue", Collections.emptyList());
-    init4.setProperty("taList", Collections.emptyList());
 
     datastore.put(init);
     datastore.put(init2);

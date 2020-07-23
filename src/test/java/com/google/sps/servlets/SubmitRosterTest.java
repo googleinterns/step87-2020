@@ -67,7 +67,6 @@ public class SubmitRosterTest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
-    init.setProperty("taList", Collections.emptyList());
 
     datastore.put(init);
 
@@ -122,7 +121,6 @@ public class SubmitRosterTest {
     class2.setProperty("name", "testClass2");
     class2.setProperty("beingHelped", new EmbeddedEntity());
     class2.setProperty("studentQueue", Collections.emptyList());
-    class2.setProperty("taList", Collections.emptyList());
 
     datastore.put(class2);
 
@@ -170,7 +168,6 @@ public class SubmitRosterTest {
     class1.setProperty("name", "testClass");
     class1.setProperty("beingHelped", new EmbeddedEntity());
     class1.setProperty("studentQueue", Collections.emptyList());
-    class1.setProperty("taList", Collections.emptyList());
 
     datastore.put(class1);
 
@@ -216,8 +213,6 @@ public class SubmitRosterTest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
-    init.setProperty("taList", Collections.emptyList());
-
     datastore.put(init);
 
     // Example student 1
@@ -283,7 +278,6 @@ public class SubmitRosterTest {
     classExample.setProperty("name", "testClass");
     classExample.setProperty("beingHelped", new EmbeddedEntity());
     classExample.setProperty("studentQueue", Collections.emptyList());
-    classExample.setProperty("taList", Collections.emptyList());
 
     datastore.put(classExample);
 
