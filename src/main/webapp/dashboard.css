@@ -55,6 +55,7 @@ body {
   top: 0;
   margin: auto;
   overflow-x: hidden;
+  flex-wrap: nowrap;
   flex-direction: column;
   padding-top: 20px;
   word-wrap: break-word;
@@ -184,4 +185,14 @@ body {
   float: right;
   padding: 5px;
   color: #C2E1FF;
+}
+
+.text-left-right {
+  text-align: center;
+  position: relative;
+  flex-wrap: nowrap;
+}
+
+.byline {
+  color: black;
 }
