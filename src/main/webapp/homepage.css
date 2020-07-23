@@ -1,10 +1,12 @@
-body, html {
-  height: 100%;
-  margin: 0;
+*{
+  font-family: 'Noto Sans', sans-serif;
+}
+
+body {
+  background-color: var(--background-color);
 }
 
 .bg {
-  background-image: url("/images/home.jpg");
   height: 100%; 
   background-position: center;
   background-repeat: no-repeat;
@@ -46,4 +48,34 @@ body, html {
 
 #signout {
   visibility: hidden;
+}
+
+#text{
+  text-align: center;
+  line-height: 30px;
+  display: table-cell; 
+  vertical-align: middle;
+}
+
+#text p{
+    color: #4c4c4c;
+    font-size: 20px;
+}
+
+#text h1{
+    color: #4285f4;
+    font-size: 35px;
+}
+
+#content {
+  margin-left: auto;
+  margin-right: auto;
+  width: 800px;
+  position: relative;
+}
+
+#main {
+  height: 100vh; 
+  display: table;
+  width: 100%;
 }
