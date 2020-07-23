@@ -5,16 +5,6 @@ body {
   overflow: scroll;
 }
 
-#line-chart{
-  display: inline-block;
-  margin: 0 auto;
-}
-
-#wait-chart{
-  display: inline-block;
-  margin: 0 auto;
-}
-
 .left {
   height: 100%;
   width: 20%;
@@ -166,4 +156,47 @@ body {
   float: right;
   padding: 5px;
   color: #C2E1FF;
+}
+
+#charts {
+  width: 800px;
+  margin: auto;
+}
+
+.chart {
+  display: inline-block;
+  margin: 0 auto;
+}
+
+.chart.hidden {
+  display: none;
+}
+
+.tab {
+  float: left;
+
+  border: none;
+  height: 40px;
+  float: left;
+  padding: 0px 15px;
+  display: flex;
+  align-items: center;
+
+  border-right-style: solid;
+  border-color: var(--background-color);
+  border-width: 1px;
+}
+
+.active-tab {
+  color: var(--background-color);
+  background-color: var(--button-hover-color);
+}
+
+.inactive-tab {
+  color: var(--background-color);
+  background-color: var(--secondary-button-color);
+}
+
+.tab:hover {
+  background-color: var(--permanent-tab-hover);
 }

@@ -68,7 +68,7 @@ function drawBasic() {
     };
 
     var chart = new google.visualization.LineChart(
-    document.getElementById("line-chart"));
+    document.getElementById("visit-chart"));
 
     chart.draw(data, options);
 
@@ -150,10 +150,12 @@ function drawTime() {
       },
     };
 
-    var chart = new google.visualization.LineChart(
-    document.getElementById("wait-chart"));
+    const waitChart = document.getElementById("wait-chart");
+    waitChart.classList.remove("hidden");
+    var chart = new google.visualization.LineChart(waitChart);
 
     chart.draw(data, options);
+    waitChart.classList.add("hidden");
   });
 }
 
@@ -285,4 +287,25 @@ function deleteClass(){
           window.location.href = "/";
         }
       });
+}
+
+function switchTab(tabName) {
+  const tabs = document.getElementsByClassName("tab");
+
+  for (let tab of tabs) {
+    tab.classList.remove("active-tab");
+    tab.classList.add("inactive-tab");
+  }
+
+  const charts = document.getElementsByClassName("chart");
+
+  for (let chart of charts) {
+    chart.classList.add("hidden");
+  }
+
+  const tab = document.getElementById(tabName + "-tab");
+  tab.classList.remove("inactive-tab");
+  tab.classList.add("active-tab");
+
+  document.getElementById(tabName + "-chart").classList.remove("hidden");
 }

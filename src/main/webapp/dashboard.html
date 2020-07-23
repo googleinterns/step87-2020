@@ -20,7 +20,7 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
     <link rel="stylesheet" href="dashboard.css">
-    <link rel="stylesheet" href="/style/common.css">
+    <link rel="stylesheet" href="style/common.css">
 
     <!--Font-->
     <link href='https://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'></link>
@@ -97,12 +97,13 @@
 
       <h1>Site Statistics</h1>
 
-      <div id="line-chart" style="width: 900px; height: 500px"></div>
-      <br>
-      <br>
-      <div id="wait-chart" style="width: 900px; height: 500px"></div>
-      <br>
-      <br>
+      <div id="charts">
+        <button id="visit-tab" class="active-tab tab" onclick="switchTab('visit');">Visits</button>
+        <button id="wait-tab" class="inactive-tab tab" onclick="switchTab('wait');">Wait Times</button>
+        <div class="chart" id="visit-chart" style="width: 900px; height: 500px"></div>
+        <div class="chart hidden" id="wait-chart" style="width: 900px; height: 500px"></div>
+        <br>
+      </div>
       
       <h4>Class Code: </h4>
       <h4 id="classCode"></h4>
