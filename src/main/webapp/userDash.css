@@ -2,9 +2,15 @@
   font-family: 'Noto Sans', sans-serif;
 }
 
+body {
+  background-color: var(--background-color);
+}
+
 .wrapper {
   overflow: auto;
   text-align: center;
+  max-width: 850px;
+  margin: auto;
 }
 
 .class-container{
@@ -14,11 +20,33 @@
   margin: auto;  
   margin-top: 10px;
   margin-bottom: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
   max-width: 800px;
 
   display: inline-block;
   width: 7em;
-  height: 6em;
+  height: 8em;
+  cursor: pointer;
+
+  text-decoration: none;
+  color: #000;
+}
+
+.class-info-container {
+  height: 100%;
+  width: 100%;
+  display: table;
+}
+
+.class-info {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.plus {
+  font-size: xxx-large;
+  margin: 0;
 }
 
 .class-container:hover {
@@ -26,21 +54,18 @@
 }
 
 .button {
-  border: 3px solid #000;
-  padding: 10px;
-  overflow: auto;
-  margin: auto;  
-  margin-top: 10px;
-  margin-bottom: 10px;
-  max-width: 800px;
-  width: 100%;
-  display:block;
+  background-color: var(--background-color); 
+  border: 1px solid black;
+  color: black;
+  text-align: center;
   text-decoration: none;
-  color: #000;
+  display: inline-block;
+  font-size: 16px;
+  transition-duration: 0.5s;
 }
 
 .button:hover {
-  border: 3px solid #4285F4;
+  border-color: var(--button-hover-color);
 }
 
 .overlay {
@@ -61,7 +86,7 @@
 .popup {
   margin: 70px auto;
   padding: 20px;
-  background: #fff;
+  background: var(--background-color);
   width: 50%;
   position: relative;
 }
