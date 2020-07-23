@@ -1,5 +1,6 @@
 *{
   font-family: 'Noto Sans', sans-serif;
+  background-color: var(--background-color);
 }
 
 #queue-start{
