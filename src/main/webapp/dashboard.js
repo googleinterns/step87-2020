@@ -163,7 +163,7 @@ google.charts.setOnLoadCallback(drawTime);
 // Provide a link to the TA queue and display class code
 function setRedirect(){
   var params = window.location.search;
-  document.getElementById("redirect").href = "/queue/ta.html" + params;
+  document.getElementById("redirect").onclick = () => window.location.href = "/queue/ta.html" + params;
   document.getElementById("classCode").innerText =  params.slice(11);
 }
 

@@ -149,10 +149,16 @@
 
       return link;
     }
+
+    function onload() {
+      getToken();
+      document.getElementById("dashboard-link").href = `/dashboard.html${window.location.search}`
+    }
   </script>
 
-  <body onload="getToken()">
+  <body onload="onload()">
     <div class="top-right-buttons">
+      <a class="reg-button" id="dashboard-link">Dashboard</a>
       <button class="reg-button" onclick="signOut()">Log Out</button>
     </div>
     <div id = "beingHelped" class="wrapper"> </div>
