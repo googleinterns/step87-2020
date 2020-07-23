@@ -27,7 +27,7 @@ function loadSignIn() {
       },
     ],
     signInFlow: 'popup',
-    signInSuccessUrl: "/enterClass.html",
+    signInSuccessUrl: "/userDash.html",
   });
 }
 
