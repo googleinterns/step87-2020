@@ -2,6 +2,10 @@
   font-family: 'Noto Sans', sans-serif;
 }
 
+body {
+  background-color: #EBF5FF;
+}
+
 .wrapper {
   overflow: auto;
   text-align: center;
