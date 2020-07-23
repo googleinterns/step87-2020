@@ -38,7 +38,7 @@ body {
   overflow-x: hidden;
   padding-top: 20px;
   right: 0;
-  background-color: #C2E1FF;
+  background-color: var(--background-color);
 }
 
 .centered {
@@ -137,8 +137,7 @@ body {
 
 .footer {
   text-align: center;
-  color: white;
-  background-color: #031430;
+  background-color: var(--background-color);
 }
 
 #roster {
