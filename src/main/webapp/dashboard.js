@@ -259,30 +259,45 @@ function getEnvs() {
 // Display the queue redirect link and environments once page loads
 function onload() {
   setRedirect();
+
   firebase.auth().onAuthStateChanged(function(user) {
+    user.getIdToken().then((token) => {
+        var params = window.location.search + "&idToken=" + token;
+
+        const nameRequest = new Request("/get-class" + params, {method: "GET"});
+        fetch(nameRequest).then(response => response.json()).then((name) => {
+              document.getElementById("className").innerText = name;
+        });
+
+        const displayRequest = new Request("/get-role" + params, {method: "GET"});
+        fetch(displayRequest).then(response => response.json()).then((role) => {
+            var elem = document.getElementById("delete");
+            if (role !== "owner"){
+                elem.style.display = "none";
+            }
+        });
     getEnvs();
+    });
   });
 }
 
 function deleteClass(){
-      firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-          console.log("User is signed in");
-          user.getIdToken().then((token) => {
-              var params = window.location.search + "&idToken=" + token;
-              const request = new Request("/delete-class" + params, {method: "POST"});
-              fetch(request).then(response => {
-                window.location.assign("/userDash.html");
-              })
-              .catch(function(err) {
-                console.info(err);
-              });
-          });
-        } 
-        // Redirect to home page if not logged in
-        else {
-          console.log("User is not logged in");
-          window.location.href = "/";
-        }
-      });
+    firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+        console.log("User is signed in");
+        user.getIdToken().then((token) => {
+            var params = window.location.search + "&idToken=" + token;
+            const request = new Request("/delete-class" + params, {method: "POST"});
+            fetch(request).then(response => {
+            window.location.assign("/userDash.html");
+            });
+        });
+    } 
+    // Redirect to home page if not logged in
+    else {
+        console.log("User is not logged in");
+        window.location.href = "/";
+    }
+    });
 }
+
