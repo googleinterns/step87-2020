@@ -1,7 +1,6 @@
 package com.google.sps.servlets;
 
 import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
@@ -14,7 +13,6 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
-import com.google.firebase.auth.UserRecord;
 import com.google.gson.Gson;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
@@ -45,16 +43,13 @@ public class GetUserData extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     datastore = DatastoreServiceFactory.getDatastoreService();
-    System.setProperty(
-        DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
 
     try {
       // Find user ID
       String idToken = request.getParameter("idToken");
       FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
       String userID = decodedToken.getUid();
-      UserRecord userRecord = authInstance.getUser(userID);
-      String userEmail = userRecord.getEmail();
+      String userEmail = decodedToken.getEmail();
 
       PreparedQuery queryUser =
           datastore.prepare(

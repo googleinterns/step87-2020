@@ -3,7 +3,6 @@ body, html {
   margin: 0;
 }
 
-/* Place sign-in options and text on background image for landing page */
 .bg {
   background-image: url("/images/home.jpg");
   height: 100%; 
@@ -17,7 +16,7 @@ body, html {
 
 /* Prevent header text from creating whitespace at top of page */
 .bg h1{
-  margin:0;
+  margin: 0;
 }
 
 .button {

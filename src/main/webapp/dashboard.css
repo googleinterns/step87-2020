@@ -29,6 +29,11 @@ body {
   margin: 0 auto;
 }
 
+#wait-chart{
+  display: inline-block;
+  margin: 0 auto;
+}
+
 .left {
   height: 100%;
   min-width: 275px;
@@ -72,7 +77,7 @@ body {
   padding-top: 20px;
   word-wrap: break-word;
   right: 0;
-  background-color: #C2E1FF;
+  background-color: #EBF5FF;
 
   /*
   height: 100%;
@@ -135,7 +140,6 @@ body {
   font-family: 'Noto Sans', sans-serif;
 }
 
-/* "Add a TA by Email" */
 .ta-form fieldset legend{
   color: #C2E1FF;
   border-top: 1px solid #C2E1FF;
@@ -156,7 +160,6 @@ body {
 }
 
 .ta-form input[type=text],
-/* Area for entering the email */
 .ta-form textarea{
   border-radius: 3px;
   border: 1px solid #C2E1FF;
@@ -199,12 +202,10 @@ body {
   width:100%;
 }
 
-/* Roster textarea */
 #roster {
   background-color: #C2E1FF;
 }
 
-/* Roster field */
 .roster-section {
   width: 80%;
   border-radius: 10px;
@@ -215,4 +216,16 @@ body {
   background: #2457AA;
   box-shadow: inset 0px 0px 15px #C2E1FF;
   font-family: 'Noto Sans', sans-serif;
+}
+
+#env-header h3 {
+  display: inline;
+  margin: 0;
+}
+
+#env-header a {
+  font-size: smaller;
+  float: right;
+  padding: 5px;
+  color: #C2E1FF;
 }

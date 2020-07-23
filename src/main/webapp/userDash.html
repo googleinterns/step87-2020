@@ -105,12 +105,21 @@
         console.info(err);
       });
     }
+
+    function requestAccess() {
+      const classCodeInput = document.getElementById("classCode");
+      fetch(`/requestAccess?idToken=${userToken}&classCode=${classCodeInput.value}`).then(resp => {
+        classCodeInput.value = "";
+        window.location.href = "#";
+      });
+    }
     
   </script>
 
   <body onload="init()">
     <div class = "wrapper">
 
+<<<<<<< HEAD
       <h1 class = "section-name">Classes you are registered in:</h1>
       <div id = "registeredClasses"> </div>
 
@@ -133,6 +142,44 @@
               <input type="submit" value="create"/>
             </form>
           </div>
+=======
+        <h1 class = "section-name">Classes you are registered in:</h1>
+        <div id = "registeredClasses"> </div>
+        <a class="button" href="#register-popup">Request access!</a>
+
+        <h1 class = "section-name">Classes you are on teaching staff:</h1>
+        <div id = "taClasses"></div>
+
+        <h1 class = "section-name">Classes you own:</h1>
+        <div id = "ownedClasses"></div>
+
+        <a class="button" href="#popup-container">Create new class!</a>
+
+        <div id="register-popup" class="overlay">
+          <div class="popup">
+              <a class="close" href="#">&times;</a>
+              <div>
+                  <input type="text" id="classCode" placeholder="Class Code"/>
+                  <br />
+                  <button onclick="requestAccess()">Request Access</button>
+                </form>
+              </div>
+          </div>
+      </div>
+
+        <div id="popup-container" class="overlay">
+            <div class="popup">
+                <a class="close" href="#">&times;</a>
+                <div id = "createClass">
+                  <form action="/newclass" method="POST">
+                    <textarea name="className" placeholder="Enter class name:"></textarea>
+                    <br>
+                    <input type="hidden" name="idToken" id="idToken" value=""/>
+                    <input type="submit" value="create"/>
+                  </form>
+                </div>
+            </div>
+>>>>>>> b96b7814c492071b1b5f3de5251987f61b79a2fb
         </div>
       </div>
         

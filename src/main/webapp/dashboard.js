@@ -48,20 +48,7 @@ function drawBasic() {
         },
       },
       backgroundColor: {
-        gradient: {
-          // Start color for gradient
-          color1: '#C2E1FF',
-          // Finish color for gradient
-          color2: '#2457AA',
-          // Start and end point of gradient, start 
-          // on upper left corner
-          x1: '0%', y1: '0%',
-          x2: '100%', y2: '100%',
-          // If true, the boundary for x1,
-          // y1, x2, and y2 is the box. If
-          // false, it's the entire chart.
-          useObjectBoundingBoxUnits: true
-        },
+        fill: '#D6EBFF',
         stroke: '#031430',
         strokeWidth: 5
       },
@@ -75,7 +62,77 @@ function drawBasic() {
   });
 }
 
+// Render a chart visual on dashboard page for tracking average wait time by date
+function drawTime() {
+
+  // Set up the data table to have a class name and wait average associated w/ that specific class
+  var data = new google.visualization.DataTable();
+  data.addColumn('date', 'Date');
+  data.addColumn('number', 'Wait');
+ 
+  // Organize wait data through wait-time servlet
+  fetch(`/wait-time?classCode=` + getParam("classCode"))
+    .then(response => response.json()).then(waits=> {
+    
+    var dates = waits.dates;
+
+    // Convert JSON date format to Date type
+    for (var k = 0; k < dates.length; k++) {
+      var dateStr = dates[k];
+      var realDate = new Date(dateStr);
+      dates[k] = realDate;
+    }
+
+    var waitAverages = waits.waitTimes;
+
+    // Convert all times to minutes
+    for (var j = 0; j < waitAverages.length; j++) {
+      var timeInSeconds = waitAverages[j];
+      var timeInMinutes = timeInSeconds / 60.0;
+      waitAverages[j] = timeInMinutes.toFixed(2);  // Round to 2 decimal places
+    }
+
+    var tempDataHolder = []; // To be pushed into datatable after updating
+
+    // Loop through both lists and add info sets for each class 
+    for (var i = 0; i < dates.length; i++) {
+      tempDataHolder.push([dates[i], Number(waitAverages[i])]);
+    }
+    
+    data.addRows(tempDataHolder); // Populate datatable with final data
+
+    var options = {
+      title: 'Average Wait Time by Date',
+      hAxis: {
+        format: 'M/d/yy',
+        title: 'Date',
+        textStyle: {
+          bold:true
+        },
+      },
+      vAxis: {
+        title: 'Wait Time (minutes)',
+        format: '0.00',
+        textStyle: {
+          bold:true
+        },
+      },
+      backgroundColor: {
+        fill: '#D6EBFF',
+        stroke: '#031430',
+        strokeWidth: 5
+      },
+    };
+
+    var chart = new google.visualization.LineChart(
+    document.getElementById("wait-chart"));
+
+    chart.draw(data, options);
+  });
+}
+
 google.charts.setOnLoadCallback(drawBasic);
+google.charts.setOnLoadCallback(drawTime);
 
 // Provide a link to the TA queue and display class code
 function setRedirect(){
@@ -113,63 +170,93 @@ function addEnvRow(name, status) {
 }
 
 function checkDeletionStatus(envID, row) {
-  fetch(`/environment?envID=${envID}`).then(resp => {
+  getToken().then(tok => fetch(`/environment?envID=${envID}&idToken=${tok}`).then(resp => {
     if (resp.status === 404) {
       row.remove();
     } else {
       setTimeout(() => checkDeletionStatus(envID, row), 1000);
     }
-  });
+  }));
 }
 
 function checkEnvStatus(envID, row) {
-  fetch(`/environment?envID=${envID}`).then(resp => resp.ok ? resp.json() : "failed").then(env => {
-    row.querySelector(".envStatus").innerText = env.status;
-
-    if (env.status === "pulling") {
-      setTimeout(() => checkEnvStatus(envID, row), 1000);
-    } else {
-      const deleteButton = row.querySelector(".envDelete");
-      deleteButton.disabled = false;
-      deleteButton.onclick = () => {
-        row.querySelector(".envStatus").innerText = "deleting";
-        fetch(`/environment?envID=${envID}`, {method: 'DELETE'});
-        checkDeletionStatus(envID, row);
-      };
-    }
+  getToken().then(tok => {
+    fetch(`/environment?envID=${envID}&idToken=${tok}`).then(resp => resp.ok ? resp.json() : "failed").then(env => {
+      row.querySelector(".envStatus").innerText = env.status;
+  
+      if (env.status === "pulling") {
+        setTimeout(() => checkEnvStatus(envID, row), 1000);
+      } else {
+        const deleteButton = row.querySelector(".envDelete");
+        deleteButton.disabled = false;
+        deleteButton.onclick = () => {
+          row.querySelector(".envStatus").innerText = "deleting";
+          getToken().then(tok => fetch(`/environment?envID=${envID}&idToken=${tok}`, {method: 'DELETE'}));
+          checkDeletionStatus(envID, row);
+        };
+      }
+    });
   });
 }
 
 function pullImage() {
-
   const name = document.getElementById("envName").value;
   const image = document.getElementById("envImage").value;
   const tag = document.getElementById("envTag").value;
   const row = addEnvRow(name, "queueing");
 
-  fetch(`/queueEnvPull?classID=${getParam("classCode")}&name=${name}&image=${image}&tag=${tag}`)
-    .then(resp => resp.text()).then(envID => {
-      checkEnvStatus(envID, row);
+  getToken().then(tok => {
+    fetch(`/queueEnvPull?classID=${getParam("classCode")}&name=${name}&image=${image}&tag=${tag}&idToken=${tok}`)
+      .then(resp => resp.text()).then(envID => {
+        checkEnvStatus(envID, row);
     });
+  });
 }
 
 function getEnvs() {
-  fetch(`/getEnvironments?classID=${getParam("classCode")}`).then(resp => resp.json()).then(envs => {
+  getToken().then(tok => {
+    fetch(`/getEnvironments?classID=${getParam("classCode")}&idToken=${tok}`).then(resp => resp.json()).then(envs => {
 
-    for (var env of envs) {
-     const row = addEnvRow(env.name, env.status);
-
-     row.querySelector(".envDelete").onclick = () => {
-      row.querySelector(".envStatus").innerText = "deleting";
-      fetch(`/environment?envID=${env.id}`, {method: 'DELETE'});
-      checkDeletionStatus(env.id, row);
-     }; 
-    }
+      for (var env of envs) {
+       const row = addEnvRow(env.name, env.status);
+  
+       row.querySelector(".envDelete").onclick = () => {
+        row.querySelector(".envStatus").innerText = "deleting";
+        fetch(`/environment?envID=${env.id}`, {method: 'DELETE'});
+        checkDeletionStatus(env.id, row);
+       }; 
+      }
+    });
   });
 }
 
 // Display the queue redirect link and environments once page loads
 function onload() {
   setRedirect();
-  getEnvs();
+  firebase.auth().onAuthStateChanged(function(user) {
+    getEnvs();
+  });
+}
+
+function deleteClass(){
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          console.log("User is signed in");
+          user.getIdToken().then((token) => {
+              var params = window.location.search + "&idToken=" + token;
+              const request = new Request("/delete-class" + params, {method: "POST"});
+              fetch(request).then(response => {
+                window.location.assign("/userDash.html");
+              })
+              .catch(function(err) {
+                console.info(err);
+              });
+          });
+        } 
+        // Redirect to home page if not logged in
+        else {
+          console.log("User is not logged in");
+          window.location.href = "/";
+        }
+      });
 }

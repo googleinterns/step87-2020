@@ -1,3 +1,18 @@
+:root {
+  --workspace-background-color: #031430;
+  --active-tab-color: black;
+  --inactive-tab-color: #031430;
+  --tab-hover-color: #154085; 
+  --text-color: #D4D4D4;
+  --permanent-tab-color: #154085;
+  --permanent-tab-hover: #2457AA;
+
+  --background-color: #EBF5FF;
+  --button-hover-color: #4285F4;
+  --chart-background-color: #D6EBFF;
+  --secondary-button-color: #5C5C5C;
+}
+
 .hidden {
   display: none;
 }

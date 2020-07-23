@@ -15,7 +15,6 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
-import com.google.firebase.auth.UserRecord;
 import com.google.gson.Gson;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -73,10 +72,7 @@ public class GetUserDataTest {
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("uID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("uID");
-
-    UserRecord mockUser = mock(UserRecord.class);
-    when(authInstance.getUser("uID")).thenReturn(mockUser);
-    when(mockUser.getEmail()).thenReturn("user@google.com");
+    when(mockToken.getEmail()).thenReturn("user@google.com");
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
@@ -114,10 +110,7 @@ public class GetUserDataTest {
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("uID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("uID");
-
-    UserRecord mockUser = mock(UserRecord.class);
-    when(authInstance.getUser("uID")).thenReturn(mockUser);
-    when(mockUser.getEmail()).thenReturn("user@google.com");
+    when(mockToken.getEmail()).thenReturn("user@google.com");
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);

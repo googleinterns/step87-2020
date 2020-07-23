@@ -1,13 +1,3 @@
-:root {
-  --background-color: #031430;
-  --active-tab-color: black;
-  --inactive-tab-color: #031430;
-  --tab-hover-color: #154085; 
-  --text-color: #D4D4D4;
-  --permanent-tab-color: #154085;
-  --permanent-tab-hover: #2457AA;
-}
-
 html {
   height: 100%;
   width: 100%;
@@ -18,7 +8,7 @@ body {
   height: 100%;
   width: 100%;
   overflow: hidden;
-  background-color: var(--background-color);
+  background-color: var(--workspace-background-color);
 }
 
 .firepad-container {
@@ -119,7 +109,7 @@ body {
 
 @keyframes downloading {
   0% {background-color: var(--permanent-tab-color);}
-  50% {background-color: var(--background-color);}
+  50% {background-color: var(--workspace-background-color);}
   100% {background-color: var(--permanent-tab-color);}
 }
 

@@ -1,7 +1,6 @@
 package com.google.sps.servlets;
 
 import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
@@ -21,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
+import com.google.sps.ApplicationDefaults;
 import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.workspace.Workspace;
 import com.google.sps.workspace.WorkspaceFactory;
@@ -46,8 +46,6 @@ public final class EnterQueue extends HttpServlet {
   private DatastoreService datastore;
   private WorkspaceFactory workspaceFactory;
   private Clock clock;
-  private static final String TA_QUEUE = "/queue/ta.html?classCode=";
-  private static final String STUDENT_QUEUE = "/queue/student.html?classCode=";
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -65,8 +63,6 @@ public final class EnterQueue extends HttpServlet {
     // Get the input from the form.
 
     datastore = DatastoreServiceFactory.getDatastoreService();
-    System.setProperty(
-        DatastoreServiceConfig.DATASTORE_EMPTY_LIST_SUPPORT, Boolean.TRUE.toString());
 
     try {
       String classCode = request.getParameter("classCode").trim();
@@ -74,10 +70,7 @@ public final class EnterQueue extends HttpServlet {
       String idToken = request.getParameter("idToken");
       FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
       String userID = decodedToken.getUid();
-
-      // verify student status
-      UserRecord userRecord = authInstance.getUser(userID);
-      String userEmail = userRecord.getEmail();
+      String userEmail = decodedToken.getEmail();
 
       Entity userEntity =
           datastore
@@ -174,11 +167,11 @@ public final class EnterQueue extends HttpServlet {
             }
           }
         }
-        response.addHeader("Location", STUDENT_QUEUE + classCode);
+        response.addHeader("Location", ApplicationDefaults.STUDENT_QUEUE + classCode);
 
       } else if (owned.contains(classKey) || ta.contains(classKey)) {
 
-        response.addHeader("Location", TA_QUEUE + classCode);
+        response.addHeader("Location", ApplicationDefaults.TA_QUEUE + classCode);
 
       } else {
         response.sendError(HttpServletResponse.SC_FORBIDDEN);
