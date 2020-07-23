@@ -34,7 +34,7 @@
     
     <!--Contains the TA email form and workspace environment-->
     <div class="left">
-      <h1>Admin Dashboard</h1>
+      <h1 id = "className"></h1>
 
       <div class="centered">
         <div class="ta-form">
@@ -83,6 +83,10 @@
             </div>
           </div>
         </div>
+
+        <div id= "delete">
+            <button onclick="deleteClass()">Delete Class</button>
+        </div>
       </div>
       
     </div>
@@ -130,11 +134,6 @@
         </div>
         <br>
         <br>
-
-        <!--Button to delete classes-->
-        <div>
-          <button onclick="deleteClass()">Delete Class</button>
-        </div>
       </div>
 
     </div>

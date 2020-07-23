@@ -99,9 +99,6 @@ public class NewClassTest {
 
     ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
     assertTrue(testQueue.isEmpty());
-
-    ArrayList<String> taList = (ArrayList<String>) testClassEntity.getProperty("taList");
-    assertTrue(taList.isEmpty());
   }
 
   @Test
@@ -114,7 +111,6 @@ public class NewClassTest {
     init1.setProperty("name", "testClass1");
     init1.setProperty("beingHelped", new EmbeddedEntity());
     init1.setProperty("studentQueue", Collections.emptyList());
-    init1.setProperty("taList", Collections.emptyList());
 
     Entity init2 = new Entity("Class");
 
@@ -122,7 +118,6 @@ public class NewClassTest {
     init2.setProperty("name", "testClass2");
     init2.setProperty("beingHelped", new EmbeddedEntity());
     init2.setProperty("studentQueue", Collections.emptyList());
-    init2.setProperty("taList", Collections.emptyList());
 
     Entity init3 = new Entity("Class");
 
@@ -130,7 +125,6 @@ public class NewClassTest {
     init3.setProperty("name", "testClass3");
     init3.setProperty("beingHelped", new EmbeddedEntity());
     init3.setProperty("studentQueue", Collections.emptyList());
-    init3.setProperty("taList", Collections.emptyList());
 
     datastore.put(init1);
     datastore.put(init2);
@@ -198,9 +192,6 @@ public class NewClassTest {
         ArrayList<String> testQueue =
             (ArrayList<String>) testClassEntity.getProperty("studentQueue");
         assertTrue(testQueue.isEmpty());
-
-        ArrayList<String> taList = (ArrayList<String>) testClassEntity.getProperty("taList");
-        assertTrue(taList.isEmpty());
       }
     }
   }
@@ -214,7 +205,6 @@ public class NewClassTest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
-    init.setProperty("taList", Collections.emptyList());
 
     datastore.put(init);
 
