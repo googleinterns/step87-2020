@@ -79,3 +79,8 @@ body {
   display: table;
   width: 100%;
 }
+
+#firebaseui-auth-container {
+  position: absolute;
+  right: 0;
+}

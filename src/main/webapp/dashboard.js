@@ -48,27 +48,14 @@ function drawBasic() {
         },
       },
       backgroundColor: {
-        gradient: {
-          // Start color for gradient
-          color1: '#C2E1FF',
-          // Finish color for gradient
-          color2: '#2457AA',
-          // Start and end point of gradient, start 
-          // on upper left corner
-          x1: '0%', y1: '0%',
-          x2: '100%', y2: '100%',
-          // If true, the boundary for x1,
-          // y1, x2, and y2 is the box. If
-          // false, it's the entire chart.
-          useObjectBoundingBoxUnits: true
-        },
+        fill: '#D6EBFF',
         stroke: '#031430',
         strokeWidth: 5
       },
     };
 
     var chart = new google.visualization.LineChart(
-    document.getElementById("line-chart"));
+    document.getElementById("visit-chart"));
 
     chart.draw(data, options);
 
@@ -131,29 +118,18 @@ function drawTime() {
         },
       },
       backgroundColor: {
-        gradient: {
-          // Start color for gradient
-          color1: '#C2E1FF',
-          // Finish color for gradient
-          color2: '#2457AA',
-          // Start and end point of gradient, start 
-          // on upper left corner
-          x1: '0%', y1: '0%',
-          x2: '100%', y2: '100%',
-          // If true, the boundary for x1,
-          // y1, x2, and y2 is the box. If
-          // false, it's the entire chart.
-          useObjectBoundingBoxUnits: true
-        },
+        fill: '#D6EBFF',
         stroke: '#031430',
         strokeWidth: 5
       },
     };
 
-    var chart = new google.visualization.LineChart(
-    document.getElementById("wait-chart"));
+    const waitChart = document.getElementById("wait-chart");
+    waitChart.classList.remove("hidden");
+    var chart = new google.visualization.LineChart(waitChart);
 
     chart.draw(data, options);
+    waitChart.classList.add("hidden");
   });
 }
 
@@ -163,7 +139,7 @@ google.charts.setOnLoadCallback(drawTime);
 // Provide a link to the TA queue and display class code
 function setRedirect(){
   var params = window.location.search;
-  document.getElementById("redirect").href = "/queue/ta.html" + params;
+  document.getElementById("redirect").onclick = () => window.location.href = "/queue/ta.html" + params;
   document.getElementById("classCode").innerText =  params.slice(11);
 }
 
@@ -300,4 +276,25 @@ function onload() {
         displayDelete();
         getEnvs();
     });
+}
+
+function switchTab(tabName) {
+  const tabs = document.getElementsByClassName("tab");
+
+  for (let tab of tabs) {
+    tab.classList.remove("active-tab");
+    tab.classList.add("inactive-tab");
+  }
+
+  const charts = document.getElementsByClassName("chart");
+
+  for (let chart of charts) {
+    chart.classList.add("hidden");
+  }
+
+  const tab = document.getElementById(tabName + "-tab");
+  tab.classList.remove("inactive-tab");
+  tab.classList.add("active-tab");
+
+  document.getElementById(tabName + "-chart").classList.remove("hidden");
 }

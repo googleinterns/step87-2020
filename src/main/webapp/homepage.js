@@ -63,12 +63,12 @@ function addAuthStateListener() {
     } else {
       button.style.visibility = "hidden";
     }
+    signInFlow: 'popup',
+    signInSuccessUrl: "/userDash.html",
   });
 }
 
 // Homepage checks for sign in onload
 function start() {
   loadSignIn();
-  checkSignIn();
-  addAuthStateListener();
 }

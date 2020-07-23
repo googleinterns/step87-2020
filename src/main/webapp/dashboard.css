@@ -1,56 +1,64 @@
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   text-align: center;
-  background-color: #C2E1FF;
+  background-color: var(--background-color);
   font-family: 'Noto Sans', sans-serif;
   overflow: scroll;
-}
-
-#line-chart{
-  display: inline-block;
-  margin: 0 auto;
-}
-
-#wait-chart{
-  display: inline-block;
-  margin: 0 auto;
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  height:100%;
+  width: 100%;
+  margin: 0;
 }
 
 .left {
   height: 100%;
-  width: 20%;
-  position: fixed;
+  min-width: 275px;
+  margin: 0;
+  display: flex;
   z-index: 1;
+  flex-shrink: 0;
+  flex: 0;
   top: 0;
-  overflow-x: hidden;
+  overflow-x: scroll;
   padding-top: 20px;
   left: 0;
   background-color: #031430;
   color: white;
+  flex-wrap: nowrap;
+  flex-direction: column;
+  text-align: center;
 }
 
 .right {
   height: 100%;
-  width: 80%;
-  position: fixed;
+  width: 100%;
+  display: flex;
   z-index: 1;
   top: 0;
   margin: auto;
   overflow-x: hidden;
+  flex-wrap: nowrap;
+  flex-direction: column;
   padding-top: 20px;
+  word-wrap: break-word;
   right: 0;
-  background-color: #C2E1FF;
+  background-color: var(--background-color);
 }
 
 .centered {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   text-align: center;
+  margin: 0 auto;
 }
 
 .ta-form{
-  max-width: 400px;
+  margin: 0 auto;
+  width: 90%;
   font-family: 'Noto Sans', sans-serif;
 }
 
@@ -61,11 +69,10 @@ body {
 
 .ta-form label > span{
   float: left;
-  width: 200px;
-  color: #C2E1FF;
+  width: 95%;
+  color: #031430;
   font-weight: normal;
   font-size: 15px;
-  text-shadow: 1px 1px 1px #fff;
   font-family: 'Noto Sans', sans-serif;
 }
 
@@ -74,21 +81,19 @@ body {
   margin: 0px 0px 10px 0px;
   border: 1px solid #C2E1FF;
   padding: 20px;
-  color: #C2E1FF;
-  background: #2457AA;
-  box-shadow: inset 0px 0px 15px #C2E1FF;
+  color: #031430;
+  background: #EBF5FF;
   font-family: 'Noto Sans', sans-serif;
 }
 
 .ta-form fieldset legend{
-  color: #C2E1FF;
+  color:#031430;
   border-top: 1px solid #C2E1FF;
   border-left: 1px solid #C2E1FF;
   border-right: 1px solid #C2E1FF;
   border-radius: 5px 5px 0px 0px;
-  background: #2457AA;
+  background: #EBF5FF;
   padding: 0px 8px 3px 8px;
-  box-shadow: -0px -1px 2px #C2E1FF;
   font-weight: normal;
   font-size: 14px;
   font-family: 'Noto Sans', sans-serif;
@@ -104,9 +109,8 @@ body {
   border-radius: 3px;
   border: 1px solid #C2E1FF;
   outline: none;
-  color: #2457AA;
+  color: #031430;
   padding: 5px 8px 5px 8px;
-  box-shadow: inset 1px 1px 4px #2457AA;
   background: #C2E1FF;
   width:85%;
   font-family: 'Noto Sans', sans-serif;
@@ -121,7 +125,7 @@ body {
 
 #submitButton, .side-section button, .roster-button {
   background-color: #031430;
-  color: #C2E1FF;
+  color: #EBF5FF;
   margin-top: 10px;
   font-size: 14px;
   font-family: 'Noto Sans', sans-serif;
@@ -137,12 +141,15 @@ body {
 
 .footer {
   text-align: center;
-  color: white;
-  background-color: #031430;
+  background-color: var(--background-color);
+  color: #031430;
+  width:100%;
 }
 
 #roster {
   background-color: #C2E1FF;
+  width: 80%;
+  height: 70%;
 }
 
 .roster-section {
@@ -151,9 +158,8 @@ body {
   margin: 0 auto;
   border: 1px solid #C2E1FF;
   padding: 20px;
-  color: #C2E1FF;
-  background: #2457AA;
-  box-shadow: inset 0px 0px 15px #C2E1FF;
+  color: #031430;
+  background: #EBF5FF;
   font-family: 'Noto Sans', sans-serif;
 }
 
@@ -167,4 +173,58 @@ body {
   float: right;
   padding: 5px;
   color: #C2E1FF;
+}
+
+#charts {
+  width: 800px;
+  margin: auto;
+}
+
+.chart {
+  display: inline-block;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.chart.hidden {
+  display: none;
+}
+
+.tab {
+  float: left;
+
+  border: none;
+  height: 40px;
+  float: left;
+  padding: 0px 15px;
+  display: flex;
+  align-items: center;
+
+  border-right-style: solid;
+  border-color: var(--background-color);
+  border-width: 1px;
+}
+
+.active-tab {
+  color: var(--background-color);
+  background-color: var(--button-hover-color);
+}
+
+.inactive-tab {
+  color: var(--background-color);
+  background-color: var(--secondary-button-color);
+}
+
+.tab:hover {
+  background-color: var(--permanent-tab-hover);
+}
+
+.text-left-right {
+  text-align: center;
+  position: relative;
+  flex-wrap: nowrap;
+}
+
+.byline {
+  color: black;
 }

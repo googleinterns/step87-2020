@@ -16,3 +16,26 @@
 .hidden {
   display: none;
 }
+
+.top-right-buttons {
+  position: absolute;
+  right: 0;
+  padding: 10px 20px;
+}
+
+.reg-button {
+  background-color: var(--background-color); 
+  border: 3px solid black;
+  color: black;
+  padding: 8px 30px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.5s;
+}
+
+.reg-button:hover {
+  border-color: var(--button-hover-color);
+}
