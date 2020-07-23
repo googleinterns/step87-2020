@@ -130,4 +130,42 @@ public class GetUserRoleTest {
 
     assertEquals(new Gson().toJson("owner"), stringWriter.toString());
   }
+
+  @Test
+  public void getStudentName() throws Exception {
+    Entity initClass = new Entity("Class");
+
+    initClass.setProperty("owner", "ownerID");
+    initClass.setProperty("name", "testClass");
+    initClass.setProperty("beingHelped", new EmbeddedEntity());
+    initClass.setProperty("studentQueue", Collections.emptyList());
+
+    datastore.put(initClass);
+
+    Entity initUser = new Entity("User");
+
+    initUser.setProperty("userEmail", "user@google.com");
+    initUser.setProperty("registeredClasses", Arrays.asList(initClass.getKey()));
+    initUser.setProperty("ownedClasses", Collections.emptyList());
+    initUser.setProperty("taClasses", Collections.emptyList());
+
+    datastore.put(initUser);
+
+    when(httpRequest.getParameter("idToken")).thenReturn("uID");
+
+    FirebaseToken mockToken = mock(FirebaseToken.class);
+    when(authInstance.verifyIdToken("uID")).thenReturn(mockToken);
+    when(mockToken.getUid()).thenReturn("uID");
+    when(mockToken.getEmail()).thenReturn("user@google.com");
+
+    when(httpRequest.getParameter("classCode"))
+        .thenReturn(KeyFactory.keyToString(initClass.getKey()));
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter writer = new PrintWriter(stringWriter);
+    when(httpResponse.getWriter()).thenReturn(writer);
+
+    getUserRole.doGet(httpRequest, httpResponse);
+
+    assertEquals(new Gson().toJson("student"), stringWriter.toString());
+  }
 }
