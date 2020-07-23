@@ -14,23 +14,18 @@ body {
   height:100%;
   width: 100%;
   margin: 0;
-  /*
-  text-align: center;
-  background-color: #C2E1FF;
-  font-family: 'Noto Sans', sans-serif;
-  overflow: scroll;
-  display: flex;
-  flex-wrap: nowrap;*/
 }
 
 #line-chart{
   display: inline-block;
   margin: 0 auto;
+  flex-shrink: 0;
 }
 
 #wait-chart{
   display: inline-block;
   margin: 0 auto;
+  flex-shrink: 0;
 }
 
 .left {
@@ -50,18 +45,6 @@ body {
   flex-wrap: nowrap;
   flex-direction: column;
   text-align: center;
-
-  /*
-  height: 100%;
-  width: 20%;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  overflow-x: hidden;
-  padding-top: 20px;
-  left: 0;
-  background-color: #031430;
-  color: white;*/
 }
 
 .right {
@@ -77,40 +60,17 @@ body {
   word-wrap: break-word;
   right: 0;
   background-color: #EBF5FF;
-
-  /*
-  height: 100%;
-  width: 80%;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  margin: auto;
-  overflow-x: hidden;
-  padding-top: 20px;
-  right: 0;
-  background-color: #C2E1FF;*/
 }
 
 .centered {
   text-align: center;
   margin: 0 auto;
-
-  /*
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;*/
 }
 
 .ta-form{
   margin: 0 auto;
   width: 90%;
   font-family: 'Noto Sans', sans-serif;
-
-  /*
-  max-width: 400px;
-  font-family: 'Noto Sans', sans-serif; */
 }
 
 .ta-form label{
@@ -124,7 +84,6 @@ body {
   color: #031430;
   font-weight: normal;
   font-size: 15px;
-  /* text-shadow: 1px 1px 1px #fff; */
   font-family: 'Noto Sans', sans-serif;
 }
 
@@ -135,7 +94,6 @@ body {
   padding: 20px;
   color: #031430;
   background: #EBF5FF;
-  /* box-shadow: inset 0px 0px 15px #C2E1FF; */
   font-family: 'Noto Sans', sans-serif;
 }
 
@@ -147,7 +105,6 @@ body {
   border-radius: 5px 5px 0px 0px;
   background: #EBF5FF;
   padding: 0px 8px 3px 8px;
-  /* box-shadow: -0px -1px 2px #C2E1FF; */
   font-weight: normal;
   font-size: 14px;
   font-family: 'Noto Sans', sans-serif;
@@ -165,7 +122,6 @@ body {
   outline: none;
   color: #031430;
   padding: 5px 8px 5px 8px;
-  /* box-shadow: inset 1px 1px 4px #2457AA; */
   background: #C2E1FF;
   width:85%;
   font-family: 'Noto Sans', sans-serif;
@@ -215,7 +171,6 @@ body {
   padding: 20px;
   color: #031430;
   background: #EBF5FF;
-  /* box-shadow: inset 0px 0px 15px #C2E1FF; */
   font-family: 'Noto Sans', sans-serif;
 }
 
