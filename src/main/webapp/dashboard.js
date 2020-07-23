@@ -48,20 +48,7 @@ function drawBasic() {
         },
       },
       backgroundColor: {
-        gradient: {
-          // Start color for gradient
-          color1: '#C2E1FF',
-          // Finish color for gradient
-          color2: '#2457AA',
-          // Start and end point of gradient, start 
-          // on upper left corner
-          x1: '0%', y1: '0%',
-          x2: '100%', y2: '100%',
-          // If true, the boundary for x1,
-          // y1, x2, and y2 is the box. If
-          // false, it's the entire chart.
-          useObjectBoundingBoxUnits: true
-        },
+        fill: '#D6EBFF',
         stroke: '#031430',
         strokeWidth: 5
       },
@@ -131,20 +118,7 @@ function drawTime() {
         },
       },
       backgroundColor: {
-        gradient: {
-          // Start color for gradient
-          color1: '#C2E1FF',
-          // Finish color for gradient
-          color2: '#2457AA',
-          // Start and end point of gradient, start 
-          // on upper left corner
-          x1: '0%', y1: '0%',
-          x2: '100%', y2: '100%',
-          // If true, the boundary for x1,
-          // y1, x2, and y2 is the box. If
-          // false, it's the entire chart.
-          useObjectBoundingBoxUnits: true
-        },
+        fill: '#D6EBFF',
         stroke: '#031430',
         strokeWidth: 5
       },
