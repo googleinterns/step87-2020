@@ -1,4 +1,4 @@
-package com.google.sps.servlets;
+package com.google.sps.servlets.course;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
