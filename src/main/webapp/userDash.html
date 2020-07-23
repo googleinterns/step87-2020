@@ -10,6 +10,7 @@
     <script src="/script/auth.js"></script>
 
     <link rel="stylesheet" href="userDash.css">
+    <link rel="stylesheet" href="/style/common.css">
     <!--Font-->
     <link href='https://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'></link>
   </head>
@@ -81,14 +82,10 @@
         enterElem.className = "class-container";
         enterElem.onclick = function(){enterQueue(params, urlRedirect);};
 
-        let enter = document.createElement('p');
-        enter.innerText = "enter";
-
         let classElem = document.createElement('p');
         classElem.innerText = nameClass;
         classElem.className = "class-info";
 
-        enterElem.appendChild(enter);
         enterElem.appendChild(classElem);
 
         return enterElem;
@@ -116,6 +113,9 @@
 
   <body onload="init()">
     <div class = "wrapper">
+        <div class="top-right-buttons">
+          <button class="reg-button" onclick="signOut()">Log Out</button>
+        </div>
 
         <h1 class = "section-name">Classes you are registered in:</h1>
         <div id = "registeredClasses"> </div>

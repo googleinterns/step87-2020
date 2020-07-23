@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/7.15.1/firebase-auth.js"></script>
 
     <link rel="stylesheet" href="taQueue.css">
+    <link rel="stylesheet" href="/style/common.css">
     <!--Font-->
     <link href='https://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'></link>
   </head>
@@ -151,6 +152,9 @@
   </script>
 
   <body onload="getToken()">
+    <div class="top-right-buttons">
+      <button class="reg-button" onclick="signOut()">Log Out</button>
+    </div>
     <div id = "beingHelped" class="wrapper"> </div>
     
     <h1 id="queue-start">waitlist: pull from top first!</h1>
