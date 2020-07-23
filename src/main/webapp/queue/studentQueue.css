@@ -3,7 +3,7 @@
 }
 
 body {
-  background-color: #EBF5FF;
+  background-color: var(--background-color);
 }
 
 .wrapper {

@@ -5,7 +5,7 @@ html {
 
 body {
   text-align: center;
-  background-color: #C2E1FF;
+  background-color: var(--background-color);
   font-family: 'Noto Sans', sans-serif;
   overflow: scroll;
   display: flex;
@@ -60,7 +60,7 @@ body {
   padding-top: 20px;
   word-wrap: break-word;
   right: 0;
-  background-color: #EBF5FF;
+  background-color: var(--background-color);
 }
 
 .centered {
@@ -94,7 +94,7 @@ body {
   border: 1px solid #C2E1FF;
   padding: 20px;
   color: #031430;
-  background: #EBF5FF;
+  background: var(--background-color);
   font-family: 'Noto Sans', sans-serif;
 }
 
@@ -104,7 +104,7 @@ body {
   border-left: 1px solid #C2E1FF;
   border-right: 1px solid #C2E1FF;
   border-radius: 5px 5px 0px 0px;
-  background: #EBF5FF;
+  background: var(--background-color);
   padding: 0px 8px 3px 8px;
   font-weight: normal;
   font-size: 14px;
@@ -137,7 +137,7 @@ body {
 
 #submitButton, .side-section button, .roster-button {
   background-color: #031430;
-  color: #EBF5FF;
+  color: var(--background-color);
   margin-top: 10px;
   font-size: 14px;
   font-family: 'Noto Sans', sans-serif;
@@ -154,7 +154,7 @@ body {
 .footer {
   text-align: center;
   color: #031430;
-  background-color: #EBF5FF;
+  background-color: var(--background-color);
   width:100%;
 }
 
@@ -171,7 +171,7 @@ body {
   border: 1px solid #C2E1FF;
   padding: 20px;
   color: #031430;
-  background: #EBF5FF;
+  background: var(--background-color);
   font-family: 'Noto Sans', sans-serif;
 }
 
