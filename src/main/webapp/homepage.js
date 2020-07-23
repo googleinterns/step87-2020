@@ -26,7 +26,7 @@ function loadSignIn() {
         }
       },
     ],
-    signInSuccessUrl: "/enterClass.html",
+    signInSuccessUrl: "/userDash.html",
   });
 }
 
