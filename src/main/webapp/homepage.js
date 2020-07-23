@@ -26,6 +26,7 @@ function loadSignIn() {
         }
       },
     ],
+    signInFlow: 'popup',
     signInSuccessUrl: "/enterClass.html",
   });
 }
@@ -39,36 +40,7 @@ function logout() {
   });
 }
 
-// If the user is signed in on first visit to homepage, show the logout button, if not, don't show logout button
-function checkSignIn() {
-  var button = document.getElementById("signout");
-  var user = firebase.auth().currentUser;
-  
-  if (user) {
-    // User is signed in, they need to have the option of logging out
-    button.style.visibility = "visible";
-  } else {
-    // No user is signed in
-    button.style.visibility = "hidden";
-  }
-}
-
-// When user sign-in state changes, hide or show logout button
-function addAuthStateListener() {
-  var button = document.getElementById("signout");
- 
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-      button.style.visibility = "visible";
-    } else {
-      button.style.visibility = "hidden";
-    }
-  });
-}
-
 // Homepage checks for sign in onload
 function start() {
   loadSignIn();
-  checkSignIn();
-  addAuthStateListener();
 }
