@@ -1,4 +1,4 @@
-package com.google.sps.servlets;
+package com.google.sps.servlets.queue;
 
 import static com.google.sps.utils.ExceptionWrapper.wrap;
 

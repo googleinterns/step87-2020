@@ -1,4 +1,4 @@
-package com.google.sps.servlets;
+package com.google.sps.servlets.queue;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;

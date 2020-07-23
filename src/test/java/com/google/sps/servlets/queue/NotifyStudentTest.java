@@ -1,9 +1,9 @@
-package com.google.sps.servlets;
+package com.google.sps.servlets.queue;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -21,11 +21,15 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
-import com.google.sps.tasks.TaskScheduler;
-import com.google.sps.tasks.TaskSchedulerFactory;
+import com.google.sps.workspace.Workspace;
+import com.google.sps.workspace.WorkspaceFactory;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
+import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
@@ -37,7 +41,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EndHelpTest {
+public class NotifyStudentTest {
 
   private final LocalServiceTestHelper helper =
       new LocalServiceTestHelper(
@@ -45,22 +49,35 @@ public class EndHelpTest {
           new LocalDatastoreServiceTestConfig().setApplyAllHighRepJobPolicy());
 
   private DatastoreService datastore;
-  private String QUEUE_NAME = "QUEUE_NAME";
 
   @Mock HttpServletRequest httpRequest;
 
   @Mock HttpServletResponse httpResponse;
 
   @Mock FirebaseAuth authInstance;
-  @Mock TaskSchedulerFactory taskSchedulerFactory;
-  @Mock TaskScheduler scheduler;
 
-  @InjectMocks EndHelp finishStudent;
+  @Mock WorkspaceFactory factory;
+
+  @Mock Workspace workspace;
+
+  @Mock Clock clock;
+
+  @InjectMocks NotifyStudent alertStudent;
+
+  private Clock fixedClock;
+  private static final LocalDate LOCAL_DATE = LocalDate.of(2020, 07, 07);
+  private static final Date START_DATE =
+      Date.from(LocalDate.of(2020, 07, 06).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
   @Before
   public void setUp() {
     helper.setUp();
     datastore = DatastoreServiceFactory.getDatastoreService();
+
+    fixedClock =
+        Clock.fixed(
+            LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
+    doReturn(fixedClock.getZone()).when(clock).getZone();
   }
 
   @After
@@ -75,26 +92,29 @@ public class EndHelpTest {
   }
 
   @Test
-  public void doneHelping() throws Exception {
+  public void takeOff() throws Exception {
+    String WORKSPACE_ID = "WORKSPACE_ID";
+
     Entity init = new Entity("Class");
-    ArrayList<String> setQueue = new ArrayList<String>(Arrays.asList("uID1", "uID2"));
 
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
-    init.setProperty("studentQueue", setQueue);
 
-    EmbeddedEntity queueInfo = new EmbeddedEntity();
-    queueInfo.setProperty("taID", "taID");
-    queueInfo.setProperty("workspaceID", "workspaceID");
+    EmbeddedEntity addQueue1 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo1 = new EmbeddedEntity();
+    studentInfo1.setProperty("timeEntered", START_DATE);
+    studentInfo1.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue1.setProperty("studentID", studentInfo1);
 
-    EmbeddedEntity queueInfo2 = new EmbeddedEntity();
-    queueInfo2.setProperty("taID", "ta3ID");
-    queueInfo2.setProperty("workspaceID", "workspaceID");
+    EmbeddedEntity addQueue2 = new EmbeddedEntity();
+    EmbeddedEntity studentInfo2 = new EmbeddedEntity();
+    studentInfo2.setProperty("timeEntered", START_DATE);
+    studentInfo2.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue2.setProperty("test2", studentInfo2);
+
+    init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2));
 
     EmbeddedEntity beingHelped = new EmbeddedEntity();
-    beingHelped.setProperty("test1", queueInfo);
-    beingHelped.setProperty("test3", queueInfo2);
-
     init.setProperty("beingHelped", beingHelped);
 
     datastore.put(init);
@@ -110,25 +130,34 @@ public class EndHelpTest {
 
     UserRecord mockUser = mock(UserRecord.class);
     when(authInstance.getUserByEmail("test@google.com")).thenReturn(mockUser);
-    when(mockUser.getUid()).thenReturn("test1");
+    when(mockUser.getUid()).thenReturn("studentID");
+    doReturn(fixedClock.instant()).when(clock).instant();
 
-    when(taskSchedulerFactory.create(anyString(), anyString())).thenReturn(scheduler);
-    finishStudent.QUEUE_NAME = QUEUE_NAME;
+    when(factory.fromWorkspaceID(WORKSPACE_ID)).thenReturn(workspace);
 
-    finishStudent.doPost(httpRequest, httpResponse);
+    alertStudent.doPost(httpRequest, httpResponse);
 
     Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
 
-    ArrayList<String> testQueue = (ArrayList<String>) testClassEntity.getProperty("studentQueue");
+    EmbeddedEntity got = (EmbeddedEntity) testClassEntity.getProperty("beingHelped");
+    EmbeddedEntity gotQueue = (EmbeddedEntity) got.getProperty("studentID");
+
+    assertThat((String) gotQueue.getProperty("taID")).named("got.taID").isEqualTo("taID");
+    assertThat((String) gotQueue.getProperty("workspaceID"))
+        .named("got.workspaceID")
+        .isEqualTo(WORKSPACE_ID);
+
+    verify(workspace, times(1)).setTaUID("taID");
+
+    ArrayList<EmbeddedEntity> testQueue =
+        (ArrayList<EmbeddedEntity>) testClassEntity.getProperty("studentQueue");
     assertEquals(
         KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
-    assertEquals(2, testQueue.size());
+    assertEquals(1, testQueue.size());
+    assertTrue(testQueue.get(0).hasProperty("test2"));
 
-    EmbeddedEntity got = (EmbeddedEntity) testClassEntity.getProperty("beingHelped");
-    assertThat((EmbeddedEntity) got.getProperty("test1")).isNull();
-    assertThat((EmbeddedEntity) got.getProperty("test3")).isNotNull();
-
-    verify(taskSchedulerFactory, times(1)).create(eq(QUEUE_NAME), eq("/tasks/deleteWorkspace"));
-    verify(scheduler, times(1)).schedule(eq("workspaceID"), eq(TimeUnit.HOURS.toSeconds(1)));
+    Entity testWaitEntity = datastore.prepare(new Query("Wait")).asSingleEntity();
+    ArrayList<Long> waitDurations = (ArrayList<Long>) testWaitEntity.getProperty("waitDurations");
+    assertEquals((long) Duration.ofHours(24).getSeconds(), (long) waitDurations.get(0));
   }
 }

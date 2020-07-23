@@ -1,4 +1,4 @@
-package com.google.sps.servlets;
+package com.google.sps.servlets.queue;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
