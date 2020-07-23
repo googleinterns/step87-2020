@@ -16,18 +16,6 @@ body {
   margin: 0;
 }
 
-#line-chart{
-  display: inline-block;
-  margin: 0 auto;
-  flex-shrink: 0;
-}
-
-#wait-chart{
-  display: inline-block;
-  margin: 0 auto;
-  flex-shrink: 0;
-}
-
 .left {
   height: 100%;
   min-width: 275px;
@@ -60,7 +48,7 @@ body {
   padding-top: 20px;
   word-wrap: break-word;
   right: 0;
-  background-color: #EBF5FF;
+  background-color: var(--background-color);
 }
 
 .centered {
@@ -153,8 +141,8 @@ body {
 
 .footer {
   text-align: center;
+  background-color: var(--background-color);
   color: #031430;
-  background-color: #EBF5FF;
   width:100%;
 }
 
@@ -185,6 +173,50 @@ body {
   float: right;
   padding: 5px;
   color: #C2E1FF;
+}
+
+#charts {
+  width: 800px;
+  margin: auto;
+}
+
+.chart {
+  display: inline-block;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.chart.hidden {
+  display: none;
+}
+
+.tab {
+  float: left;
+
+  border: none;
+  height: 40px;
+  float: left;
+  padding: 0px 15px;
+  display: flex;
+  align-items: center;
+
+  border-right-style: solid;
+  border-color: var(--background-color);
+  border-width: 1px;
+}
+
+.active-tab {
+  color: var(--background-color);
+  background-color: var(--button-hover-color);
+}
+
+.inactive-tab {
+  color: var(--background-color);
+  background-color: var(--secondary-button-color);
+}
+
+.tab:hover {
+  background-color: var(--permanent-tab-hover);
 }
 
 .text-left-right {

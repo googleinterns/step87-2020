@@ -11,7 +11,7 @@
     
     <script src="/script/auth.js"></script>
     <link rel="stylesheet" href="userDash.css">
-
+    <link rel="stylesheet" href="/style/common.css">
     <!--Font-->
     <link href='https://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'></link>
   </head>
@@ -63,37 +63,36 @@
       fetch(request).then(response => response.json()).then(userData => {
         userData.forEach(element => {
           var sectionElement = document.getElementById(element.type);
-          sectionElement.appendChild(createClassElement(element.code, element.name, element.type));
+          sectionElement.prepend(createClassElement(element.code, element.name, element.type));
         });
       });
     }
 
     function createClassElement(classCode, nameClass, type) {
-      var params;
-      var urlRedirect;
-      if (type != "registeredClasses"){
-        params = "?classCode="+classCode+"&idToken="+userToken+ "&enterTA=" + "isTA";
-        urlRedirect = "/queue/ta.html?classCode=" + classCode;
-      } else {
-        params = "?classCode="+classCode+"&idToken="+userToken;
-        urlRedirect = "/queue/student.html?classCode=" + classCode;
-      }
+        var params;
+        var urlRedirect;
+        if (type != "registeredClasses"){
+            params = "?classCode="+classCode+"&idToken="+userToken+ "&enterTA=" + "isTA";
+            urlRedirect = "/queue/ta.html?classCode=" + classCode;
+        } else {
+            params = "?classCode="+classCode+"&idToken="+userToken;
+            urlRedirect = "/queue/student.html?classCode=" + classCode;
+        }
 
-      let enterElem = document.createElement("div");
-      enterElem.className = "class-container";
-      enterElem.onclick = function(){enterQueue(params, urlRedirect);};
+        let enterElem = document.createElement("div");
+        enterElem.className = "class-container";
+        enterElem.onclick = function(){enterQueue(params, urlRedirect);};
 
-      let enter = document.createElement('p');
-      enter.innerText = "enter";
+        let center = document.createElement("div");
+        center.className = "class-info-container";
+        let classElem = document.createElement('p');
+        classElem.innerText = nameClass;
+        classElem.className = "class-info";
 
-      let classElem = document.createElement('p');
-      classElem.innerText = nameClass;
-      classElem.className = "class-info";
+        center.appendChild(classElem);
+        enterElem.appendChild(center);
 
-      enterElem.appendChild(enter);
-      enterElem.appendChild(classElem);
-
-      return enterElem;
+        return enterElem;
     }
 
     function enterQueue(params, urlRedirect){
@@ -117,47 +116,59 @@
   </script>
 
   <body onload="init()">
-
     <div class = "wrapper">
-        
-      <h1 class = "section-name">Classes you are registered in:</h1>
-      <div id = "registeredClasses"> </div>
-      <a class="button" href="#register-popup">Request access!</a>
+        <div class="top-right-buttons">
+          <button class="reg-button" onclick="signOut()">Log Out</button>
+        </div>
 
-      <h1 class = "section-name">Classes you are on teaching staff:</h1>
-      <div id = "taClasses"></div>
+        <h1 class = "section-name">Classes you are registered in:</h1>
+        <div id = "registeredClasses">
+          <a class="class-container" href="#register-popup">
+            <div class="class-info-container">
+              <p class="class-info">Request access!</p>
+            </div>
+          </a>
+        </div>
 
-      <h1 class = "section-name">Classes you own:</h1>
-      <div id = "ownedClasses"></div>
+        <h1 class = "section-name">Classes you are on teaching staff:</h1>
+        <div id = "taClasses"></div>
 
-      <a class="button" href="#popup-container">Create new class!</a>
+        <h1 class = "section-name">Classes you own:</h1>
+        <div id = "ownedClasses">
+          <a href="#popup-container" class="class-container">
+            <div class="class-info-container">
+              <div class="class-info">
+                <p style="margin: 5px;">Create new class!</p>
+                <p class="plus">+</p>
+              </div>
+            </div>
+          </a>
+        </div>
 
-      <div id="register-popup" class="overlay">
-        <div class="popup">
-          <a class="close" href="#">&times;</a>
-          <div>
-            <input type="text" id="classCode" placeholder="Class Code"/>
-            <br />
-            <button onclick="requestAccess()">Request Access</button>
-            </form>
+        <div id="register-popup" class="overlay">
+          <div class="popup">
+              <a class="close" href="#">&times;</a>
+              <div>
+                  <input type="text" id="classCode" placeholder="Class Code"/>
+                  <button class="button" onclick="requestAccess()">Request Access</button>
+                </form>
+              </div>
           </div>
         </div>
       </div>
-
       <div id="popup-container" class="overlay">
-        <div class="popup">
-          <a class="close" href="#">&times;</a>
-          <div id = "createClass">
-            <form action="/newclass" method="POST">
-              <textarea name="className" placeholder="Enter class name:"></textarea>
-              <br>
-              <input type="hidden" name="idToken" id="idToken" value=""/>
-              <input type="submit" value="create"/>
-            </form>
+          <div class="popup">
+              <a class="close" href="#">&times;</a>
+              <div id = "createClass">
+                <form action="/newclass" method="POST">
+                  <input type="text" name="className" placeholder="Enter class name:"></input>
+                  <input type="hidden" name="idToken" id="idToken" value=""/>
+                  <input class="button" type="submit" value="create"/>
+                </form>
+              </div>
           </div>
         </div>
       </div>
-        
     </div>
   </body>
 </html>

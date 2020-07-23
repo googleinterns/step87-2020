@@ -26,51 +26,12 @@ function loadSignIn() {
         }
       },
     ],
+    signInFlow: 'popup',
     signInSuccessUrl: "/userDash.html",
-  });
-}
-
-// Log out and provide indication of user status
-function logout() {
-  firebase.auth().signOut().then(function() {
-  console.log('Signed Out');
-  }, function(error) {
-  console.error('Sign Out Error', error);
-  });
-}
-
-// If the user is signed in on first visit to homepage, show the logout button, if not, don't show logout button
-function checkSignIn() {
-  var button = document.getElementById("signout");
-  var user = firebase.auth().currentUser;
-  
-  if (user) {
-    // User is signed in, they need to have the option of logging out
-    button.style.visibility = "visible";
-    window.location.href = "/userDash.html";
-  } else {
-    // No user is signed in
-    button.style.visibility = "hidden";
-  }
-}
-
-// When user sign-in state changes, hide or show logout button
-function addAuthStateListener() {
-  var button = document.getElementById("signout");
- 
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-      button.style.visibility = "visible";
-      window.location.href = "/userDash.html";
-    } else {
-      button.style.visibility = "hidden";
-    }
   });
 }
 
 // Homepage checks for sign in onload
 function start() {
   loadSignIn();
-  checkSignIn();
-  addAuthStateListener();
 }
