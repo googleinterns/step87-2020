@@ -1,4 +1,4 @@
-package com.google.sps.servlets;
+package com.google.sps.servlets.course;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -15,7 +15,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.models.WaitData;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;

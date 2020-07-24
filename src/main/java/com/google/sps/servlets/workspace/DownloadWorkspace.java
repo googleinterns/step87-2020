@@ -1,4 +1,4 @@
-package com.google.sps.servlets;
+package com.google.sps.servlets.workspace;
 
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;

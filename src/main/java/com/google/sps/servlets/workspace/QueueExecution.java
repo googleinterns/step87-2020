@@ -1,4 +1,4 @@
-package com.google.sps.servlets;
+package com.google.sps.servlets.workspace;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.sps.authentication.Authenticator;
