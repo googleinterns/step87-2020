@@ -27,11 +27,9 @@
         if (user) {
           console.log("User is signed in");
           user.getIdToken().then((token) => setToken(token));
-        } 
-        // Redirect to home page if not logged in
-        else {
+        } else {
           console.log("User is not logged in");
-          window.location.href = "/";
+          window.location.href = "/"; // Redirect to home page if not logged in
         }
       });
     }
@@ -72,7 +70,6 @@
       getQueue();
     }
 
-
     function endHelp(studentEmail){
       var params = window.location.search + "&studentEmail=" + studentEmail + "&taToken=" + taToken;
       const request = new Request("/end-help" + params, {method: "POST"});
@@ -80,9 +77,7 @@
       fetch(request).then(() => {
         document.getElementById('beingHelped').innerText = "";
         getQueue()
-        });
-
-      
+      });
     }
 
     function createListElement(studentEmail) {

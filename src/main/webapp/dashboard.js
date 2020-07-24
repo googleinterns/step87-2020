@@ -233,49 +233,48 @@ function getEnvs() {
 }
 
 function displayClass(){
-    getToken().then((token) => {
-        var params = window.location.search + "&idToken=" + token;
+  getToken().then((token) => {
+    var params = window.location.search + "&idToken=" + token;
 
-        const nameRequest = new Request("/get-class" + params, {method: "GET"});
-        fetch(nameRequest).then(response => response.json()).then((name) => {
-              document.getElementById("className").innerText = name;
-        });
+    const nameRequest = new Request("/get-class" + params, {method: "GET"});
+    fetch(nameRequest).then(response => response.json()).then((name) => {
+      document.getElementById("className").innerText = name;
     });
-
+  });
 }
 
 function displayDelete(){
-    getToken().then((token) => {
-        var params = window.location.search + "&idToken=" + token;
+  getToken().then((token) => {
+    var params = window.location.search + "&idToken=" + token;
 
-        const displayRequest = new Request("/get-role" + params, {method: "GET"});
-        fetch(displayRequest).then(response => response.json()).then((role) => {
-            var elem = document.getElementById("delete");
-            if (role !== "owner"){
-                elem.style.display = "none";
-            }
-        });
+    const displayRequest = new Request("/get-role" + params, {method: "GET"});
+    fetch(displayRequest).then(response => response.json()).then((role) => {
+      var elem = document.getElementById("delete");
+      if (role !== "owner"){
+        elem.style.display = "none";
+      }
     });
+  });
 }
 
 function deleteClass(){
-    getToken().then((token) => {
-        var params = window.location.search + "&idToken=" + token;
-        const request = new Request("/delete-class" + params, {method: "POST"});
-        fetch(request).then(response => {
-        window.location.assign("/userDash.html");
-        });
+  getToken().then((token) => {
+    var params = window.location.search + "&idToken=" + token;
+    const request = new Request("/delete-class" + params, {method: "POST"});
+    fetch(request).then(response => {
+      window.location.assign("/userDash.html");
     });
+  });
 }
 
 function onload() {
-    setRedirect();
+  setRedirect();
 
-    firebase.auth().onAuthStateChanged(function(user) {
-        displayClass();
-        displayDelete();
-        getEnvs();
-    });
+  firebase.auth().onAuthStateChanged(function(user) {
+    displayClass();
+    displayDelete();
+    getEnvs();
+  });
 }
 
 function switchTab(tabName) {
