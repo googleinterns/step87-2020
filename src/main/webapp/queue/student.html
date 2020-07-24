@@ -35,7 +35,7 @@
       .then(function () {
         console.log("Notification permission granted.");
             
-        // get the token in the form of promise
+        // Get the token in the form of promise
         return messaging.getToken();
       })
       .then(function(token) {
@@ -45,13 +45,13 @@
         console.log("Unable to get permission to notify.", err);
       });
 
-    //If user on page, no notification sent
+    // If user on page, no notification sent
     messaging.onMessage(function(payload) {
       console.log("User on page- message received. ", payload);
     });
 
     function getToken() {
-      //Initialize user's Firebase token
+      // Initialize user's Firebase token
       var user = firebase.auth().currentUser;
       firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
@@ -87,10 +87,10 @@
             notifyBool = false;
           }    
         } else {
-            document.getElementById("studentPosition").innerText = "You are #" + studentPosition.position + " on the queue.";
+          document.getElementById("studentPosition").innerText = "You are #" + studentPosition.position + " on the queue.";
             
-            document.getElementById("workspaceRedirect").href = studentPosition.workspace;
-            document.getElementById("workspaceRedirect").innerText = "go to workspace";
+          document.getElementById("workspaceRedirect").href = studentPosition.workspace;
+          document.getElementById("workspaceRedirect").innerText = "go to workspace";
         }
       });
     }
@@ -101,14 +101,14 @@
 
       fetch(request).then(response => response.json()).then((helpedBy) => {
         if (helpedBy == "null"){
-            document.getElementById("beingHelped").innerText = "You are done being helped.";
-            document.getElementById("workspaceRedirect").href = "";
-            document.getElementById("workspaceRedirect").innerText = "";
-            gotWorkspaceID = false;
-            clearInterval(repeat);
+          document.getElementById("beingHelped").innerText = "You are done being helped.";
+          document.getElementById("workspaceRedirect").href = "";
+          document.getElementById("workspaceRedirect").innerText = "";
+          gotWorkspaceID = false;
+          clearInterval(repeat);
 
         } else {
-            document.getElementById("beingHelped").innerText = "You are being helped by " + helpedBy;
+          document.getElementById("beingHelped").innerText = "You are being helped by " + helpedBy;
         }
       });
     }
