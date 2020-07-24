@@ -15,6 +15,8 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.gson.Gson;
 import com.google.sps.firebase.FirebaseAppManager;
+import com.google.sps.models.UserData;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;

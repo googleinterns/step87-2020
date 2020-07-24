@@ -1,4 +1,4 @@
-package com.google.sps.servlets;
+package com.google.sps.models;
 
 public class UserData {
   private String name;

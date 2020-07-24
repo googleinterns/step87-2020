@@ -9,7 +9,7 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
 import com.google.sps.authentication.Authenticator;
-import com.google.sps.environment.Environment;
+import com.google.sps.models.Environment;
 import com.google.sps.tasks.TaskSchedulerFactory;
 import java.io.IOException;
 import javax.servlet.ServletException;

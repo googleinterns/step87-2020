@@ -16,6 +16,8 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.gson.Gson;
+import com.google.sps.models.UserData;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;

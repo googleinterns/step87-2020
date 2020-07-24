@@ -16,7 +16,7 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.gson.Gson;
 import com.google.sps.authentication.Authenticator;
-import com.google.sps.environment.Environment;
+import com.google.sps.models.Environment;
 import com.google.sps.tasks.TaskScheduler;
 import com.google.sps.tasks.TaskSchedulerFactory;
 import java.io.PrintWriter;

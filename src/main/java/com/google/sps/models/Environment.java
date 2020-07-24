@@ -1,4 +1,4 @@
-package com.google.sps.environment;
+package com.google.sps.models;
 
 public class Environment {
   private String name;

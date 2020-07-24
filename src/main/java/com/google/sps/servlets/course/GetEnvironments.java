@@ -12,7 +12,7 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.gson.Gson;
 import com.google.sps.authentication.Authenticator;
-import com.google.sps.environment.Environment;
+import com.google.sps.models.Environment;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
