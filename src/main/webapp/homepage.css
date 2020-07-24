@@ -58,13 +58,13 @@ body {
 }
 
 #text p{
-    color: #4c4c4c;
-    font-size: 20px;
+  color: #4c4c4c;
+  font-size: 20px;
 }
 
 #text h1{
-    color: #4285f4;
-    font-size: 35px;
+  color: #4285f4;
+  font-size: 35px;
 }
 
 #content {
@@ -83,4 +83,5 @@ body {
 #firebaseui-auth-container {
   position: absolute;
   right: 0;
+  z-index: 1;
 }

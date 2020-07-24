@@ -1,18 +1,5 @@
 // Display sign-in options on landing page
 function loadSignIn() {
-  // web app's Firebase configuration
-  var firebaseConfig = {
-    apiKey: "AIzaSyA1r_PfVDCXfTgoUNisci5Ag2MKEEwsZCE",
-    authDomain: "fulfillment-deco-step-2020.firebaseapp.com",
-    databaseURL: "https://fulfillment-deco-step-2020.firebaseio.com",
-    projectId: "fulfillment-deco-step-2020",
-    storageBucket: "fulfillment-deco-step-2020.appspot.com",
-    messagingSenderId: "7165833112",
-    appId: "1:7165833112:web:3b4af53c5de6aa73b7c5ed"
-  };
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-
   // Initialize the FirebaseUI Widget using Firebase
   var ui = new firebaseui.auth.AuthUI(firebase.auth());
 
@@ -27,6 +14,7 @@ function loadSignIn() {
       },
     ],
     signInSuccessUrl: "/userDash.html",
+    signInFlow: 'popup',
   });
 }
 
@@ -39,34 +27,12 @@ function logout() {
   });
 }
 
-// If the user is signed in on first visit to homepage, show the logout button, if not, don't show logout button
-function checkSignIn() {
-  var button = document.getElementById("signout");
-  var user = firebase.auth().currentUser;
-  
+// If user is logged in, redirect to user dashboard
+firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
-    // User is signed in, they need to have the option of logging out
-    button.style.visibility = "visible";
-  } else {
-    // No user is signed in
-    button.style.visibility = "hidden";
+    window.location.href = "/userDash.html";
   }
-}
-
-// When user sign-in state changes, hide or show logout button
-function addAuthStateListener() {
-  var button = document.getElementById("signout");
- 
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-      button.style.visibility = "visible";
-    } else {
-      button.style.visibility = "hidden";
-    }
-    signInFlow: 'popup',
-    signInSuccessUrl: "/userDash.html",
-  });
-}
+});
 
 // Homepage checks for sign in onload
 function start() {

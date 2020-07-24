@@ -18,8 +18,8 @@
 }
 
 .top-right-buttons {
-  position: absolute;
-  right: 0;
+  clear: both;
+  overflow: hidden;
   padding: 10px 20px;
 }
 
@@ -34,6 +34,7 @@
   font-size: 16px;
   margin: 4px 2px;
   transition-duration: 0.5s;
+  float: right;
 }
 
 .reg-button:hover {

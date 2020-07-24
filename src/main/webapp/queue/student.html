@@ -12,6 +12,8 @@
 
     <link rel="stylesheet" href="studentQueue.css">
     <link rel="stylesheet" href="/style/common.css">
+    <script src="/script/auth.js"></script>
+    
     <!--Font-->
     <link href='https://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'></link>
   </head>
@@ -23,19 +25,6 @@
     const SERVER_KEY = "AAAAAasd75g:APA91bGfddnjqVWJxOtnGQLMnJi4D8tnJUwP3ce04qB0GfUI3piA2lf3EGHPL86FfVyrWKayIXFCLqrrzthb_2i8ZjC9_xa3Hq-j0EXkp8HUpnMN7am3luEjkf56jM8K7zAQ7Edg6n4j";
     const VAPID_KEY = "BATH4W6KjVLUSE-tGXhgBbFr6BINlPDO0gf4L9NB8F8qCLStYVzIvYpH4m32Yzlit26G0f4ofC2Zr044t1-hxHk";
 
-    let firebaseConfig = {
-      apiKey: "AIzaSyA1r_PfVDCXfTgoUNisci5Ag2MKEEwsZCE",
-      authDomain: "fulfillment-deco-step-2020.firebaseapp.com",
-      databaseURL: "https://fulfillment-deco-step-2020.firebaseio.com",
-      projectId: "fulfillment-deco-step-2020",
-      storageBucket: "fulfillment-deco-step-2020.appspot.com",
-      messagingSenderId: "7165833112",
-      appId: "1:7165833112:web:3b4af53c5de6aa73b7c5ed"
-    };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-
     //Retrieve Firebase Messaging object 
     const messaging = firebase.messaging();
     messaging.usePublicVapidKey(VAPID_KEY);
@@ -46,7 +35,7 @@
       .then(function () {
         console.log("Notification permission granted.");
             
-        // get the token in the form of promise
+        // Get the token in the form of promise
         return messaging.getToken();
       })
       .then(function(token) {
@@ -56,13 +45,13 @@
         console.log("Unable to get permission to notify.", err);
       });
 
-    //If user on page, no notification sent
+    // If user on page, no notification sent
     messaging.onMessage(function(payload) {
       console.log("User on page- message received. ", payload);
     });
 
     function getToken() {
-      //Initialize user's Firebase token
+      // Initialize user's Firebase token
       var user = firebase.auth().currentUser;
       firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
@@ -98,10 +87,10 @@
             notifyBool = false;
           }    
         } else {
-            document.getElementById("studentPosition").innerText = "You are #" + studentPosition.position + " on the queue.";
+          document.getElementById("studentPosition").innerText = "You are #" + studentPosition.position + " on the queue.";
             
-            document.getElementById("workspaceRedirect").href = studentPosition.workspace;
-            document.getElementById("workspaceRedirect").innerText = "go to workspace";
+          document.getElementById("workspaceRedirect").href = studentPosition.workspace;
+          document.getElementById("workspaceRedirect").innerText = "go to workspace";
         }
       });
     }
@@ -112,14 +101,14 @@
 
       fetch(request).then(response => response.json()).then((helpedBy) => {
         if (helpedBy == "null"){
-            document.getElementById("beingHelped").innerText = "You are done being helped.";
-            document.getElementById("workspaceRedirect").href = "";
-            document.getElementById("workspaceRedirect").innerText = "";
-            gotWorkspaceID = false;
-            clearInterval(repeat);
+          document.getElementById("beingHelped").innerText = "You are done being helped.";
+          document.getElementById("workspaceRedirect").href = "";
+          document.getElementById("workspaceRedirect").innerText = "";
+          gotWorkspaceID = false;
+          clearInterval(repeat);
 
         } else {
-            document.getElementById("beingHelped").innerText = "You are being helped by " + helpedBy;
+          document.getElementById("beingHelped").innerText = "You are being helped by " + helpedBy;
         }
       });
     }
@@ -161,6 +150,9 @@
 
     <div id="queue_status"  class="wrapper">
       <h1 id="studentPosition"></h1>
+    </div>
+
+    <div class="wrapper">
       <a href="" id = "workspaceRedirect" style="text-decoration: none;" rel="noopener noreferrer" target="_blank"></a>
     </div>
   </body>

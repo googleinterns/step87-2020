@@ -69,30 +69,30 @@
     }
 
     function createClassElement(classCode, nameClass, type) {
-        var params;
-        var urlRedirect;
-        if (type != "registeredClasses"){
-            params = "?classCode="+classCode+"&idToken="+userToken+ "&enterTA=" + "isTA";
-            urlRedirect = "/queue/ta.html?classCode=" + classCode;
-        } else {
-            params = "?classCode="+classCode+"&idToken="+userToken;
-            urlRedirect = "/queue/student.html?classCode=" + classCode;
-        }
+      var params;
+      var urlRedirect;
+      if (type != "registeredClasses"){
+        params = "?classCode="+classCode+"&idToken="+userToken+ "&enterTA=" + "isTA";
+        urlRedirect = "/queue/ta.html?classCode=" + classCode;
+      } else {
+        params = "?classCode="+classCode+"&idToken="+userToken;
+        urlRedirect = "/queue/student.html?classCode=" + classCode;
+      }
 
-        let enterElem = document.createElement("div");
-        enterElem.className = "class-container";
-        enterElem.onclick = function(){enterQueue(params, urlRedirect);};
+      let enterElem = document.createElement("div");
+      enterElem.className = "class-container";
+      enterElem.onclick = function(){enterQueue(params, urlRedirect);};
 
-        let center = document.createElement("div");
-        center.className = "class-info-container";
-        let classElem = document.createElement('p');
-        classElem.innerText = nameClass;
-        classElem.className = "class-info";
+      let center = document.createElement("div");
+      center.className = "class-info-container";
+      let classElem = document.createElement('p');
+      classElem.innerText = nameClass;
+      classElem.className = "class-info";
 
-        center.appendChild(classElem);
-        enterElem.appendChild(center);
+      center.appendChild(classElem);
+      enterElem.appendChild(center);
 
-        return enterElem;
+      return enterElem;
     }
 
     function enterQueue(params, urlRedirect){

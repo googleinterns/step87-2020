@@ -156,7 +156,6 @@ body {
   width: 80%;
   border-radius: 10px;
   margin: 0 auto;
-  border: 1px solid #C2E1FF;
   padding: 20px;
   color: #031430;
   background: #EBF5FF;
@@ -172,16 +171,16 @@ body {
   font-size: smaller;
   float: right;
   padding: 5px;
-  color: #C2E1FF;
+  color: #031430;
 }
 
 #charts {
-  width: 800px;
+  max-width: 800px;
+  width: 100%;
   margin: auto;
 }
 
 .chart {
-  display: inline-block;
   margin: 0 auto;
   flex-shrink: 0;
 }
@@ -191,15 +190,12 @@ body {
 }
 
 .tab {
-  float: left;
-
   border: none;
   height: 40px;
   float: left;
   padding: 0px 15px;
   display: flex;
   align-items: center;
-
   border-right-style: solid;
   border-color: var(--background-color);
   border-width: 1px;
@@ -227,4 +223,13 @@ body {
 
 .byline {
   color: black;
+}
+
+.tabs {
+  clear: both;
+  overflow: hidden;
+}
+
+.top-right-buttons.overflow-fix {
+  overflow: visible;
 }
