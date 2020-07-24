@@ -175,12 +175,12 @@ body {
 }
 
 #charts {
-  width: 800px;
+  max-width: 800px;
+  width: 100%;
   margin: auto;
 }
 
 .chart {
-  display: inline-block;
   margin: 0 auto;
   flex-shrink: 0;
 }
@@ -223,4 +223,13 @@ body {
 
 .byline {
   color: black;
+}
+
+.tabs {
+  clear: both;
+  overflow: hidden;
+}
+
+.top-right-buttons.overflow-fix {
+  overflow: visible;
 }
