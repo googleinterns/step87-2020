@@ -42,9 +42,6 @@ public class RemoveFromQueue extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // Get the input from the form.
-    // navigate to /_ah/admin to view Datastore
-
     datastore = DatastoreServiceFactory.getDatastoreService();
 
     try {
