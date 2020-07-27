@@ -62,6 +62,9 @@
 
       fetch(request).then(response => response.json()).then(userData => {
         userData.forEach(element => {
+          if (element.type === "taClasses") {
+            document.getElementById("taHeader").classList.remove("hidden");
+          }
           var sectionElement = document.getElementById(element.type);
           sectionElement.prepend(createClassElement(element.code, element.name, element.type, element.inQueue));
         });
@@ -137,8 +140,8 @@
           <button class="reg-button" onclick="signOut()">Log Out</button>
         </div>
 
-        <h1 class = "section-name">Classes you are registered in:</h1>
-        <div id = "registeredClasses">
+        <h1 class="section-name">Classes you are registered in:</h1>
+        <div id="registeredClasses">
           <a class="class-container" href="#register-popup">
             <div class="class-info-container">
               <p class="class-info">Request access!</p>
@@ -146,11 +149,11 @@
           </a>
         </div>
 
-        <h1 class = "section-name">Classes you are on teaching staff:</h1>
-        <div id = "taClasses"></div>
+        <h1 class="section-name hidden" id="taHeader">Classes you are on teaching staff:</h1>
+        <div id="taClasses"></div>
 
-        <h1 class = "section-name">Classes you own:</h1>
-        <div id = "ownedClasses">
+        <h1 class="section-name">Classes you own:</h1>
+        <div id="ownedClasses">
           <a href="#popup-container" class="class-container">
             <div class="class-info-container">
               <div class="class-info">
