@@ -23,8 +23,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/participants")
-public class DisplayParticipants extends HttpServlet {
+@WebServlet("/ta-participants")
+public class TAParticipants extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
 
@@ -34,6 +34,30 @@ public class DisplayParticipants extends HttpServlet {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
     } catch (IOException e) {
       throw new ServletException(e);
+    }
+  }
+
+  @Override
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    datastore = DatastoreServiceFactory.getDatastoreService();
+
+    try {
+      ArrayList<String> classTAs = new ArrayList<String>();
+
+      // Retrieve class entity
+      String classCode = request.getParameter("classCode").trim();
+      Key classKey = KeyFactory.stringToKey(classCode);
+
+      Query query =
+          new Query("User").setFilter(new FilterPredicate("taClasses", FilterOperator.EQUAL, classKey)));
+      PreparedQuery results = datastore.prepare(query);
+
+      // Store the date and wait time lists into two separate lists
+      for (Entity entity : results.asIterable()) {
+        String email = (String) entity.getProperty("userEmail");
+        classTAs.add(email);
+      }
+        
     }
   }
 }
