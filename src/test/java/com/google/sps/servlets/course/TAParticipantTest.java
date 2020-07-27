@@ -53,8 +53,8 @@ public class TAParticipantTest {
   }
 
   @Test
-  // For a user that doesn't TA for any class, add a class
-  public void addOneTAEmptyList() throws Exception {
+  // Check if a single participant is retrieved properly
+  public void basicCheck() throws Exception {
 
     // Create a class
     Entity init = new Entity("Class");
