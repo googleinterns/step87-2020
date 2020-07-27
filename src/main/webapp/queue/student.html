@@ -71,6 +71,15 @@
       makeRequest();
     }
 
+    function removeSelf(){
+      var params = window.location.search + "&idToken=" + studentToken;
+      const request = new Request("/remove-from-queue" + params, {method: "POST"});
+      
+      fetch(request).then(() => {
+        window.location.href = "/userDash.html";
+      });
+    }
+
     let gotWorkspaceID = false;
 
     let repeat = setInterval(makeRequest, 10000);
@@ -142,6 +151,7 @@
   <body onload="getToken()">
     <div class="top-right-buttons">
       <button class="reg-button" onclick="signOut()">Log Out</button>
+      <button class="reg-button" onclick="removeSelf()">Leave the queue</button>
     </div>
 
     <div class = "wrapper">
