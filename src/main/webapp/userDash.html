@@ -100,8 +100,7 @@
         const request = new Request("/enterqueue" + params, {method: "POST"});
         fetch(request).then(response => {
             window.location.assign(urlRedirect);
-        })
-        .catch(function(err) {
+        }).catch(function(err) {
             console.info(err);
         });
       } else {
