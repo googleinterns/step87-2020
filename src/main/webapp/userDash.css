@@ -105,3 +105,9 @@ body {
 .popup .content {
   overflow: auto;
 }
+
+.in-queue-indicator::before {
+  content: ' \25CF';
+  color: green;
+  padding-right: 5px;
+}

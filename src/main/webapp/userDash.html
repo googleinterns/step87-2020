@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Queue</title>
+    <title>User Dashboard</title>
 
     <!-- Firebase App (the core Firebase SDK) must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/7.15.1/firebase-app.js"></script>
@@ -63,12 +63,12 @@
       fetch(request).then(response => response.json()).then(userData => {
         userData.forEach(element => {
           var sectionElement = document.getElementById(element.type);
-          sectionElement.prepend(createClassElement(element.code, element.name, element.type));
+          sectionElement.prepend(createClassElement(element.code, element.name, element.type, element.inQueue));
         });
       });
     }
 
-    function createClassElement(classCode, nameClass, type) {
+    function createClassElement(classCode, nameClass, type, inQueue) {
       var params;
       var urlRedirect;
       if (type != "registeredClasses"){
@@ -85,9 +85,25 @@
 
       let center = document.createElement("div");
       center.className = "class-info-container";
-      let classElem = document.createElement('p');
-      classElem.innerText = nameClass;
-      classElem.className = "class-info";
+      let classElem;
+      if (inQueue) {
+        classElem = document.createElement('div');
+        classElem.className = "class-info";
+
+        let classP = document.createElement('p');
+        classP.innerHTML = nameClass;
+
+        let inQueueIndicator = document.createElement("p");
+        inQueueIndicator.innerText = "In Queue!"
+        inQueueIndicator.className = "in-queue-indicator"
+
+        classElem.appendChild(classP);
+        classElem.appendChild(inQueueIndicator);
+      } else {
+        classElem = document.createElement('p');
+        classElem.innerText = nameClass;
+        classElem.className = "class-info";
+      }
 
       center.appendChild(classElem);
       enterElem.appendChild(center);
