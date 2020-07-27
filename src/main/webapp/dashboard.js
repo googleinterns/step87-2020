@@ -136,11 +136,29 @@ function drawTime() {
 google.charts.setOnLoadCallback(drawBasic);
 google.charts.setOnLoadCallback(drawTime);
 
+/* Creates a <li> element for every item in json */
+function createListElement(text) {
+  const liElement = document.createElement('li');
+  liElement.innerText = text;
+  return liElement;
+}
+
 // Provide a link to the TA queue and display class code
 function setRedirect(){
   var params = window.location.search;
   document.getElementById("redirect").onclick = () => window.location.href = "/queue/ta.html" + params;
   document.getElementById("classCode").innerText =  params.slice(11);
+
+  fetch(`/ta-participants?classCode=` + getParam("classCode")).then(response => response.json()).then((list) => {
+    const listElement = document.getElementById('classTAList');
+    listElement.innerHTML = '';
+    
+    // Use HTML to display each message
+    for (var i = 0; i < list.length; i++) {
+      listElement.appendChild(
+        createListElement(list[i]));
+    }
+  });
 }
 
 // Obtain the class's specific code from URL parameter

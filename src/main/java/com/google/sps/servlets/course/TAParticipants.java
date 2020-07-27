@@ -10,12 +10,10 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseToken;
 import com.google.gson.Gson;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
-import java.util.List;
+import java.util.ArrayList;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -48,16 +46,25 @@ public class TAParticipants extends HttpServlet {
       String classCode = request.getParameter("classCode").trim();
       Key classKey = KeyFactory.stringToKey(classCode);
 
+      // Filter for TAs that teach this class
       Query query =
-          new Query("User").setFilter(new FilterPredicate("taClasses", FilterOperator.EQUAL, classKey)));
+          new Query("User")
+              .setFilter(new FilterPredicate("taClasses", FilterOperator.EQUAL, classKey));
       PreparedQuery results = datastore.prepare(query);
 
-      // Store the date and wait time lists into two separate lists
+      // Store the TA emails
       for (Entity entity : results.asIterable()) {
         String email = (String) entity.getProperty("userEmail");
         classTAs.add(email);
       }
-        
+
+      response.setContentType("application/json;");
+      Gson gson = new Gson();
+      String json = gson.toJson(classTAs);
+      response.getWriter().println(json);
+
+    } catch (IllegalArgumentException e) {
+      response.sendError(HttpServletResponse.SC_BAD_REQUEST);
     }
   }
 }

@@ -143,7 +143,15 @@ body {
   text-align: center;
   background-color: var(--background-color);
   color: #031430;
-  width:100%;
+  width: 100%;
+}
+
+.displayList {
+  text-align: left;
+  margin-left: 15px;
+  background-color: var(--background-color);
+  color: #031430;
+  width: 100%;
 }
 
 #roster {
