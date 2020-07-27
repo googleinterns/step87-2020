@@ -196,23 +196,26 @@ body {
   padding: 0px 15px;
   display: flex;
   align-items: center;
-  border-right-style: solid;
-  border-color: var(--background-color);
-  border-width: 1px;
+  border-style: solid;
+  border-width: 3px;
+  border-radius: 5px;
+  background-color: var(--background-color);
 }
 
 .active-tab {
-  color: var(--background-color);
-  background-color: var(--button-hover-color);
+  border-color: var(--button-hover-color);
 }
 
 .inactive-tab {
-  color: var(--background-color);
-  background-color: var(--secondary-button-color);
+  border-color: var(--secondary-button-color);
 }
 
 .tab:hover {
-  background-color: var(--permanent-tab-hover);
+  border-color: var(--permanent-tab-hover);
+}
+
+.tab:focus {
+  outline: none;
 }
 
 .text-left-right {
