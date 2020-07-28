@@ -166,7 +166,7 @@ function setRedirect(){
     const listElement = document.getElementById('classStudentList');
     listElement.innerHTML = '';
     
-    // Use HTML to display each message
+    // Use HTML to display each user
     for (var i = 0; i < list.length; i++) {
       listElement.appendChild(
         createListElement(list[i]));
