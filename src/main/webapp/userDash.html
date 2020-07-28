@@ -74,7 +74,7 @@
     function createClassElement(classCode, nameClass, type, inQueue) {
       var params;
       var urlRedirect;
-      if (type != "registeredClasses"){
+      if (type !== "registeredClasses"){
         params = "?classCode="+classCode+"&idToken="+userToken+ "&enterTA=" + "isTA";
         urlRedirect = "/queue/ta.html?classCode=" + classCode;
       } else {
@@ -84,7 +84,7 @@
 
       let enterElem = document.createElement("div");
       enterElem.className = "class-container";
-      enterElem.onclick = function(){enterQueue(params, urlRedirect);};
+      enterElem.onclick = function(){enterQueue(params, urlRedirect, type);};
 
       let center = document.createElement("div");
       center.className = "class-info-container";
@@ -114,14 +114,18 @@
       return enterElem;
     }
 
-    function enterQueue(params, urlRedirect){
-      const request = new Request("/enterqueue" + params, {method: "POST"});
-      fetch(request).then(response => {
-        window.location.assign(urlRedirect);
-      })
-      .catch(function(err) {
-        console.info(err);
-      });
+    function enterQueue(params, urlRedirect, type){
+      if (type === "registeredClasses"){
+        const request = new Request("/enterqueue" + params, {method: "POST"});
+        fetch(request).then(response => {
+            window.location.assign(urlRedirect);
+        }).catch(function(err) {
+            console.info(err);
+        });
+      } else {
+          window.location.assign(urlRedirect);
+      }
+      
     }
 
     function requestAccess() {
