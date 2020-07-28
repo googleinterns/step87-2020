@@ -50,7 +50,7 @@ public class AddClassTA extends HttpServlet {
     int retries = 10;
 
     try {
-      String taEmail = request.getParameter("taEmail");
+      String taEmail = request.getParameter("taEmail").replaceAll("\\s+", "");
 
       // Find the corresponding class Key
       String classCode = request.getParameter("classCode").trim();
