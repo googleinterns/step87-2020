@@ -150,7 +150,7 @@ function setRedirect(){
   document.getElementById("classCode").innerText =  params.slice(11);
 
   // Get TA participants
-  fetch(`/ta-participants?classCode=` + getParam("classCode")).then(response => response.json()).then((list) => {
+  fetch(`/participants?classCode=${getParam("classCode")}&type=teach-staff`).then(response => response.json()).then((list) => {
     const listElement = document.getElementById('classTAList');
     listElement.innerHTML = '';
     
@@ -162,7 +162,7 @@ function setRedirect(){
   });
 
   // Get student participants
-  fetch(`/student-participants?classCode=` + getParam("classCode")).then(response => response.json()).then((list) => {
+  fetch(`/participants?classCode=${getParam("classCode")}&type=student`).then(response => response.json()).then((list) => {
     const listElement = document.getElementById('classStudentList');
     listElement.innerHTML = '';
     

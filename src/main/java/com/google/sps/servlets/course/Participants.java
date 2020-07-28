@@ -21,8 +21,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/ta-participants")
-public class TAParticipants extends HttpServlet {
+@WebServlet("/participants")
+public class Participants extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
 
@@ -40,31 +40,72 @@ public class TAParticipants extends HttpServlet {
     datastore = DatastoreServiceFactory.getDatastoreService();
 
     try {
-      ArrayList<String> classTAs = new ArrayList<String>();
+      ArrayList<String> classParticipants = new ArrayList<String>();
 
       // Retrieve class entity
       String classCode = request.getParameter("classCode").trim();
       Key classKey = KeyFactory.stringToKey(classCode);
 
-      // Filter for TAs that teach this class
-      Query query =
-          new Query("User")
-              .setFilter(new FilterPredicate("taClasses", FilterOperator.EQUAL, classKey));
-      PreparedQuery results = datastore.prepare(query);
+      String type = request.getParameter("type"); // Students or TAs
 
-      // Store the TA emails
+      PreparedQuery results;
+
+      if (!type.equals("student")) {
+        // Filter for TAs that teach this class
+        Query query =
+            new Query("User")
+                .setFilter(new FilterPredicate("taClasses", FilterOperator.EQUAL, classKey));
+        results = datastore.prepare(query);
+      } else {
+        // Filter for students that are in this class
+        Query query2 =
+            new Query("User")
+                .setFilter(
+                    new FilterPredicate("registeredClasses", FilterOperator.EQUAL, classKey));
+        results = datastore.prepare(query2);
+      }
+
+      // Store the emails
       for (Entity entity : results.asIterable()) {
         String email = (String) entity.getProperty("userEmail");
-        classTAs.add(email);
+        classParticipants.add(email);
       }
 
       response.setContentType("application/json;");
       Gson gson = new Gson();
-      String json = gson.toJson(classTAs);
+      String json = gson.toJson(classParticipants);
       response.getWriter().println(json);
 
     } catch (IllegalArgumentException e) {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
     }
+
+    // try {
+    //   ArrayList<String> classTAs = new ArrayList<String>();
+
+    //   // Retrieve class entity
+    //   String classCode = request.getParameter("classCode").trim();
+    //   Key classKey = KeyFactory.stringToKey(classCode);
+
+    //   // Filter for TAs that teach this class
+    //   Query query =
+    //       new Query("User")
+    //           .setFilter(new FilterPredicate("taClasses", FilterOperator.EQUAL, classKey));
+    //   PreparedQuery results = datastore.prepare(query);
+
+    //   // Store the TA emails
+    //   for (Entity entity : results.asIterable()) {
+    //     String email = (String) entity.getProperty("userEmail");
+    //     classTAs.add(email);
+    //   }
+
+    //   response.setContentType("application/json;");
+    //   Gson gson = new Gson();
+    //   String json = gson.toJson(classTAs);
+    //   response.getWriter().println(json);
+
+    // } catch (IllegalArgumentException e) {
+    //   response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+    // }
   }
 }
