@@ -15,6 +15,7 @@ body {
 
 .class-container{
   border: 3px solid #000;
+  border-radius: 5px;
   padding: 10px;
   overflow: auto;
   margin: auto;  
@@ -104,4 +105,10 @@ body {
 }
 .popup .content {
   overflow: auto;
+}
+
+.in-queue-indicator::before {
+  content: ' \25CF';
+  color: green;
+  padding-right: 5px;
 }

@@ -2,6 +2,7 @@ package com.google.sps.servlets.user;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -81,7 +83,18 @@ public class GetUserData extends HttpServlet {
         String name = (String) datastore.get(classKey).getProperty("name");
         String type = "registeredClasses";
 
-        userClasses.add(new UserData(code, name, type));
+        Entity classEntity = datastore.get(classKey);
+
+        ArrayList<EmbeddedEntity> queue =
+            (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
+        Optional<EmbeddedEntity> studentEntity =
+            queue.stream().filter(elem -> elem.hasProperty(userID)).findFirst();
+
+        EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
+
+        boolean inQueue = studentEntity.isPresent() || beingHelped.hasProperty(userID);
+
+        userClasses.add(new UserData(code, name, type, inQueue));
       }
 
       for (Key classKey : ownedClassesList) {
