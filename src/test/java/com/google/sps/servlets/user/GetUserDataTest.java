@@ -131,4 +131,107 @@ public class GetUserDataTest {
     assertTrue(datastore.prepare(new Query("User")).countEntities() == 1);
     assertEquals(testUserEntity.getProperty("userEmail"), "user@google.com");
   }
+
+  @Test
+  public void existingUserInQueue() throws Exception {
+    Entity initClass = new Entity("Class");
+
+    initClass.setProperty("owner", "ownerID");
+    initClass.setProperty("name", "testClass");
+    initClass.setProperty("beingHelped", new EmbeddedEntity());
+
+    EmbeddedEntity inQueue = new EmbeddedEntity();
+    inQueue.setProperty("uID", new EmbeddedEntity());
+
+    initClass.setProperty("studentQueue", Arrays.asList(inQueue));
+
+    datastore.put(initClass);
+
+    Entity initUser = new Entity("User");
+
+    initUser.setProperty("userEmail", "user@google.com");
+    initUser.setProperty("registeredClasses", Arrays.asList(initClass.getKey()));
+    initUser.setProperty("ownedClasses", Collections.emptyList());
+    initUser.setProperty("taClasses", Collections.emptyList());
+
+    datastore.put(initUser);
+
+    when(httpRequest.getParameter("idToken")).thenReturn("uID");
+    FirebaseToken mockToken = mock(FirebaseToken.class);
+    when(authInstance.verifyIdToken("uID")).thenReturn(mockToken);
+    when(mockToken.getUid()).thenReturn("uID");
+    when(mockToken.getEmail()).thenReturn("user@google.com");
+
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter writer = new PrintWriter(stringWriter);
+    when(httpResponse.getWriter()).thenReturn(writer);
+
+    getUserData.doGet(httpRequest, httpResponse);
+
+    assertEquals(
+        new Gson()
+            .toJson(
+                Arrays.asList(
+                    new UserData(
+                        KeyFactory.keyToString(initClass.getKey()),
+                        "testClass",
+                        "registeredClasses",
+                        true))),
+        stringWriter.toString());
+
+    Entity testUserEntity = datastore.prepare(new Query("User")).asSingleEntity();
+    assertTrue(datastore.prepare(new Query("User")).countEntities() == 1);
+    assertEquals(testUserEntity.getProperty("userEmail"), "user@google.com");
+  }
+
+  @Test
+  public void existingUserBeingHelped() throws Exception {
+    Entity initClass = new Entity("Class");
+
+    initClass.setProperty("owner", "ownerID");
+    initClass.setProperty("name", "testClass");
+    EmbeddedEntity beingHelped = new EmbeddedEntity();
+    beingHelped.setProperty("uID", new EmbeddedEntity());
+    initClass.setProperty("beingHelped", beingHelped);
+
+    initClass.setProperty("studentQueue", Collections.emptyList());
+
+    datastore.put(initClass);
+
+    Entity initUser = new Entity("User");
+
+    initUser.setProperty("userEmail", "user@google.com");
+    initUser.setProperty("registeredClasses", Arrays.asList(initClass.getKey()));
+    initUser.setProperty("ownedClasses", Collections.emptyList());
+    initUser.setProperty("taClasses", Collections.emptyList());
+
+    datastore.put(initUser);
+
+    when(httpRequest.getParameter("idToken")).thenReturn("uID");
+    FirebaseToken mockToken = mock(FirebaseToken.class);
+    when(authInstance.verifyIdToken("uID")).thenReturn(mockToken);
+    when(mockToken.getUid()).thenReturn("uID");
+    when(mockToken.getEmail()).thenReturn("user@google.com");
+
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter writer = new PrintWriter(stringWriter);
+    when(httpResponse.getWriter()).thenReturn(writer);
+
+    getUserData.doGet(httpRequest, httpResponse);
+
+    assertEquals(
+        new Gson()
+            .toJson(
+                Arrays.asList(
+                    new UserData(
+                        KeyFactory.keyToString(initClass.getKey()),
+                        "testClass",
+                        "registeredClasses",
+                        true))),
+        stringWriter.toString());
+
+    Entity testUserEntity = datastore.prepare(new Query("User")).asSingleEntity();
+    assertTrue(datastore.prepare(new Query("User")).countEntities() == 1);
+    assertEquals(testUserEntity.getProperty("userEmail"), "user@google.com");
+  }
 }

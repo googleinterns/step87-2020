@@ -258,13 +258,15 @@ function displayDelete(){
 }
 
 function deleteClass(){
-  getToken().then((token) => {
-    var params = window.location.search + "&idToken=" + token;
-    const request = new Request("/delete-class" + params, {method: "POST"});
-    fetch(request).then(response => {
-      window.location.assign("/userDash.html");
+  if (confirm("Are you certain you want to permanently delete this class?") === true) {
+	getToken().then((token) => {
+      var params = window.location.search + "&idToken=" + token;
+      const request = new Request("/delete-class" + params, {method: "POST"});
+      fetch(request).then(response => {
+        window.location.assign("/userDash.html");
+      });
     });
-  });
+  }
 }
 
 function onload() {
