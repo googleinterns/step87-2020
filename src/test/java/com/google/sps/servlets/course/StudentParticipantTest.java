@@ -26,7 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TAParticipantTest {
+public class StudentParticipantTest {
 
   private final LocalServiceTestHelper helper =
       new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
@@ -35,7 +35,7 @@ public class TAParticipantTest {
 
   @Mock FirebaseAuth authInstance;
 
-  @InjectMocks TAParticipants displayTA;
+  @InjectMocks StudentParticipants displayStudent;
 
   @Mock HttpServletRequest httpRequest;
 
@@ -70,8 +70,8 @@ public class TAParticipantTest {
     Entity user = new Entity("User");
 
     user.setProperty("userEmail", "test@google.com");
-    user.setProperty("registeredClasses", Collections.emptyList());
-    user.setProperty("taClasses", Arrays.asList(init.getKey()));
+    user.setProperty("registeredClasses", Arrays.asList(init.getKey()));
+    user.setProperty("taClasses", Collections.emptyList());
     user.setProperty("ownedClasses", Collections.emptyList());
 
     datastore.put(user);
@@ -82,7 +82,7 @@ public class TAParticipantTest {
     PrintWriter writer = new PrintWriter(stringWriter);
     when(httpResponse.getWriter()).thenReturn(writer);
 
-    displayTA.doGet(httpRequest, httpResponse);
+    displayStudent.doGet(httpRequest, httpResponse);
 
     assertTrue(stringWriter.toString().contains("test@google.com"));
   }
@@ -105,22 +105,22 @@ public class TAParticipantTest {
     Entity user = new Entity("User");
 
     user.setProperty("userEmail", "test@google.com");
-    user.setProperty("registeredClasses", Collections.emptyList());
-    user.setProperty("taClasses", Arrays.asList(init.getKey()));
+    user.setProperty("registeredClasses", Arrays.asList(init.getKey()));
+    user.setProperty("taClasses", Collections.emptyList());
     user.setProperty("ownedClasses", Collections.emptyList());
 
     Entity user2 = new Entity("User");
 
     user2.setProperty("userEmail", "test2@google.com");
-    user2.setProperty("registeredClasses", Collections.emptyList());
-    user2.setProperty("taClasses", Arrays.asList(init.getKey()));
+    user2.setProperty("registeredClasses", Arrays.asList(init.getKey()));
+    user2.setProperty("taClasses", Collections.emptyList());
     user2.setProperty("ownedClasses", Collections.emptyList());
 
     Entity user3 = new Entity("User");
 
     user3.setProperty("userEmail", "test3@google.com");
-    user3.setProperty("registeredClasses", Collections.emptyList());
-    user3.setProperty("taClasses", Arrays.asList(init.getKey()));
+    user3.setProperty("registeredClasses", Arrays.asList(init.getKey()));
+    user3.setProperty("taClasses", Collections.emptyList());
     user3.setProperty("ownedClasses", Collections.emptyList());
 
     datastore.put(user);
@@ -133,7 +133,7 @@ public class TAParticipantTest {
     PrintWriter writer = new PrintWriter(stringWriter);
     when(httpResponse.getWriter()).thenReturn(writer);
 
-    displayTA.doGet(httpRequest, httpResponse);
+    displayStudent.doGet(httpRequest, httpResponse);
 
     assertTrue(stringWriter.toString().contains("test@google.com"));
     assertTrue(stringWriter.toString().contains("test2@google.com"));
@@ -141,7 +141,7 @@ public class TAParticipantTest {
   }
 
   @Test
-  // Verify that a class with no TAs returns nothing
+  // Verify that a class with no students returns nothing
   public void empty() throws Exception {
 
     // Create a class
@@ -160,7 +160,7 @@ public class TAParticipantTest {
     PrintWriter writer = new PrintWriter(stringWriter);
     when(httpResponse.getWriter()).thenReturn(writer);
 
-    displayTA.doGet(httpRequest, httpResponse);
+    displayStudent.doGet(httpRequest, httpResponse);
 
     assertTrue(stringWriter.toString().contains("[]"));
   }
