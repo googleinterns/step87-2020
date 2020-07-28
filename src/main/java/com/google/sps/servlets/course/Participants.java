@@ -45,18 +45,21 @@ public class Participants extends HttpServlet {
       // Retrieve class entity
       String classCode = request.getParameter("classCode").trim();
       Key classKey = KeyFactory.stringToKey(classCode);
-
-      String type = request.getParameter("type"); // Students or TAs
+ 
+      // Get students or TAs
+      String type = request.getParameter("type"); 
 
       PreparedQuery results;
 
       if (!type.equals("student")) {
+
         // Filter for TAs that teach this class
         Query query =
             new Query("User")
                 .setFilter(new FilterPredicate("taClasses", FilterOperator.EQUAL, classKey));
         results = datastore.prepare(query);
       } else {
+
         // Filter for students that are in this class
         Query query2 =
             new Query("User")
@@ -79,33 +82,5 @@ public class Participants extends HttpServlet {
     } catch (IllegalArgumentException e) {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
     }
-
-    // try {
-    //   ArrayList<String> classTAs = new ArrayList<String>();
-
-    //   // Retrieve class entity
-    //   String classCode = request.getParameter("classCode").trim();
-    //   Key classKey = KeyFactory.stringToKey(classCode);
-
-    //   // Filter for TAs that teach this class
-    //   Query query =
-    //       new Query("User")
-    //           .setFilter(new FilterPredicate("taClasses", FilterOperator.EQUAL, classKey));
-    //   PreparedQuery results = datastore.prepare(query);
-
-    //   // Store the TA emails
-    //   for (Entity entity : results.asIterable()) {
-    //     String email = (String) entity.getProperty("userEmail");
-    //     classTAs.add(email);
-    //   }
-
-    //   response.setContentType("application/json;");
-    //   Gson gson = new Gson();
-    //   String json = gson.toJson(classTAs);
-    //   response.getWriter().println(json);
-
-    // } catch (IllegalArgumentException e) {
-    //   response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-    // }
   }
 }
