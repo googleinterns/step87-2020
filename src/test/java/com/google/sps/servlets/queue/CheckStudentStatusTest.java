@@ -14,6 +14,7 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
 import com.google.sps.queue.StudentStatus;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -252,6 +253,10 @@ public class CheckStudentStatusTest {
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("uID");
 
+    UserRecord mockUserRecord = mock(UserRecord.class);
+    when(authInstance.getUser("TAUID")).thenReturn(mockUserRecord);
+    when(mockUserRecord.getEmail()).thenReturn("ta@example.com");
+
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
     when(httpResponse.getWriter()).thenReturn(writer);
@@ -260,7 +265,8 @@ public class CheckStudentStatusTest {
 
     Gson gson = new Gson();
 
-    assertEquals(stringWriter.toString(), gson.toJson(new StudentStatus(0, WORKSPACE_ID)));
+    assertEquals(
+        stringWriter.toString(), gson.toJson(new StudentStatus(0, WORKSPACE_ID, "ta@example.com")));
   }
 
   @Test
