@@ -300,8 +300,8 @@ public class AddClassTATest {
     verify(httpResponse).sendError(HttpServletResponse.SC_BAD_REQUEST);
   }
 
+  // Add multiple TA's at the same time
   @Test
-  // For a user that doesn't TA for any class, add a class
   public void addOneMultiple() throws Exception {
 
     // Create a class
@@ -352,8 +352,8 @@ public class AddClassTATest {
     assertTrue(taClasses2.size() == 1);
   }
 
+  // Add multiple TA's at the same time with whitespace
   @Test
-  // For a user that doesn't TA for any class, add a class
   public void addOneMultipleWhitespace() throws Exception {
 
     // Create a class
