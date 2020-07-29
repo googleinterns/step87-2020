@@ -274,7 +274,8 @@ function displayClass(){
     });
   });
 }
- 
+
+// Only show delete button to owners
 function displayDelete(){
   getToken().then((token) => {
     var params = window.location.search + "&idToken=" + token;
@@ -289,6 +290,7 @@ function displayDelete(){
   });
 }
 
+// Only show add owner form to owners
 function displayAddOwner(){
   getToken().then((token) => {
     var params = window.location.search + "&idToken=" + token;
