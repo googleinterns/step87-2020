@@ -296,8 +296,8 @@ function displayAddOwner(){
     const displayRequest = new Request("/get-role" + params, {method: "GET"});
     fetch(displayRequest).then(response => response.json()).then((role) => {
       var elem = document.getElementById("ownerForm");
-      if (role !== "owner"){
-        elem.style.display = "none";
+      if (role == "owner"){
+        elem.style.visibility = "visible";
       }
     });
   });
