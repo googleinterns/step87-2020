@@ -84,6 +84,18 @@
           </div>
         </div>
 
+        <!--Add an owner-->
+        <form id="ownerForm" action="/add-owner" method="POST" onsubmit="getClassCode()" >
+          <fieldset><legend>Add an owner by email</legend>
+            <label for="ownerEmailSubmit">
+              <span>Email <span class="required">*</span></span>
+              <input type="text" class="input-field" name="ownerEmail" value="" /></br>
+              <input id="submitButton2" type="submit" value="Submit">
+              <input class="hidden" id="hiddenClassCode2" name="classCode">
+            </label>
+          </fieldset>
+        </form>
+
         <div id= "delete">
           <button onclick="deleteClass()">Delete Class</button>
         </div>

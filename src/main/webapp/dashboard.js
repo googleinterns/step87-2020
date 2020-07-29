@@ -273,7 +273,7 @@ function displayClass(){
     });
   });
 }
-
+ 
 function displayDelete(){
   getToken().then((token) => {
     var params = window.location.search + "&idToken=" + token;
