@@ -98,9 +98,6 @@ public class AddClassTA extends HttpServlet {
               }
             }
 
-            // Redirect to the class dashboard page
-            response.sendRedirect(ApplicationDefaults.DASHBOARD + classCode);
-
             txn.commit();
             break;
 
@@ -118,6 +115,9 @@ public class AddClassTA extends HttpServlet {
           }
         }
       }
+
+      // Redirect to the class dashboard page
+      response.sendRedirect(ApplicationDefaults.DASHBOARD + classCode);
     } catch (IllegalArgumentException e) {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
     }
