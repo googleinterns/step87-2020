@@ -288,6 +288,20 @@ function displayDelete(){
   });
 }
 
+function displayAddOwner(){
+  getToken().then((token) => {
+    var params = window.location.search + "&idToken=" + token;
+
+    const displayRequest = new Request("/get-role" + params, {method: "GET"});
+    fetch(displayRequest).then(response => response.json()).then((role) => {
+      var elem = document.getElementById("ownerForm");
+      if (role !== "owner"){
+        elem.style.display = "none";
+      }
+    });
+  });
+}
+
 function deleteClass(){
   if (confirm("Are you certain you want to permanently delete this class?") === true) {
 	getToken().then((token) => {
@@ -306,6 +320,7 @@ function onload() {
   firebase.auth().onAuthStateChanged(function(user) {
     displayClass();
     displayDelete();
+    displayAddOwner();
     getEnvs();
   });
 }
