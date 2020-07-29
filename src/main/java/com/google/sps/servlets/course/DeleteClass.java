@@ -64,7 +64,7 @@ public class DeleteClass extends HttpServlet {
 
       String idToken = request.getParameter("idToken");
       FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
- 
+
       Entity ownerCheck = datastore.get(classKey);
       if (ownerCheck.getProperty("owner").equals(decodedToken.getUid())) {
         int retries = 10;

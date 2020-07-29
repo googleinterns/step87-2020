@@ -1,30 +1,23 @@
 package com.google.sps.servlets.course;
 
 import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Transaction;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseToken;
+import com.google.sps.ApplicationDefaults;
 import com.google.sps.firebase.FirebaseAppManager;
-import com.google.sps.tasks.TaskSchedulerFactory;
-import com.google.sps.workspace.WorkspaceFactory;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -50,7 +43,7 @@ public class AddOwner extends HttpServlet {
   // Add an owner to the class
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    
+
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
     int retries = 10;
@@ -73,8 +66,7 @@ public class AddOwner extends HttpServlet {
               datastore.prepare(
                   new Query("User")
                       .setFilter(
-                          new FilterPredicate(
-                              "userEmail", FilterOperator.EQUAL, ownerEmail)));
+                          new FilterPredicate("userEmail", FilterOperator.EQUAL, ownerEmail)));
 
           Entity user;
 
