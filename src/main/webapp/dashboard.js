@@ -177,6 +177,7 @@ function setRedirect(){
 // Obtain the class's specific code from URL parameter
 function getClassCode() {
   document.getElementById("hiddenClassCode").value = getParam("classCode");
+  document.getElementById("hiddenClassCode2").value = getParam("classCode");
   return true;
 }  
 

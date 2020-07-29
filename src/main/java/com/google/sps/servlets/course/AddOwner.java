@@ -81,24 +81,24 @@ public class AddOwner extends HttpServlet {
           // If the owner user entity doesnt exist yet, create one
           if (queryUser.countEntities() == 0) {
 
-            List<Key> taClassesList = Arrays.asList(classKey);
+            List<Key> ownedClassesList = Arrays.asList(classKey);
 
             user = new Entity("User");
             user.setProperty("userEmail", ownerEmail);
             user.setProperty("registeredClasses", Collections.emptyList());
-            user.setProperty("ownedClasses", Collections.emptyList());
-            user.setProperty("taClasses", taClassesList);
+            user.setProperty("ownedClasses", ownedClassesList);
+            user.setProperty("taClasses", Collections.emptyList());
 
             datastore.put(txn, user);
           } else {
-            // If TA user already exists, update their ta class list
+            // If owner user already exists, update their owner class list
             user = queryUser.asSingleEntity();
-            List<Key> taClassesList = (List<Key>) user.getProperty("taClasses");
+            List<Key> ownedClassesList = (List<Key>) user.getProperty("ownedClasses");
 
-            // Do not add a class that is already in the TA list
-            if (!taClassesList.contains(classKey)) {
-              taClassesList.add(classKey);
-              user.setProperty("taClasses", taClassesList);
+            // Do not add a class that is already in the owner list
+            if (!ownedClassesList.contains(classKey)) {
+              ownedClassesList.add(classKey);
+              user.setProperty("ownedClasses", ownedClassesList);
 
               datastore.put(txn, user);
             }
@@ -126,19 +126,6 @@ public class AddOwner extends HttpServlet {
 
     } catch (IllegalArgumentException e) {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-    }
-    
-    try {
-      String classCode = request.getParameter("classCode");
-      Key classKey = KeyFactory.stringToKey(classCode);
-
-      String idToken = request.getParameter("idToken");
-      FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
-
-      Entity ownerCheck = datastore.get(classKey);
-      if (ownerCheck.getProperty("owner").equals(decodedToken.getUid())) {
-        
-      }
     }
   }
 }
