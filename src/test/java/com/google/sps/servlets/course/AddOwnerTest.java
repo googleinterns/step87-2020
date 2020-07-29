@@ -86,7 +86,7 @@ public class AddOwnerTest {
 
     addOwner.doPost(httpRequest, httpResponse);
 
-    // Look for the TA in the user datastore
+    // Look for the owner in the user datastore
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
@@ -140,7 +140,6 @@ public class AddOwnerTest {
 
     addOwner.doPost(httpRequest, httpResponse);
 
-    // Look for the TA in the user datastore
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
