@@ -132,7 +132,7 @@ body {
 }
 
 #ownerForm {
-  visibility: hidden;
+  display: none;
 }
 
 #owner-button {

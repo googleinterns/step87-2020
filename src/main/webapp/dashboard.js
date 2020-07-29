@@ -297,7 +297,7 @@ function displayAddOwner(){
     fetch(displayRequest).then(response => response.json()).then((role) => {
       var elem = document.getElementById("ownerForm");
       if (role === "owner"){
-        elem.style.visibility = "visible";
+        elem.style.display = "inline-block";
       }
     });
   });
