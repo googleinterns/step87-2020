@@ -131,6 +131,10 @@ body {
   font-family: 'Noto Sans', sans-serif;
 }
 
+#ownerForm {
+  visibility: hidden;
+}
+
 #owner-button {
   background-color: #031430;
   color: #EBF5FF;
