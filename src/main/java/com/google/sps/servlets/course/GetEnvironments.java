@@ -61,10 +61,16 @@ public class GetEnvironments extends HttpServlet {
       List<Environment> envs = new ArrayList<>();
 
       for (Entity e : q.asIterable()) {
+        String error = null;
+        if (e.hasProperty("error")) {
+          error = (String) e.getProperty("error");
+        }
+
         envs.add(
             new Environment(
                 (String) e.getProperty("name"),
                 (String) e.getProperty("status"),
+                error,
                 KeyFactory.keyToString(e.getKey())));
       }
 
