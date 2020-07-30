@@ -213,6 +213,12 @@ function checkDeletionStatus(envID, row) {
   }));
 }
 
+function deleteEnv(row, envID, tok) {
+  row.querySelector(".envStatus").innerText = "deleting";
+  fetch(`/environment?envID=${envID}&idToken=${tok}`, {method: 'DELETE'});
+  checkDeletionStatus(envID, row);
+}
+
 function checkEnvStatus(envID, row) {
   getToken().then(tok => {
     fetch(`/environment?envID=${envID}&idToken=${tok}`).then(resp => resp.ok ? resp.json() : "failed").then(env => {
@@ -223,11 +229,7 @@ function checkEnvStatus(envID, row) {
       } else {
         const deleteButton = row.querySelector(".envDelete");
         deleteButton.disabled = false;
-        deleteButton.onclick = () => {
-          row.querySelector(".envStatus").innerText = "deleting";
-          getToken().then(tok => fetch(`/environment?envID=${envID}&idToken=${tok}`, {method: 'DELETE'}));
-          checkDeletionStatus(envID, row);
-        };
+        deleteButton.onclick = () => deleteEnv(row, envID, tok);
       }
     });
   });
@@ -254,11 +256,7 @@ function getEnvs() {
       for (var env of envs) {
        const row = addEnvRow(env.name, env.status);
   
-       row.querySelector(".envDelete").onclick = () => {
-        row.querySelector(".envStatus").innerText = "deleting";
-        fetch(`/environment?envID=${env.id}&idToken=${tok}`, {method: 'DELETE'});
-        checkDeletionStatus(env.id, row);
-       }; 
+       row.querySelector(".envDelete").onclick = () => deleteEnv(row, env.id, tok); 
       }
     });
   });
