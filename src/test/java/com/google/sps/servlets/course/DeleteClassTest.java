@@ -110,10 +110,9 @@ public class DeleteClassTest {
     init.setProperty("beingHelped", beingHelped);
 
     EmbeddedEntity addQueue = new EmbeddedEntity();
-    EmbeddedEntity studentInfo = new EmbeddedEntity();
-    studentInfo.setProperty("timeEntered", DATE);
-    studentInfo.setProperty("workspaceID", "WORKSPACE_ID");
-    addQueue.setProperty("studentID", studentInfo);
+    addQueue.setProperty("timeEntered", DATE);
+    addQueue.setProperty("workspaceID", "WORKSPACE_ID");
+    addQueue.setProperty("uID", "studentID");
     init.setProperty("studentQueue", Arrays.asList(addQueue));
 
     datastore.put(init);

@@ -144,7 +144,7 @@ public class EnterQueueTest {
     ArrayList<EmbeddedEntity> testQueue =
         (ArrayList<EmbeddedEntity>) testClassEntity.getProperty("studentQueue");
     assertEquals(1, testQueue.size());
-    assertTrue(testQueue.get(0).hasProperty("studentID"));
+    assertTrue(((String) testQueue.get(0).getProperty("uID")).equals("studentID"));
 
     Entity testVisitEntity = datastore.prepare(visitQuery).asSingleEntity();
     assertEquals(1, (long) testVisitEntity.getProperty("numVisits"));
@@ -160,11 +160,10 @@ public class EnterQueueTest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
 
-    EmbeddedEntity addQueue = new EmbeddedEntity();
     EmbeddedEntity studentInfo = new EmbeddedEntity();
     studentInfo.setProperty("timeEntered", DATE);
-    addQueue.setProperty("test1", studentInfo);
-    init.setProperty("studentQueue", Arrays.asList(addQueue));
+    studentInfo.setProperty("uID", "student1");
+    init.setProperty("studentQueue", Arrays.asList(studentInfo));
 
     datastore.put(init);
 
@@ -204,8 +203,8 @@ public class EnterQueueTest {
     assertEquals(
         KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
     assertEquals(2, testQueue.size());
-    assertTrue(testQueue.get(0).hasProperty("test1"));
-    assertTrue(testQueue.get(1).hasProperty("uID"));
+    assertTrue(((String) testQueue.get(0).getProperty("uID")).equals("student1"));
+    assertTrue(((String) testQueue.get(1).getProperty("uID")).equals("uID"));
 
     Entity testVisitEntity = datastore.prepare(visitQuery).asSingleEntity();
     assertEquals(2, (long) testVisitEntity.getProperty("numVisits"));
@@ -221,11 +220,10 @@ public class EnterQueueTest {
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
 
-    EmbeddedEntity addQueue = new EmbeddedEntity();
     EmbeddedEntity studentInfo = new EmbeddedEntity();
     studentInfo.setProperty("timeEntered", DATE);
-    addQueue.setProperty("uID", studentInfo);
-    init.setProperty("studentQueue", Arrays.asList(addQueue));
+    studentInfo.setProperty("uID", "uID");
+    init.setProperty("studentQueue", Arrays.asList(studentInfo));
 
     datastore.put(init);
 
@@ -263,7 +261,7 @@ public class EnterQueueTest {
     assertEquals(
         KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
     assertEquals(1, testQueue.size());
-    assertTrue(testQueue.get(0).hasProperty("uID"));
+    assertTrue(((String) testQueue.get(0).getProperty("uID")).equals("uID"));
 
     Entity testVisitEntity = datastore.prepare(visitQuery).asSingleEntity();
     assertEquals(1, (long) testVisitEntity.getProperty("numVisits"));

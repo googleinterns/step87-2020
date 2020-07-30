@@ -80,14 +80,14 @@ public class GetQueueTest {
     init.setProperty("beingHelped", new EmbeddedEntity());
 
     EmbeddedEntity addQueue1 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo1 = new EmbeddedEntity();
-    studentInfo1.setProperty("timeEntered", DATE);
-    addQueue1.setProperty("uID1", studentInfo1);
+    addQueue1.setProperty("timeEntered", DATE);
+    addQueue1.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue1.setProperty("uID", "uID1");
 
     EmbeddedEntity addQueue2 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo2 = new EmbeddedEntity();
-    studentInfo2.setProperty("timeEntered", DATE);
-    addQueue2.setProperty("uID2", studentInfo2);
+    addQueue2.setProperty("timeEntered", DATE);
+    addQueue2.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue2.setProperty("uID", "uID2");
 
     init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2));
 
@@ -161,14 +161,14 @@ public class GetQueueTest {
     init.setProperty("beingHelped", beingHelped);
 
     EmbeddedEntity addQueue1 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo1 = new EmbeddedEntity();
-    studentInfo1.setProperty("timeEntered", DATE);
-    addQueue1.setProperty("uID1", studentInfo1);
+    addQueue1.setProperty("timeEntered", DATE);
+    addQueue1.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue1.setProperty("uID", "uID1");
 
     EmbeddedEntity addQueue2 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo2 = new EmbeddedEntity();
-    studentInfo2.setProperty("timeEntered", DATE);
-    addQueue2.setProperty("uID2", studentInfo2);
+    addQueue2.setProperty("timeEntered", DATE);
+    addQueue2.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue2.setProperty("uID", "uID2");
 
     init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2));
 
