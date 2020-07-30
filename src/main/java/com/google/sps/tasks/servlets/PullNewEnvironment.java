@@ -74,6 +74,7 @@ public class PullNewEnvironment extends HttpServlet {
       } catch (InterruptedException | DockerException e) {
         Entity entity = datastore.get(KeyFactory.stringToKey(entityID));
         entity.setProperty("status", "failed");
+        entity.setProperty("error", e.getMessage());
         datastore.put(entity);
       }
     } catch (EntityNotFoundException e) {
