@@ -46,7 +46,7 @@ public class AddOwner extends HttpServlet {
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-    int retries = 10;
+    int retries = 5;
 
     try {
       while (true) {
