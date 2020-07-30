@@ -136,16 +136,48 @@ function drawTime() {
 google.charts.setOnLoadCallback(drawBasic);
 google.charts.setOnLoadCallback(drawTime);
 
+/* Creates a <li> element for every item in json */
+function createListElement(text) {
+  const liElement = document.createElement('li');
+  liElement.innerText = text;
+  return liElement;
+}
+
 // Provide a link to the TA queue and display class code
 function setRedirect(){
   var params = window.location.search;
   document.getElementById("redirect").onclick = () => window.location.href = "/queue/ta.html" + params;
   document.getElementById("classCode").innerText =  params.slice(11);
+
+  // Get TA participants
+  fetch(`/participants?classCode=${getParam("classCode")}&type=teach-staff`).then(response => response.json()).then((list) => {
+    const listElement = document.getElementById('classTAList');
+    listElement.innerHTML = '';
+    
+    // Use HTML to display each message
+    for (var i = 0; i < list.length; i++) {
+      listElement.appendChild(
+        createListElement(list[i]));
+    }
+  });
+
+  // Get student participants
+  fetch(`/participants?classCode=${getParam("classCode")}&type=student`).then(response => response.json()).then((list) => {
+    const listElement = document.getElementById('classStudentList');
+    listElement.innerHTML = '';
+    
+    // Use HTML to display each user
+    for (var i = 0; i < list.length; i++) {
+      listElement.appendChild(
+        createListElement(list[i]));
+    }
+  });
 }
 
 // Obtain the class's specific code from URL parameter
 function getClassCode() {
   document.getElementById("hiddenClassCode").value = getParam("classCode");
+  document.getElementById("hiddenClassCode2").value = getParam("classCode");
   return true;
 }  
 
@@ -243,6 +275,7 @@ function displayClass(){
   });
 }
 
+// Only show delete button to owners
 function displayDelete(){
   getToken().then((token) => {
     var params = window.location.search + "&idToken=" + token;
@@ -252,6 +285,21 @@ function displayDelete(){
       var elem = document.getElementById("delete");
       if (role !== "owner"){
         elem.style.display = "none";
+      }
+    });
+  });
+}
+
+// Only show add owner form to owners
+function displayAddOwner(){
+  getToken().then((token) => {
+    var params = window.location.search + "&idToken=" + token;
+
+    const displayRequest = new Request("/get-role" + params, {method: "GET"});
+    fetch(displayRequest).then(response => response.json()).then((role) => {
+      var elem = document.getElementById("ownerForm");
+      if (role === "owner"){
+        elem.style.display = "inline-block";
       }
     });
   });
@@ -275,6 +323,7 @@ function onload() {
   firebase.auth().onAuthStateChanged(function(user) {
     displayClass();
     displayDelete();
+    displayAddOwner();
     getEnvs();
   });
 }
