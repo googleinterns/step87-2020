@@ -71,13 +71,12 @@ public class CheckStudentStatusTest {
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
 
-    EmbeddedEntity addQueue1 = new EmbeddedEntity();
     EmbeddedEntity studentInfo1 = new EmbeddedEntity();
     studentInfo1.setProperty("timeEntered", DATE);
     studentInfo1.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue1.setProperty("uID", studentInfo1);
+    studentInfo1.setProperty("uID", "uID");
 
-    init.setProperty("studentQueue", Arrays.asList(addQueue1));
+    init.setProperty("studentQueue", Arrays.asList(studentInfo1));
 
     datastore.put(init);
 
@@ -108,28 +107,24 @@ public class CheckStudentStatusTest {
     init.setProperty("beingHelped", "");
 
     EmbeddedEntity addQueue1 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo1 = new EmbeddedEntity();
-    studentInfo1.setProperty("timeEntered", DATE);
-    studentInfo1.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue1.setProperty("test1", studentInfo1);
+    addQueue1.setProperty("timeEntered", DATE);
+    addQueue1.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue1.setProperty("uID", "studentInfo1");
 
     EmbeddedEntity addQueue2 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo2 = new EmbeddedEntity();
-    studentInfo2.setProperty("timeEntered", DATE);
-    studentInfo2.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue2.setProperty("test2", studentInfo2);
+    addQueue2.setProperty("timeEntered", DATE);
+    addQueue2.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue2.setProperty("uID", "studentInfo2");
 
     EmbeddedEntity addQueue3 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo3 = new EmbeddedEntity();
-    studentInfo3.setProperty("timeEntered", DATE);
-    studentInfo3.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue3.setProperty("uID", studentInfo3);
+    addQueue3.setProperty("timeEntered", DATE);
+    addQueue3.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue3.setProperty("uID", "uID");
 
     EmbeddedEntity addQueue4 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo4 = new EmbeddedEntity();
-    studentInfo4.setProperty("timeEntered", DATE);
-    studentInfo4.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue4.setProperty("test3", studentInfo4);
+    addQueue4.setProperty("timeEntered", DATE);
+    addQueue4.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue4.setProperty("uID", "studentInfo4");
 
     init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2, addQueue3, addQueue4));
 
@@ -162,28 +157,24 @@ public class CheckStudentStatusTest {
     init.setProperty("beingHelped", "");
 
     EmbeddedEntity addQueue1 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo1 = new EmbeddedEntity();
-    studentInfo1.setProperty("timeEntered", DATE);
-    studentInfo1.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue1.setProperty("uID", studentInfo1);
+    addQueue1.setProperty("timeEntered", DATE);
+    addQueue1.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue1.setProperty("uID", "uID");
 
     EmbeddedEntity addQueue2 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo2 = new EmbeddedEntity();
-    studentInfo2.setProperty("timeEntered", DATE);
-    studentInfo2.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue2.setProperty("test2", studentInfo2);
+    addQueue2.setProperty("timeEntered", DATE);
+    addQueue2.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue2.setProperty("uID", "studentInfo2");
 
     EmbeddedEntity addQueue3 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo3 = new EmbeddedEntity();
-    studentInfo3.setProperty("timeEntered", DATE);
-    studentInfo3.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue3.setProperty("uID", studentInfo3);
+    addQueue3.setProperty("timeEntered", DATE);
+    addQueue3.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue3.setProperty("uID", "uID");
 
     EmbeddedEntity addQueue4 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo4 = new EmbeddedEntity();
-    studentInfo4.setProperty("timeEntered", DATE);
-    studentInfo4.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue4.setProperty("test3", studentInfo4);
+    addQueue4.setProperty("timeEntered", DATE);
+    addQueue4.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue4.setProperty("uID", "studentInfo4");
 
     init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2, addQueue3, addQueue4));
 
@@ -222,24 +213,24 @@ public class CheckStudentStatusTest {
     init.setProperty("beingHelped", beingHelped);
 
     EmbeddedEntity addQueue1 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo1 = new EmbeddedEntity();
-    studentInfo1.setProperty("timeEntered", DATE);
-    addQueue1.setProperty("test1", studentInfo1);
+    addQueue1.setProperty("timeEntered", DATE);
+    addQueue1.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue1.setProperty("uID", "studentInfo1");
 
     EmbeddedEntity addQueue2 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo2 = new EmbeddedEntity();
-    studentInfo2.setProperty("timeEntered", DATE);
-    addQueue2.setProperty("test2", studentInfo2);
+    addQueue2.setProperty("timeEntered", DATE);
+    addQueue2.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue2.setProperty("uID", "studentInfo2");
 
     EmbeddedEntity addQueue3 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo3 = new EmbeddedEntity();
-    studentInfo3.setProperty("timeEntered", DATE);
-    addQueue3.setProperty("test3", studentInfo3);
+    addQueue3.setProperty("timeEntered", DATE);
+    addQueue3.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue3.setProperty("uID", "studentInfo3");
 
     EmbeddedEntity addQueue4 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo4 = new EmbeddedEntity();
-    studentInfo4.setProperty("timeEntered", DATE);
-    addQueue4.setProperty("test4", studentInfo4);
+    addQueue4.setProperty("timeEntered", DATE);
+    addQueue4.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue4.setProperty("uID", "studentInfo4");
 
     init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2, addQueue3, addQueue4));
 
@@ -274,24 +265,24 @@ public class CheckStudentStatusTest {
     init.setProperty("beingHelped", beingHelped);
 
     EmbeddedEntity addQueue1 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo1 = new EmbeddedEntity();
-    studentInfo1.setProperty("timeEntered", DATE);
-    addQueue1.setProperty("test1", studentInfo1);
+    addQueue1.setProperty("timeEntered", DATE);
+    addQueue1.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue1.setProperty("uID", "studentInfo1");
 
     EmbeddedEntity addQueue2 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo2 = new EmbeddedEntity();
-    studentInfo2.setProperty("timeEntered", DATE);
-    addQueue2.setProperty("test2", studentInfo2);
+    addQueue2.setProperty("timeEntered", DATE);
+    addQueue2.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue2.setProperty("uID", "studentInfo2");
 
     EmbeddedEntity addQueue3 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo3 = new EmbeddedEntity();
-    studentInfo3.setProperty("timeEntered", DATE);
-    addQueue3.setProperty("test3", studentInfo3);
+    addQueue3.setProperty("timeEntered", DATE);
+    addQueue3.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue3.setProperty("uID", "studentInfo3");
 
     EmbeddedEntity addQueue4 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo4 = new EmbeddedEntity();
-    studentInfo4.setProperty("timeEntered", DATE);
-    addQueue4.setProperty("test4", studentInfo4);
+    addQueue4.setProperty("timeEntered", DATE);
+    addQueue4.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue4.setProperty("uID", "studentInfo4");
 
     init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2, addQueue3, addQueue4));
 

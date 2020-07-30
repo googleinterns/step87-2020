@@ -15,7 +15,6 @@ import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.queue.StudentStatus;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Optional;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -55,21 +54,23 @@ public class CheckStudentStatus extends HttpServlet {
       // Find position in queue
       ArrayList<EmbeddedEntity> queue =
           (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
-      Optional<EmbeddedEntity> studentEntity =
-          queue.stream().filter(elem -> elem.hasProperty(studentID)).findFirst();
+      EmbeddedEntity studentEntity =
+          queue.stream()
+              .filter(elem -> (((String) elem.getProperty("uID")).equals(studentID)))
+              .findFirst()
+              .orElse(null);
 
       response.setContentType("application/json;");
 
       Gson gson = new Gson();
-      if (studentEntity.isPresent()) {
-        EmbeddedEntity embeddedEntity = (EmbeddedEntity) studentEntity.get().getProperty(studentID);
+      if (studentEntity != null) {
         response
             .getWriter()
             .print(
                 gson.toJson(
                     new StudentStatus(
-                        queue.indexOf(studentEntity.get()) + 1,
-                        (String) embeddedEntity.getProperty("workspaceID"))));
+                        queue.indexOf(studentEntity) + 1,
+                        (String) studentEntity.getProperty("workspaceID"))));
       } else {
         EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
         if (beingHelped.hasProperty(studentID)) {

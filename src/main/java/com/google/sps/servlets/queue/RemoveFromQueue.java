@@ -64,11 +64,13 @@ public class RemoveFromQueue extends HttpServlet {
           ArrayList<EmbeddedEntity> queue =
               (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
           EmbeddedEntity delEntity =
-              queue.stream().filter(elem -> elem.hasProperty(studentID)).findFirst().orElse(null);
+              queue.stream()
+                  .filter(elem -> (((String) elem.getProperty("uID")).equals(studentID)))
+                  .findFirst()
+                  .orElse(null);
 
           // Delete workspace
-          EmbeddedEntity studentInfo = (EmbeddedEntity) delEntity.getProperty(studentID);
-          String workspaceID = (String) studentInfo.getProperty("workspaceID");
+          String workspaceID = (String) delEntity.getProperty("workspaceID");
           factory.fromWorkspaceID(workspaceID).delete();
 
           // Update queue

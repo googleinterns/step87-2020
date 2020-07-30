@@ -168,12 +168,7 @@ public class DeleteClass extends HttpServlet {
 
         // Delete dangling workspaces in queue
         for (EmbeddedEntity student : queue) {
-          EmbeddedEntity studentInfo =
-              (EmbeddedEntity)
-                  student.getProperty(
-                      (String) student.getProperties().keySet().stream().findFirst().orElse(null));
-          String workspaceID = (String) studentInfo.getProperty("workspaceID");
-
+          String workspaceID = (String) student.getProperty("workspaceID");
           workspaceFactory.fromWorkspaceID(workspaceID).delete();
         }
 
