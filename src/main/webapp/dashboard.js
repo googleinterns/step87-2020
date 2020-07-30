@@ -256,7 +256,7 @@ function getEnvs() {
   
        row.querySelector(".envDelete").onclick = () => {
         row.querySelector(".envStatus").innerText = "deleting";
-        fetch(`/environment?envID=${env.id}`, {method: 'DELETE'});
+        fetch(`/environment?envID=${env.id}&idToken=${tok}`, {method: 'DELETE'});
         checkDeletionStatus(env.id, row);
        }; 
       }
