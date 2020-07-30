@@ -237,6 +237,7 @@ function checkEnvStatus(envID, row) {
           return false;
         };
         failedLink.innerText = "failed";
+        row.querySelector(".envStatus").innerHTML = "";
         row.querySelector(".envStatus").appendChild(failedLink);
       }
   
