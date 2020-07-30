@@ -85,16 +85,14 @@ public class RemoveFromQueueTest {
     init.setProperty("name", "testClass");
 
     EmbeddedEntity addQueue1 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo1 = new EmbeddedEntity();
-    studentInfo1.setProperty("timeEntered", START_DATE);
-    studentInfo1.setProperty("workspaceID", WORKSPACE_ID1);
-    addQueue1.setProperty("studentID", studentInfo1);
+    addQueue1.setProperty("timeEntered", START_DATE);
+    addQueue1.setProperty("workspaceID", WORKSPACE_ID1);
+    addQueue1.setProperty("uID", "studentID");
 
     EmbeddedEntity addQueue2 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo2 = new EmbeddedEntity();
-    studentInfo2.setProperty("timeEntered", START_DATE);
-    studentInfo2.setProperty("workspaceID", WORKSPACE_ID2);
-    addQueue2.setProperty("ID2", studentInfo2);
+    addQueue2.setProperty("timeEntered", START_DATE);
+    addQueue2.setProperty("workspaceID", WORKSPACE_ID2);
+    addQueue2.setProperty("uID", "ID2");
 
     init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2));
 

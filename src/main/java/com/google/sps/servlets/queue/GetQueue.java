@@ -60,7 +60,7 @@ public class GetQueue extends HttpServlet {
       // Reconstruct queue using names
       ArrayList<String> queue = new ArrayList<String>();
       for (EmbeddedEntity elem : entityQueue) {
-        String uid = elem.getProperties().keySet().stream().findFirst().orElse(null);
+        String uid = (String) elem.getProperty("uID");
         UserRecord userRecord = authInstance.getUser(uid);
         String studentName = userRecord.getEmail();
         queue.add(studentName);

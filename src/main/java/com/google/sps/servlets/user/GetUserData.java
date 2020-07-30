@@ -88,7 +88,9 @@ public class GetUserData extends HttpServlet {
         ArrayList<EmbeddedEntity> queue =
             (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
         Optional<EmbeddedEntity> studentEntity =
-            queue.stream().filter(elem -> elem.hasProperty(userID)).findFirst();
+            queue.stream()
+                .filter(elem -> (((String) elem.getProperty("uID")).equals(userID)))
+                .findFirst();
 
         EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
 

@@ -87,7 +87,7 @@ function getQueue() {
     if (queue.helping) {
         beinghelpedElem.innerHTML = "";
         document.getElementById('beingHelped').appendChild(createHelpedElem(queue.helping.email, queue.helping.workspace));
-    }else {
+    } else {
         beinghelpedElem.innerHTML = "";
     }
     });

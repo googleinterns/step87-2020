@@ -66,7 +66,7 @@ public class NotifyStudentTest {
 
   private Clock fixedClock;
   private static final LocalDate LOCAL_DATE = LocalDate.of(2020, 07, 07);
-  private static final Date START_DATE =
+  private static final Date DATE =
       Date.from(LocalDate.of(2020, 07, 06).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
   @Before
@@ -101,16 +101,14 @@ public class NotifyStudentTest {
     init.setProperty("name", "testClass");
 
     EmbeddedEntity addQueue1 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo1 = new EmbeddedEntity();
-    studentInfo1.setProperty("timeEntered", START_DATE);
-    studentInfo1.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue1.setProperty("studentID", studentInfo1);
+    addQueue1.setProperty("timeEntered", DATE);
+    addQueue1.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue1.setProperty("uID", "studentID");
 
     EmbeddedEntity addQueue2 = new EmbeddedEntity();
-    EmbeddedEntity studentInfo2 = new EmbeddedEntity();
-    studentInfo2.setProperty("timeEntered", START_DATE);
-    studentInfo2.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue2.setProperty("test2", studentInfo2);
+    addQueue2.setProperty("timeEntered", DATE);
+    addQueue2.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue2.setProperty("uID", "uID2");
 
     init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2));
 
@@ -154,8 +152,7 @@ public class NotifyStudentTest {
     assertEquals(
         KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
     assertEquals(1, testQueue.size());
-    assertTrue(testQueue.get(0).hasProperty("test2"));
-
+    assertTrue(((String) testQueue.get(0).getProperty("uID")).equals("uID2"));
     Entity testWaitEntity = datastore.prepare(new Query("Wait")).asSingleEntity();
     ArrayList<Long> waitDurations = (ArrayList<Long>) testWaitEntity.getProperty("waitDurations");
     assertEquals((long) Duration.ofHours(24).getSeconds(), (long) waitDurations.get(0));

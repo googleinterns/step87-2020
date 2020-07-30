@@ -126,13 +126,11 @@ public final class EnterQueue extends HttpServlet {
 
             // Update studentQueue and numVisit properties if student not already in queue
             if (!updatedQueue.stream()
-                .filter(elem -> elem.hasProperty(userID))
+                .filter(elem -> (((String) elem.getProperty("uID")).equals(userID)))
                 .findFirst()
                 .isPresent()) {
 
               // create new student entity to add to queue
-              EmbeddedEntity queueInfo = new EmbeddedEntity();
-
               EmbeddedEntity studentInfo = new EmbeddedEntity();
               studentInfo.setProperty("timeEntered", currTime);
 
@@ -140,9 +138,9 @@ public final class EnterQueue extends HttpServlet {
               w.setStudentUID(userID);
               studentInfo.setProperty("workspaceID", w.getWorkspaceID());
 
-              queueInfo.setProperty(userID, studentInfo);
+              studentInfo.setProperty("uID", userID);
 
-              updatedQueue.add(queueInfo);
+              updatedQueue.add(studentInfo);
               numVisits++;
             }
 

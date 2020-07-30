@@ -141,7 +141,7 @@ public class GetUserDataTest {
     initClass.setProperty("beingHelped", new EmbeddedEntity());
 
     EmbeddedEntity inQueue = new EmbeddedEntity();
-    inQueue.setProperty("uID", new EmbeddedEntity());
+    inQueue.setProperty("uID", "uID");
 
     initClass.setProperty("studentQueue", Arrays.asList(inQueue));
 

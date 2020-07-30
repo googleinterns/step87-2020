@@ -110,12 +110,14 @@ public class NotifyStudent extends HttpServlet {
           ArrayList<EmbeddedEntity> queue =
               (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
           EmbeddedEntity delEntity =
-              queue.stream().filter(elem -> elem.hasProperty(studentID)).findFirst().orElse(null);
+              queue.stream()
+                  .filter(elem -> (((String) elem.getProperty("uID")).equals(studentID)))
+                  .findFirst()
+                  .orElse(null);
           ArrayList<Long> waitTimes = (ArrayList<Long>) waitEntity.getProperty("waitDurations");
 
           // Update wait entity
-          EmbeddedEntity studentEntity = (EmbeddedEntity) delEntity.getProperty(studentID);
-          Date timeEntered = (Date) studentEntity.getProperty("timeEntered");
+          Date timeEntered = (Date) delEntity.getProperty("timeEntered");
 
           LocalDateTime currTime = LocalDateTime.now(clock);
           LocalDateTime enteredTime =
@@ -126,7 +128,7 @@ public class NotifyStudent extends HttpServlet {
           queue.remove(delEntity);
 
           // Get workspace ID
-          String workspaceID = (String) studentEntity.getProperty("workspaceID");
+          String workspaceID = (String) delEntity.getProperty("workspaceID");
           factory.fromWorkspaceID(workspaceID).setTaUID(taID);
 
           // Update beingHelped
