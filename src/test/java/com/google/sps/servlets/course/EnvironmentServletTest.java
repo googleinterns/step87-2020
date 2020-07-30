@@ -79,7 +79,8 @@ public class EnvironmentServletTest {
 
     servlet.doGet(req, resp);
 
-    verify(printWriter, times(1)).print(new Gson().toJson(new Environment(NAME, STATUS, envID)));
+    verify(printWriter, times(1))
+        .print(new Gson().toJson(new Environment(NAME, STATUS, null, envID)));
   }
 
   @Test

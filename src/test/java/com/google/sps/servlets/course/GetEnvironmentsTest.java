@@ -105,8 +105,10 @@ public class GetEnvironmentsTest {
             new Gson()
                 .toJson(
                     Arrays.asList(
-                        new Environment(NAME1, STATUS1, KeyFactory.keyToString(env1.getKey())),
-                        new Environment(NAME2, STATUS2, KeyFactory.keyToString(env2.getKey())))));
+                        new Environment(
+                            NAME1, STATUS1, null, KeyFactory.keyToString(env1.getKey())),
+                        new Environment(
+                            NAME2, STATUS2, null, KeyFactory.keyToString(env2.getKey())))));
   }
 
   @Test
@@ -178,7 +180,8 @@ public class GetEnvironmentsTest {
             new Gson()
                 .toJson(
                     Arrays.asList(
-                        new Environment(NAME1, STATUS1, KeyFactory.keyToString(env1.getKey())))));
+                        new Environment(
+                            NAME1, STATUS1, null, KeyFactory.keyToString(env1.getKey())))));
   }
 
   @Test
