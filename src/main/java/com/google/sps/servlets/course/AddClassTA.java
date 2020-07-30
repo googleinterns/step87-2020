@@ -50,74 +50,74 @@ public class AddClassTA extends HttpServlet {
     int retries = 10;
 
     try {
-      while (true) {
-        Transaction txn = datastore.beginTransaction();
+      String taEmail = request.getParameter("taEmail").replaceAll("\\s+", "");
 
-        try {
+      // Find the corresponding class Key
+      String classCode = request.getParameter("classCode").trim();
+      Key classKey = KeyFactory.stringToKey(classCode);
 
-          // Obtain the teaching assistant email and search for the user
-          String teachingAssistantEmail = request.getParameter("taEmail").trim();
+      for (String teachingAssistantEmail : taEmail.split(",")) {
+        while (true) {
+          Transaction txn = datastore.beginTransaction();
 
-          // Find the corresponding class Key
-          String classCode = request.getParameter("classCode").trim();
-          Key classKey = KeyFactory.stringToKey(classCode);
+          try {
 
-          // Look for the TA in the user datastore
-          PreparedQuery queryUser =
-              datastore.prepare(
-                  new Query("User")
-                      .setFilter(
-                          new FilterPredicate(
-                              "userEmail", FilterOperator.EQUAL, teachingAssistantEmail)));
+            // Look for the TA in the user datastore
+            PreparedQuery queryUser =
+                datastore.prepare(
+                    new Query("User")
+                        .setFilter(
+                            new FilterPredicate(
+                                "userEmail", FilterOperator.EQUAL, teachingAssistantEmail)));
 
-          Entity user;
+            Entity user;
 
-          // If the TA user entity doesnt exist yet, create one
-          if (queryUser.countEntities() == 0) {
+            // If the TA user entity doesnt exist yet, create one
+            if (queryUser.countEntities() == 0) {
 
-            List<Key> taClassesList = Arrays.asList(classKey);
+              List<Key> taClassesList = Arrays.asList(classKey);
 
-            user = new Entity("User");
-            user.setProperty("userEmail", teachingAssistantEmail);
-            user.setProperty("registeredClasses", Collections.emptyList());
-            user.setProperty("ownedClasses", Collections.emptyList());
-            user.setProperty("taClasses", taClassesList);
-
-            datastore.put(txn, user);
-          } else {
-            // If TA user already exists, update their ta class list
-            user = queryUser.asSingleEntity();
-            List<Key> taClassesList = (List<Key>) user.getProperty("taClasses");
-
-            // Do not add a class that is already in the TA list
-            if (!taClassesList.contains(classKey)) {
-              taClassesList.add(classKey);
+              user = new Entity("User");
+              user.setProperty("userEmail", teachingAssistantEmail);
+              user.setProperty("registeredClasses", Collections.emptyList());
+              user.setProperty("ownedClasses", Collections.emptyList());
               user.setProperty("taClasses", taClassesList);
 
               datastore.put(txn, user);
+            } else {
+              // If TA user already exists, update their ta class list
+              user = queryUser.asSingleEntity();
+              List<Key> taClassesList = (List<Key>) user.getProperty("taClasses");
+
+              // Do not add a class that is already in the TA list
+              if (!taClassesList.contains(classKey)) {
+                taClassesList.add(classKey);
+                user.setProperty("taClasses", taClassesList);
+
+                datastore.put(txn, user);
+              }
             }
-          }
 
-          // Redirect to the class dashboard page
-          response.sendRedirect(ApplicationDefaults.DASHBOARD + classCode);
+            txn.commit();
+            break;
 
-          txn.commit();
-          break;
+          } catch (ConcurrentModificationException e) {
+            if (retries == 0) {
+              throw e;
+            }
 
-        } catch (ConcurrentModificationException e) {
-          if (retries == 0) {
-            throw e;
-          }
-
-          // Allow retry to occur
-          --retries;
-        } finally {
-          if (txn.isActive()) {
-            txn.rollback();
+            // Allow retry to occur
+            --retries;
+          } finally {
+            if (txn.isActive()) {
+              txn.rollback();
+            }
           }
         }
       }
 
+      // Redirect to the class dashboard page
+      response.sendRedirect(ApplicationDefaults.DASHBOARD + classCode);
     } catch (IllegalArgumentException e) {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
     }
