@@ -11,6 +11,7 @@ import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
 import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.queue.StudentStatus;
 import java.io.IOException;
@@ -78,7 +79,14 @@ public class CheckStudentStatus extends HttpServlet {
 
           // Get workspace id
           String workspaceID = (String) queueInfo.getProperty("workspaceID");
-          response.getWriter().print(gson.toJson(new StudentStatus(0, workspaceID)));
+
+          // Get TA id
+          String taID = (String) queueInfo.getProperty("taID");
+
+          // Get TA email
+          UserRecord userRecord = authInstance.getUser(taID);
+          String taEmail = userRecord.getEmail();
+          response.getWriter().print(gson.toJson(new StudentStatus(0, workspaceID, taEmail)));
         } else {
           response.getWriter().print(gson.toJson(new StudentStatus(0, "")));
         }

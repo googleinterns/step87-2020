@@ -65,31 +65,23 @@ function sendNotification(){
     });
 }
 
-function getTA(){
-    var params = window.location.search + "&studentToken=" + studentToken;
-    const request = new Request("/get-ta" + params, {method: "GET"});
-
-    fetch(request).then(response => response.json()).then((helpedBy) => {
-    if (helpedBy === "null"){
-        document.getElementById("beingHelped").innerText = "You are done being helped.";
-        document.getElementById("workspaceRedirect").href = "";
-        document.getElementById("workspaceRedirect").innerText = "";
-        gotWorkspaceID = false;
-        clearInterval(repeat);
-
-    } else {
-        document.getElementById("beingHelped").innerText = "You are being helped by " + helpedBy;
-    }
-    });
-}
-
 function makeRequest(){
     var params = window.location.search + "&studentToken=" + studentToken;
     const request = new Request("/check-student" + params, {method: "GET"});
     fetch(request).then(response => response.json()).then((studentPosition) => {
     if (studentPosition.position === 0) {
         document.getElementById("queue_status").innerText = "";
-        getTA();
+        
+        if (!studentPosition.ta){
+            document.getElementById("beingHelped").innerText = "You are done being helped.";
+            document.getElementById("workspaceRedirect").href = "";
+            document.getElementById("workspaceRedirect").innerText = "";
+            gotWorkspaceID = false;
+            clearInterval(repeat);
+    
+        } else {
+            document.getElementById("beingHelped").innerText = "You are being helped by " + studentPosition.ta;
+        }
 
         if (notifyBool) {
         sendNotification();
