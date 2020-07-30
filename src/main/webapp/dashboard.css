@@ -264,3 +264,10 @@ body {
 .top-right-buttons.overflow-fix {
   overflow: visible;
 }
+
+#delete {
+  background-color: #EBF5FF;
+  color: #031430;
+  font-size: 14px;
+  font-family: 'Noto Sans', sans-serif;
+}
