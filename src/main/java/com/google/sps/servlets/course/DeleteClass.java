@@ -73,6 +73,7 @@ public class DeleteClass extends HttpServlet {
 
         while (true) {
           Transaction txn = datastore.beginTransaction();
+          
           try {
             // Retrive class entity
             Entity classEntity = datastore.get(txn, classKey);
