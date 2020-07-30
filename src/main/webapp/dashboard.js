@@ -177,6 +177,7 @@ function setRedirect(){
 // Obtain the class's specific code from URL parameter
 function getClassCode() {
   document.getElementById("hiddenClassCode").value = getParam("classCode");
+  document.getElementById("hiddenClassCode2").value = getParam("classCode");
   return true;
 }  
 
@@ -274,6 +275,7 @@ function displayClass(){
   });
 }
 
+// Only show delete button to owners
 function displayDelete(){
   getToken().then((token) => {
     var params = window.location.search + "&idToken=" + token;
@@ -283,6 +285,21 @@ function displayDelete(){
       var elem = document.getElementById("delete");
       if (role !== "owner"){
         elem.style.display = "none";
+      }
+    });
+  });
+}
+
+// Only show add owner form to owners
+function displayAddOwner(){
+  getToken().then((token) => {
+    var params = window.location.search + "&idToken=" + token;
+
+    const displayRequest = new Request("/get-role" + params, {method: "GET"});
+    fetch(displayRequest).then(response => response.json()).then((role) => {
+      var elem = document.getElementById("ownerForm");
+      if (role === "owner"){
+        elem.style.display = "inline-block";
       }
     });
   });
@@ -306,6 +323,7 @@ function onload() {
   firebase.auth().onAuthStateChanged(function(user) {
     displayClass();
     displayDelete();
+    displayAddOwner();
     getEnvs();
   });
 }

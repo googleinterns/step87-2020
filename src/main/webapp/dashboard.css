@@ -76,7 +76,7 @@ body {
   font-family: 'Noto Sans', sans-serif;
 }
 
-.ta-form fieldset, .side-section {
+.ta-form fieldset, .side-section, .owner {
   border-radius: 10px;
   margin: 0px 0px 10px 0px;
   border: 1px solid #C2E1FF;
@@ -124,6 +124,18 @@ body {
 }
 
 #submitButton, .side-section button, .roster-button {
+  background-color: #031430;
+  color: #EBF5FF;
+  margin-top: 10px;
+  font-size: 14px;
+  font-family: 'Noto Sans', sans-serif;
+}
+
+#ownerForm {
+  display: none;
+}
+
+#owner-button {
   background-color: #031430;
   color: #EBF5FF;
   margin-top: 10px;

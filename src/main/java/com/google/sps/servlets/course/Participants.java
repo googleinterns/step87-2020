@@ -45,9 +45,9 @@ public class Participants extends HttpServlet {
       // Retrieve class entity
       String classCode = request.getParameter("classCode").trim();
       Key classKey = KeyFactory.stringToKey(classCode);
- 
+
       // Get students or TAs
-      String type = request.getParameter("type"); 
+      String type = request.getParameter("type");
 
       PreparedQuery results;
 
