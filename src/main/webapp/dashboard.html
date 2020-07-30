@@ -84,17 +84,18 @@
           </div>
 
           <!--Add an owner-->
-          <form id="ownerForm" action="/add-owner" method="POST" onsubmit="getClassCode()" >
+          <form id="ownerForm" action="/add-owner" method="POST" onsubmit="getOwnerInputs()" >
             <fieldset><legend>Add an Owner by Email</legend>
               <label for="ownerEmailSubmit">
                 <span>Email <span class="required">*</span></span>
                 <input type="text" class="input-field" name="ownerEmail" value="" /></br>
                 <input id="owner-button" type="submit" value="Submit">
                 <input class="hidden" id="hiddenClassCode2" name="classCode">
+                <input class="hidden" id="idTokenOwner" name="idTokenO">
               </label>
             </fieldset>
           </form>
-
+ 
         </div>
 
         <br>
