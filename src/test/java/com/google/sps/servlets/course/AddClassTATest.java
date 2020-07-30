@@ -299,4 +299,108 @@ public class AddClassTATest {
 
     verify(httpResponse).sendError(HttpServletResponse.SC_BAD_REQUEST);
   }
+
+  // Add multiple TA's at the same time
+  @Test
+  public void addOneMultiple() throws Exception {
+
+    // Create a class
+    Entity init = new Entity("Class");
+
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("studentQueue", Collections.emptyList());
+
+    datastore.put(init);
+
+    // Create a user
+    Entity user = new Entity("User");
+
+    user.setProperty("userEmail", "test@google.com");
+    user.setProperty("registeredClasses", Collections.emptyList());
+    user.setProperty("taClasses", Collections.emptyList());
+    user.setProperty("ownedClasses", Collections.emptyList());
+
+    datastore.put(user);
+
+    // Create a user
+    Entity user2 = new Entity("User");
+
+    user2.setProperty("userEmail", "test2@google.com");
+    user2.setProperty("registeredClasses", Collections.emptyList());
+    user2.setProperty("taClasses", Collections.emptyList());
+    user2.setProperty("ownedClasses", Collections.emptyList());
+
+    datastore.put(user2);
+
+    // Create examples for the TA email and class code
+    when(httpRequest.getParameter("taEmail")).thenReturn("test@google.com,test2@google.com");
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+
+    addTA.doPost(httpRequest, httpResponse);
+
+    Entity userTA = datastore.get(user.getKey());
+    Entity userTA2 = datastore.get(user2.getKey());
+
+    List<Key> taClasses = (List<Key>) userTA.getProperty("taClasses");
+    assertTrue(taClasses.contains(init.getKey()));
+    assertTrue(taClasses.size() == 1);
+
+    List<Key> taClasses2 = (List<Key>) userTA2.getProperty("taClasses");
+    assertTrue(taClasses2.contains(init.getKey()));
+    assertTrue(taClasses2.size() == 1);
+  }
+
+  // Add multiple TA's at the same time with whitespace
+  @Test
+  public void addOneMultipleWhitespace() throws Exception {
+
+    // Create a class
+    Entity init = new Entity("Class");
+
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("studentQueue", Collections.emptyList());
+
+    datastore.put(init);
+
+    // Create a user
+    Entity user = new Entity("User");
+
+    user.setProperty("userEmail", "test@google.com");
+    user.setProperty("registeredClasses", Collections.emptyList());
+    user.setProperty("taClasses", Collections.emptyList());
+    user.setProperty("ownedClasses", Collections.emptyList());
+
+    datastore.put(user);
+
+    // Create a user
+    Entity user2 = new Entity("User");
+
+    user2.setProperty("userEmail", "test2@google.com");
+    user2.setProperty("registeredClasses", Collections.emptyList());
+    user2.setProperty("taClasses", Collections.emptyList());
+    user2.setProperty("ownedClasses", Collections.emptyList());
+
+    datastore.put(user2);
+
+    // Create examples for the TA email and class code
+    when(httpRequest.getParameter("taEmail")).thenReturn("test@google.com, \n\t test2@google.com");
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+
+    addTA.doPost(httpRequest, httpResponse);
+
+    Entity userTA = datastore.get(user.getKey());
+    Entity userTA2 = datastore.get(user2.getKey());
+
+    List<Key> taClasses = (List<Key>) userTA.getProperty("taClasses");
+    assertTrue(taClasses.contains(init.getKey()));
+    assertTrue(taClasses.size() == 1);
+
+    List<Key> taClasses2 = (List<Key>) userTA2.getProperty("taClasses");
+    assertTrue(taClasses2.contains(init.getKey()));
+    assertTrue(taClasses2.size() == 1);
+  }
 }
