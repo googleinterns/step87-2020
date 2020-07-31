@@ -1,5 +1,9 @@
 var taToken;
 
+// These students currently have operations running.
+// Eg. Notify or end help.
+const oppInProgress = new Set();
+
 function createLink(url){
   let link = document.createElement("a");
   link.id = "workspaceRedirect";
@@ -12,41 +16,16 @@ function createLink(url){
   return link;
 }
 
-function notifyStudent(studentEmail){
-  var params = window.location.search + "&studentEmail=" + studentEmail + "&taToken=" + taToken;
-  const request = new Request("/notify-student" + params, {method: "POST"});
-    
-  fetch(request);
-}
-
 function endHelp(studentEmail){
   var params = window.location.search + "&studentEmail=" + studentEmail + "&taToken=" + taToken;
   const request = new Request("/end-help" + params, {method: "POST"});
     
+  oppInProgress.add(studentEmail);
+  document.getElementById('beingHelped').innerText = "";
+
   fetch(request).then(() => {
-    document.getElementById('beingHelped').innerText = "";
+    oppInProgress.delete(studentEmail);
   });
-}
-
-function createListElement(studentEmail) {
-  let notifyElem = document.createElement("div");
-  notifyElem.className = "student-container";
-
-  let student = document.createElement('p');
-  student.innerText = studentEmail;
-  student.className = "student-info";
-
-  let btn = document.createElement("input");
-  btn.value = "notify student you're ready to help";
-  btn.type = "button";
-  btn.id = studentEmail;
-  btn.className = "notify-button";
-  btn.onclick = function(){notifyStudent(this.id);};
-
-  notifyElem.appendChild(student);
-  notifyElem.appendChild(btn);
-
-  return notifyElem;
 }
 
 function createHelpedElem(studentEmail, url){
@@ -66,9 +45,43 @@ function createHelpedElem(studentEmail, url){
 
   studentElem.appendChild(student);
   studentElem.appendChild(btn);
-  studentElem.appendChild(createLink(url));
+  if (url) {
+    studentElem.appendChild(createLink(url));
+  }
 
   return studentElem;
+}
+
+function notifyStudent(studentEmail, notifyElem){
+  var params = window.location.search + "&studentEmail=" + studentEmail + "&taToken=" + taToken;
+  const request = new Request("/notify-student" + params, {method: "POST"});
+  oppInProgress.add(studentEmail);
+  notifyElem.remove();
+
+  document.getElementById('beingHelped').appendChild(createHelpedElem(studentEmail));
+
+  fetch(request).then(resp => oppInProgress.delete(studentEmail));
+}
+
+function createListElement(studentEmail) {
+  let notifyElem = document.createElement("div");
+  notifyElem.className = "student-container";
+
+  let student = document.createElement('p');
+  student.innerText = studentEmail;
+  student.className = "student-info";
+
+  let btn = document.createElement("input");
+  btn.value = "notify student you're ready to help";
+  btn.type = "button";
+  btn.id = studentEmail;
+  btn.className = "notify-button";
+  btn.onclick = () => notifyStudent(studentEmail, notifyElem);
+
+  notifyElem.appendChild(student);
+  notifyElem.appendChild(btn);
+
+  return notifyElem;
 }
 
 function getQueue() {
@@ -79,12 +92,14 @@ function getQueue() {
     const queueListElement = document.getElementById('queue');
     queueListElement.innerText = "";
     queue.queue.forEach((studentEmail) => {
-      queueListElement.appendChild(createListElement(studentEmail));
+      if (!oppInProgress.has(studentEmail)) {
+        queueListElement.appendChild(createListElement(studentEmail));
+      }
     });
 
     const beinghelpedElem = document.getElementById('beingHelped');
 
-    if (queue.helping) {
+    if (queue.helping && !oppInProgress.has(queue.helping.email)) {
       beinghelpedElem.innerHTML = "";
       document.getElementById('beingHelped').appendChild(createHelpedElem(queue.helping.email, queue.helping.workspace));
     } else {
