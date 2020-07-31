@@ -16,6 +16,10 @@ body {
   width: 100%;
 }
 
+.powered-by-firepad {
+  display: none;
+}
+
 #firepads {
   height: 100%;
   width: 100%;
