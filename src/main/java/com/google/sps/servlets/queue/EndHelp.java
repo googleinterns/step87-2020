@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
+import com.google.sps.authentication.Authenticator;
 import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.tasks.TaskSchedulerFactory;
 import java.io.IOException;
@@ -30,6 +31,7 @@ public class EndHelp extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
   private TaskSchedulerFactory taskSchedulerFactory;
+  private Authenticator auth;
 
   @VisibleForTesting protected String QUEUE_NAME;
 
@@ -37,9 +39,9 @@ public class EndHelp extends HttpServlet {
   public void init(ServletConfig config) throws ServletException {
     QUEUE_NAME = System.getenv("WORKSPACE_QUEUE_ID");
     taskSchedulerFactory = TaskSchedulerFactory.getInstance();
-
     try {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
+      auth = new Authenticator();
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -58,47 +60,52 @@ public class EndHelp extends HttpServlet {
       FirebaseToken decodedToken = authInstance.verifyIdToken(taToken);
       String taID = decodedToken.getUid();
 
-      int retries = 10;
-      while (true) {
-        Transaction txn = datastore.beginTransaction();
-        try {
-          // Retrive class entity
-          Key classKey = KeyFactory.stringToKey(classCode);
-          Entity classEntity = datastore.get(txn, classKey);
+      if (auth.verifyTaOrOwner(taToken, classCode)) {
 
-          // Get studentID from studentEmail
-          String studentEmail = request.getParameter("studentEmail");
-          UserRecord userRecord = authInstance.getUserByEmail(studentEmail);
-          String studentID = userRecord.getUid();
+        int retries = 10;
+        while (true) {
+          Transaction txn = datastore.beginTransaction();
+          try {
+            // Retrive class entity
+            Key classKey = KeyFactory.stringToKey(classCode);
+            Entity classEntity = datastore.get(txn, classKey);
 
-          // Update beingHelped
-          EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
+            // Get studentID from studentEmail
+            String studentEmail = request.getParameter("studentEmail");
+            UserRecord userRecord = authInstance.getUserByEmail(studentEmail);
+            String studentID = userRecord.getUid();
 
-          EmbeddedEntity studentEntity = (EmbeddedEntity) beingHelped.getProperty(studentID);
+            // Update beingHelped
+            EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
 
-          taskSchedulerFactory
-              .create(QUEUE_NAME, "/tasks/deleteWorkspace")
-              .schedule(
-                  (String) studentEntity.getProperty("workspaceID"), TimeUnit.HOURS.toSeconds(1));
+            EmbeddedEntity studentEntity = (EmbeddedEntity) beingHelped.getProperty(studentID);
 
-          beingHelped.removeProperty(studentID);
+            taskSchedulerFactory
+                .create(QUEUE_NAME, "/tasks/deleteWorkspace")
+                .schedule(
+                    (String) studentEntity.getProperty("workspaceID"), TimeUnit.HOURS.toSeconds(1));
 
-          classEntity.setProperty("beingHelped", beingHelped);
-          datastore.put(txn, classEntity);
+            beingHelped.removeProperty(studentID);
 
-          txn.commit();
-          break;
-        } catch (ConcurrentModificationException e) {
-          if (retries == 0) {
-            throw e;
-          }
-          // Allow retry to occur
-          --retries;
-        } finally {
-          if (txn.isActive()) {
-            txn.rollback();
+            classEntity.setProperty("beingHelped", beingHelped);
+            datastore.put(txn, classEntity);
+
+            txn.commit();
+            break;
+          } catch (ConcurrentModificationException e) {
+            if (retries == 0) {
+              throw e;
+            }
+            // Allow retry to occur
+            --retries;
+          } finally {
+            if (txn.isActive()) {
+              txn.rollback();
+            }
           }
         }
+      } else {
+        response.sendError(HttpServletResponse.SC_FORBIDDEN);
       }
     } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
