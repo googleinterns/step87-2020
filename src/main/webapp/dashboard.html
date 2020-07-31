@@ -46,6 +46,7 @@
                 <input type="text" class="input-field" name="taEmail" value="" /></br>
                 <input id="submitButton" type="submit" value="Submit">
                  <input class="hidden" id="hiddenClassCode" name="classCode">
+                 <input class="hidden" id="idTokenForTA" name="idToken">
               </label>
             </fieldset>
           </form>
@@ -91,7 +92,7 @@
                 <input type="text" class="input-field" name="ownerEmail" value="" /></br>
                 <input id="owner-button" type="submit" value="Submit">
                 <input class="hidden" id="hiddenClassCode2" name="classCode">
-                <input class="hidden" id="idTokenOwner" name="idTokenO">
+                <input class="hidden" id="idTokenOwner" name="idToken">
               </label>
             </fieldset>
           </form>
@@ -139,13 +140,14 @@
 
         <div class="roster-section">
            <!--Form for submitting a class roster-->
-          <form action="/submit-roster" method="POST" onsubmit="getRosterClassCode()">
+          <form action="/submit-roster" method="POST" onsubmit="getRosterInputs()">
             <label for="roster"><span>Enter class roster as comma separated list:</span></label>
             <br>
             <textarea id="roster" name="roster" height="400px" width="500px"></textarea>
             <br>
             <input type="submit" value="Submit" class="roster-button">
             <input class="hidden" id="hiddenRosterClassCode" name="classCode">
+            <input class="hidden" id="roster-id" name="idToken">
           </form> 
         </div>
         <br>

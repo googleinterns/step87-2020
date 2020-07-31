@@ -11,6 +11,7 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.sps.ApplicationDefaults;
+import com.google.sps.authentication.Authenticator;
 import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.Arrays;
@@ -28,12 +29,14 @@ import javax.servlet.http.HttpServletResponse;
 public class SubmitRoster extends HttpServlet {
 
   private FirebaseAuth authInstance;
+  private Authenticator auth;
 
   // Get the current session
   @Override
   public void init(ServletConfig config) throws ServletException {
     try {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
+      auth = new Authenticator();
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -46,6 +49,7 @@ public class SubmitRoster extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
     String rosterNames = request.getParameter("roster").trim();
+    String idToken = request.getParameter("idToken");
 
     // Split the emails and collapse whitespaces
     List<String> allClassEmails = Arrays.asList(rosterNames.split("\\s*,\\s*"));
@@ -54,43 +58,86 @@ public class SubmitRoster extends HttpServlet {
     String classCode = request.getParameter("classCode").trim();
     Key classKey = KeyFactory.stringToKey(classCode);
 
-    for (String email : allClassEmails) {
-      // Look for the student in the user datastore
-      PreparedQuery queryUser =
-          datastore.prepare(
-              new Query("User")
-                  .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, email)));
+    if (auth.verifyTaOrOwner(idToken, classKey)) {
+      for (String email : allClassEmails) {
+        // Look for the student in the user datastore
+        PreparedQuery queryUser =
+            datastore.prepare(
+                new Query("User")
+                    .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, email)));
 
-      Entity user;
+        Entity user;
 
-      // If the student user entity doesnt exist yet, create one
-      if (queryUser.countEntities() == 0) {
+        // If the student user entity doesnt exist yet, create one
+        if (queryUser.countEntities() == 0) {
 
-        List<Key> regClassesList = Arrays.asList(classKey);
+          List<Key> regClassesList = Arrays.asList(classKey);
 
-        user = new Entity("User");
-        user.setProperty("userEmail", email);
-        user.setProperty("registeredClasses", regClassesList);
-        user.setProperty("ownedClasses", Collections.emptyList());
-        user.setProperty("taClasses", Collections.emptyList());
-
-        datastore.put(user);
-      } else {
-        // If student already exists, update their registered class list
-        user = queryUser.asSingleEntity();
-        List<Key> regClassesList = (List<Key>) user.getProperty("registeredClasses");
-
-        // Do not add a class that is already in the registered list
-        if (!regClassesList.contains(classKey)) {
-          regClassesList.add(classKey);
+          user = new Entity("User");
+          user.setProperty("userEmail", email);
           user.setProperty("registeredClasses", regClassesList);
+          user.setProperty("ownedClasses", Collections.emptyList());
+          user.setProperty("taClasses", Collections.emptyList());
 
           datastore.put(user);
+        } else {
+          // If student already exists, update their registered class list
+          user = queryUser.asSingleEntity();
+          List<Key> regClassesList = (List<Key>) user.getProperty("registeredClasses");
+
+          // Do not add a class that is already in the registered list
+          if (!regClassesList.contains(classKey)) {
+            regClassesList.add(classKey);
+            user.setProperty("registeredClasses", regClassesList);
+
+            datastore.put(user);
+          }
         }
       }
+
+      // Redirect to the class dashboard page
+      response.sendRedirect(ApplicationDefaults.DASHBOARD + classCode);
+    } else {
+      response.sendError(HttpServletResponse.SC_FORBIDDEN);
     }
 
-    // Redirect to the class dashboard page
-    response.sendRedirect(ApplicationDefaults.DASHBOARD + classCode);
+    // for (String email : allClassEmails) {
+    //   // Look for the student in the user datastore
+    //   PreparedQuery queryUser =
+    //       datastore.prepare(
+    //           new Query("User")
+    //               .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, email)));
+
+    //   Entity user;
+
+    //   // If the student user entity doesnt exist yet, create one
+    //   if (queryUser.countEntities() == 0) {
+
+    //     List<Key> regClassesList = Arrays.asList(classKey);
+
+    //     user = new Entity("User");
+    //     user.setProperty("userEmail", email);
+    //     user.setProperty("registeredClasses", regClassesList);
+    //     user.setProperty("ownedClasses", Collections.emptyList());
+    //     user.setProperty("taClasses", Collections.emptyList());
+
+    //     datastore.put(user);
+    //   } else {
+    //     // If student already exists, update their registered class list
+    //     user = queryUser.asSingleEntity();
+    //     List<Key> regClassesList = (List<Key>) user.getProperty("registeredClasses");
+
+    //     // Do not add a class that is already in the registered list
+    //     if (!regClassesList.contains(classKey)) {
+    //       regClassesList.add(classKey);
+    //       user.setProperty("registeredClasses", regClassesList);
+
+    //       datastore.put(user);
+    //     }
+    //   }
+    // }
+
+    // // Redirect to the class dashboard page
+    // response.sendRedirect(ApplicationDefaults.DASHBOARD + classCode);
   }
 }

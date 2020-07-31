@@ -175,8 +175,9 @@ function setRedirect(){
 }
 
 // Obtain the class's specific code from URL parameter
-function getClassCode() {
+function getTAInputs() {
   document.getElementById("hiddenClassCode").value = getParam("classCode");
+  document.getElementById("idTokenForTA").value = getToken();
   return true;
 }  
 
@@ -187,8 +188,9 @@ function getOwnerInputs() {
 }
 
 // Obtain the class's specific code from URL parameter
-function getRosterClassCode() {
+function getRosterInputs() {
   document.getElementById("hiddenRosterClassCode").value = getParam("classCode");
+  document.getElementById("roster-id").value = getToken();
   return true;
 } 
 
