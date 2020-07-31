@@ -9,56 +9,57 @@ function drawBasic() {
   data.addColumn('number', 'Visits');
  
   // Organize visit data through visit-by-date servlet
-  fetch(`/visit-date?classCode=` + getParam("classCode"))
-    .then(response => response.json()).then(visits=> {
+  getToken().then(tok => {
+    fetch(`/visit-date?classCode=${getParam("classCode")}&idToken=${tok}` + getParam("classCode"))
+      .then(response => response.json()).then(visits=> {
     
-    var dates = visits.dates;
+      var dates = visits.dates;
 
-    // Convert JSON date format to Date type
-    for (var k = 0; k < dates.length; k++) {
-      var dateStr = dates[k];
-      var realDate = new Date(dateStr);
-      dates[k] = realDate;
-    }
+      // Convert JSON date format to Date type
+      for (var k = 0; k < dates.length; k++) {
+        var dateStr = dates[k];
+        var realDate = new Date(dateStr);
+        dates[k] = realDate;
+      }
 
-    var numVisits = visits.classVisits;
+      var numVisits = visits.classVisits;
 
-    var tempDataHolder = []; // To be pushed into datatable after updating
+      var tempDataHolder = []; // To be pushed into datatable after updating
 
-    // Loop through both lists and add info sets for each class 
-    for (var i = 0; i < dates.length; i++) {
-      tempDataHolder.push([dates[i], numVisits[i]]);
-    }
+      // Loop through both lists and add info sets for each class 
+      for (var i = 0; i < dates.length; i++) {
+        tempDataHolder.push([dates[i], numVisits[i]]);
+      }
     
-    data.addRows(tempDataHolder); // Populate datatable with final data
+      data.addRows(tempDataHolder); // Populate datatable with final data
 
-    var options = {
-      title: 'Number of Student Office Hour Visits',
-      hAxis: {
-        format: 'M/d/yy',
-        title: 'Date',
-        textStyle: {
-          bold:true
+      var options = {
+        title: 'Number of Student Office Hour Visits',
+        hAxis: {
+          format: 'M/d/yy',
+          title: 'Date',
+          textStyle: {
+            bold:true
+          },
         },
-      },
-      vAxis: {
-        title: 'Number of Visits',
-        textStyle: {
-          bold:true
+        vAxis: {
+          title: 'Number of Visits',
+          textStyle: {
+            bold:true
+          },
         },
-      },
-      backgroundColor: {
-        fill: '#D6EBFF',
-        stroke: '#031430',
-        strokeWidth: 5
-      },
-    };
+        backgroundColor: {
+          fill: '#D6EBFF',
+          stroke: '#031430',
+          strokeWidth: 5
+        },
+      };
 
-    var chart = new google.visualization.LineChart(
-    document.getElementById("visit-chart"));
+      var chart = new google.visualization.LineChart(
+      document.getElementById("visit-chart"));
 
-    chart.draw(data, options);
-
+      chart.draw(data, options);
+    });
   });
 }
 
@@ -191,7 +192,6 @@ function getOwnerInputs() {
   return true;
 }
 
-// Obtain the class's specific code from URL parameter
 function getRosterInputs() {
   document.getElementById("hiddenRosterClassCode").value = getParam("classCode");
   getToken().then(tok => {

@@ -64,6 +64,7 @@ public class AddClassTA extends HttpServlet {
         Key classKey = KeyFactory.stringToKey(classCode);
         datastore.get(classKey);
 
+        // Go through each TA email and add it
         for (String teachingAssistantEmail : taEmail.split(",")) {
           while (true) {
             Transaction txn = datastore.beginTransaction();
