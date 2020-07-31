@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
+import com.google.sps.authentication.Authenticator;
 import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.workspace.WorkspaceFactory;
 import java.io.IOException;
@@ -45,6 +46,7 @@ public class NotifyStudent extends HttpServlet {
   private DatastoreService datastore;
   private WorkspaceFactory factory;
   private Clock clock;
+  private Authenticator auth;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -52,6 +54,7 @@ public class NotifyStudent extends HttpServlet {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
       factory = WorkspaceFactory.getInstance();
       clock = Clock.systemUTC();
+      auth = new Authenticator();
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -67,99 +70,109 @@ public class NotifyStudent extends HttpServlet {
     try {
       String classCode = request.getParameter("classCode").trim();
       String taToken = request.getParameter("taToken");
-      FirebaseToken decodedToken = authInstance.verifyIdToken(taToken);
-      String taID = decodedToken.getUid();
 
-      // Get studentID from studentEmail
-      String studentEmail = request.getParameter("studentEmail");
-      UserRecord userRecord = authInstance.getUserByEmail(studentEmail);
-      String studentID = userRecord.getUid();
+      if (auth.verifyTaOrOwner(taToken, classCode)) {
 
-      // Get date
-      LocalDate localDate = LocalDate.now(clock);
-      ZoneId defaultZoneId = ZoneId.systemDefault();
-      Date currDate = Date.from(localDate.atStartOfDay(defaultZoneId).toInstant());
+        FirebaseToken decodedToken = authInstance.verifyIdToken(taToken);
+        String taID = decodedToken.getUid();
 
-      int retries = 10;
-      while (true) {
-        TransactionOptions options = TransactionOptions.Builder.withXG(true);
-        Transaction txn = datastore.beginTransaction(options);
-        try {
-          // Retrive class entity
-          Key classKey = KeyFactory.stringToKey(classCode);
-          Entity classEntity = datastore.get(txn, classKey);
+        // Get studentID from studentEmail
+        String studentEmail = request.getParameter("studentEmail");
+        UserRecord userRecord = authInstance.getUserByEmail(studentEmail);
+        String studentID = userRecord.getUid();
 
-          // Query wait entity for particular day
-          Filter classWaitFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
-          Filter dateWaitFilter = new FilterPredicate("date", FilterOperator.EQUAL, currDate);
-          CompositeFilter waitFilter = CompositeFilterOperator.and(dateWaitFilter, classWaitFilter);
-          PreparedQuery query = datastore.prepare(new Query("Wait").setFilter(waitFilter));
+        // Get date
+        LocalDate localDate = LocalDate.now(clock);
+        ZoneId defaultZoneId = ZoneId.systemDefault();
+        Date currDate = Date.from(localDate.atStartOfDay(defaultZoneId).toInstant());
 
-          // Get wait entity for particular day
-          Entity waitEntity;
-          if (query.countEntities() == 0) {
-            waitEntity = new Entity("Wait");
-            waitEntity.setProperty("classKey", classKey);
-            waitEntity.setProperty("date", currDate);
-            waitEntity.setProperty("waitDurations", new ArrayList<Long>());
-          } else {
-            waitEntity = query.asSingleEntity();
-          }
+        int retries = 10;
+        while (true) {
+          TransactionOptions options = TransactionOptions.Builder.withXG(true);
+          Transaction txn = datastore.beginTransaction(options);
+          try {
+            // Retrive class entity
+            Key classKey = KeyFactory.stringToKey(classCode);
+            Entity classEntity = datastore.get(txn, classKey);
 
-          // Get student info and queue
-          ArrayList<EmbeddedEntity> queue =
-              (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
-          EmbeddedEntity delEntity =
-              queue.stream()
-                  .filter(elem -> (((String) elem.getProperty("uID")).equals(studentID)))
-                  .findFirst()
-                  .orElse(null);
-          ArrayList<Long> waitTimes = (ArrayList<Long>) waitEntity.getProperty("waitDurations");
+            // Query wait entity for particular day
+            Filter classWaitFilter =
+                new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
+            Filter dateWaitFilter = new FilterPredicate("date", FilterOperator.EQUAL, currDate);
+            CompositeFilter waitFilter =
+                CompositeFilterOperator.and(dateWaitFilter, classWaitFilter);
+            PreparedQuery query = datastore.prepare(new Query("Wait").setFilter(waitFilter));
 
-          // Update wait entity
-          Date timeEntered = (Date) delEntity.getProperty("timeEntered");
+            // Get wait entity for particular day
+            Entity waitEntity;
+            if (query.countEntities() == 0) {
+              waitEntity = new Entity("Wait");
+              waitEntity.setProperty("classKey", classKey);
+              waitEntity.setProperty("date", currDate);
+              waitEntity.setProperty("waitDurations", new ArrayList<Long>());
+            } else {
+              waitEntity = query.asSingleEntity();
+            }
 
-          LocalDateTime currTime = LocalDateTime.now(clock);
-          LocalDateTime enteredTime =
-              timeEntered.toInstant().atZone(defaultZoneId).toLocalDateTime();
-          waitTimes.add(Duration.between(enteredTime, currTime).getSeconds());
+            // Get student info and queue
+            ArrayList<EmbeddedEntity> queue =
+                (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
+            EmbeddedEntity delEntity =
+                queue.stream()
+                    .filter(elem -> (((String) elem.getProperty("uID")).equals(studentID)))
+                    .findFirst()
+                    .orElse(null);
+            ArrayList<Long> waitTimes = (ArrayList<Long>) waitEntity.getProperty("waitDurations");
 
-          // Update queue
-          queue.remove(delEntity);
+            // Update wait entity
+            Date timeEntered = (Date) delEntity.getProperty("timeEntered");
 
-          // Get workspace ID
-          String workspaceID = (String) delEntity.getProperty("workspaceID");
-          factory.fromWorkspaceID(workspaceID).setTaUID(taID);
+            LocalDateTime currTime = LocalDateTime.now(clock);
+            LocalDateTime enteredTime =
+                timeEntered.toInstant().atZone(defaultZoneId).toLocalDateTime();
+            waitTimes.add(Duration.between(enteredTime, currTime).getSeconds());
 
-          // Update beingHelped
-          EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
-          EmbeddedEntity queueInfo = new EmbeddedEntity();
-          queueInfo.setProperty("taID", taID);
-          queueInfo.setProperty("workspaceID", workspaceID);
-          beingHelped.setProperty(studentID, queueInfo);
+            // Update queue
+            queue.remove(delEntity);
 
-          // Update entities
-          waitEntity.setProperty("waitDurations", waitTimes);
-          datastore.put(txn, waitEntity);
+            // Get workspace ID
+            String workspaceID = (String) delEntity.getProperty("workspaceID");
+            factory.fromWorkspaceID(workspaceID).setTaUID(taID);
 
-          classEntity.setProperty("studentQueue", queue);
-          classEntity.setProperty("beingHelped", beingHelped);
-          datastore.put(txn, classEntity);
+            // Update beingHelped
+            EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
+            EmbeddedEntity queueInfo = new EmbeddedEntity();
+            queueInfo.setProperty("taID", taID);
+            queueInfo.setProperty("workspaceID", workspaceID);
+            beingHelped.setProperty(studentID, queueInfo);
 
-          txn.commit();
-          break;
-        } catch (ConcurrentModificationException e) {
-          if (retries == 0) {
-            throw e;
-          }
-          // Allow retry to occur
-          --retries;
-        } finally {
-          if (txn.isActive()) {
-            txn.rollback();
+            // Update entities
+            waitEntity.setProperty("waitDurations", waitTimes);
+            datastore.put(txn, waitEntity);
+
+            classEntity.setProperty("studentQueue", queue);
+            classEntity.setProperty("beingHelped", beingHelped);
+            datastore.put(txn, classEntity);
+
+            txn.commit();
+            break;
+          } catch (ConcurrentModificationException e) {
+            if (retries == 0) {
+              throw e;
+            }
+            // Allow retry to occur
+            --retries;
+          } finally {
+            if (txn.isActive()) {
+              txn.rollback();
+            }
           }
         }
+
+      } else {
+        response.sendError(HttpServletResponse.SC_FORBIDDEN);
       }
+
     } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
     } catch (IllegalArgumentException e) {

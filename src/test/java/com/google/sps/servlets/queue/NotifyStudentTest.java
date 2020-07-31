@@ -21,6 +21,7 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
+import com.google.sps.authentication.Authenticator;
 import com.google.sps.workspace.Workspace;
 import com.google.sps.workspace.WorkspaceFactory;
 import java.time.Clock;
@@ -29,6 +30,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,16 +53,12 @@ public class NotifyStudentTest {
   private DatastoreService datastore;
 
   @Mock HttpServletRequest httpRequest;
-
   @Mock HttpServletResponse httpResponse;
-
   @Mock FirebaseAuth authInstance;
-
   @Mock WorkspaceFactory factory;
-
   @Mock Workspace workspace;
-
   @Mock Clock clock;
+  @Mock Authenticator auth;
 
   @InjectMocks NotifyStudent alertStudent;
 
@@ -123,8 +121,8 @@ public class NotifyStudentTest {
     when(mockToken.getUid()).thenReturn("taID");
 
     when(httpRequest.getParameter("studentEmail")).thenReturn("test@google.com");
-
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(auth.verifyTaOrOwner("testID", KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     UserRecord mockUser = mock(UserRecord.class);
     when(authInstance.getUserByEmail("test@google.com")).thenReturn(mockUser);
@@ -156,5 +154,24 @@ public class NotifyStudentTest {
     Entity testWaitEntity = datastore.prepare(new Query("Wait")).asSingleEntity();
     ArrayList<Long> waitDurations = (ArrayList<Long>) testWaitEntity.getProperty("waitDurations");
     assertEquals((long) Duration.ofHours(24).getSeconds(), (long) waitDurations.get(0));
+  }
+
+  @Test
+  public void isStudent() throws Exception {
+    Entity init = new Entity("Class");
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("studentQueue", Collections.emptyList());
+
+    datastore.put(init);
+
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("taToken")).thenReturn("testID");
+    when(auth.verifyTaOrOwner("testID", KeyFactory.keyToString(init.getKey()))).thenReturn(false);
+
+    alertStudent.doPost(httpRequest, httpResponse);
+
+    verify(httpResponse, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
   }
 }
