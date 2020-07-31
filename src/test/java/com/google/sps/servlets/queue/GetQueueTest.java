@@ -3,6 +3,8 @@ package com.google.sps.servlets.queue;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -16,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.gson.Gson;
+import com.google.sps.authentication.Authenticator;
 import com.google.sps.queue.Queue;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -44,10 +47,9 @@ public class GetQueueTest {
   private DatastoreService datastore;
 
   @Mock HttpServletRequest httpRequest;
-
   @Mock HttpServletResponse httpResponse;
-
   @Mock FirebaseAuth authInstance;
+  @Mock Authenticator auth;
 
   @InjectMocks GetQueue queue;
 
@@ -95,6 +97,7 @@ public class GetQueueTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when((httpRequest.getParameter("idToken"))).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     FirebaseToken token = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken(eq(ID_TOKEN))).thenReturn(token);
@@ -136,6 +139,7 @@ public class GetQueueTest {
 
     FirebaseToken token = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken(eq(ID_TOKEN))).thenReturn(token);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
@@ -176,6 +180,7 @@ public class GetQueueTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when((httpRequest.getParameter("idToken"))).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     FirebaseToken token = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken(eq(ID_TOKEN))).thenReturn(token);
@@ -206,5 +211,25 @@ public class GetQueueTest {
                 Arrays.asList("test1@google.com", "test2@google.com"),
                 new Queue.Helping(HELPING_EMAIL, WORKSPACE_ID))),
         stringWriter.toString());
+  }
+
+  @Test
+  public void isStudent() throws Exception {
+    Entity init = new Entity("Class");
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("studentQueue", Collections.emptyList());
+
+    datastore.put(init);
+
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(false);
+
+    queue.doGet(httpRequest, httpResponse);
+
+    verify(httpResponse, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
   }
 }
