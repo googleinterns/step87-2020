@@ -30,7 +30,6 @@ messaging.onMessage(function(payload) {
 function removeSelf(){
   var params = window.location.search + "&idToken=" + studentToken;
   const request = new Request("/remove-from-queue" + params, {method: "POST"});
-  
   fetch(request).then(() => {
     window.location.href = "/userDash.html";
   });
@@ -101,6 +100,7 @@ function setToken(token){
 
 function getToken() {
   // Initialize user's Firebase token
+
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
       console.log("User is signed in");
