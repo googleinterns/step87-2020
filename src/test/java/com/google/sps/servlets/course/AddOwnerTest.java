@@ -87,7 +87,7 @@ public class AddOwnerTest {
     datastore.put(user);
 
     when(httpRequest.getParameter("ownerEmail")).thenReturn("testOwner@google.com");
-    when(httpRequest.getParameter("idTokenOwner")).thenReturn(ID_TOKEN);
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(auth.verifyOwner(eq(ID_TOKEN), eq(init.getKey()))).thenReturn(true);
 
@@ -147,7 +147,7 @@ public class AddOwnerTest {
     datastore.put(user);
 
     when(httpRequest.getParameter("ownerEmail")).thenReturn("testOwner@google.com");
-    when(httpRequest.getParameter("idTokenOwner")).thenReturn(ID_TOKEN);
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(auth.verifyOwner(eq(ID_TOKEN), eq(init.getKey()))).thenReturn(true);
 
@@ -219,7 +219,7 @@ public class AddOwnerTest {
     datastore.put(user);
 
     when(httpRequest.getParameter("ownerEmail")).thenReturn("test@google.com");
-    when(httpRequest.getParameter("idTokenOwner")).thenReturn(ID_TOKEN);
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init4.getKey()));
     when(auth.verifyOwner(eq(ID_TOKEN), eq(init4.getKey()))).thenReturn(true);
 
@@ -242,18 +242,4 @@ public class AddOwnerTest {
     assertTrue(ownedClasses.contains(init4.getKey()));
     assertTrue(ownedClasses.size() == 4);
   }
-
-  //   @Test
-  //   // Throw an exception if class key isn't correct
-  //   public void keyUnavailable() throws Exception {
-
-  //     // Create examples for the TA email and class code
-  //     when(httpRequest.getParameter("ownerEmail")).thenReturn("test@google.com");
-  //     when(httpRequest.getParameter("classCode")).thenReturn("testClassCode");
-  //     when(httpRequest.getParameter("idTokenOwner")).thenReturn("ownerID");
-
-  //     addOwner.doPost(httpRequest, httpResponse);
-
-  //     verify(httpResponse).sendError(HttpServletResponse.SC_BAD_REQUEST);
-  //   }
 }

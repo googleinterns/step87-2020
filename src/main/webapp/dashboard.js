@@ -177,20 +177,26 @@ function setRedirect(){
 // Obtain the class's specific code from URL parameter
 function getTAInputs() {
   document.getElementById("hiddenClassCode").value = getParam("classCode");
-  document.getElementById("idTokenForTA").value = getToken();
+  getToken().then(tok => {
+    document.getElementById("idTokenForTA").value = tok;
+  });
   return true;
 }  
 
 function getOwnerInputs() {
   document.getElementById("hiddenClassCode2").value = getParam("classCode");
-  document.getElementById("idTokenOwner").value = getToken();
+  getToken().then(tok => {
+    document.getElementById("idTokenOwner").value = tok;
+  });
   return true;
 }
 
 // Obtain the class's specific code from URL parameter
 function getRosterInputs() {
   document.getElementById("hiddenRosterClassCode").value = getParam("classCode");
-  document.getElementById("roster-id").value = getToken();
+  getToken().then(tok => {
+    document.getElementById("roster-id").value = tok;
+  });
   return true;
 } 
 

@@ -53,7 +53,7 @@ public class AddOwner extends HttpServlet {
 
     // Obtain the owner email and id token and search for the user
     String ownerEmail = request.getParameter("ownerEmail").trim();
-    String idToken = request.getParameter("idTokenOwner");
+    String idToken = request.getParameter("idToken");
 
     // Find the corresponding class Key
     String classCode = request.getParameter("classCode").trim();
