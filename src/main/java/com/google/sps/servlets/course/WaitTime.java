@@ -4,7 +4,6 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
-import com.google.sps.authentication.Authenticator;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
@@ -14,6 +13,7 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
+import com.google.sps.authentication.Authenticator;
 import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.models.WaitData;
 import java.io.IOException;
@@ -77,7 +77,8 @@ public class WaitTime extends HttpServlet {
 
         // Obtain waits from datastore and filter them into results query;
         // Sort by most recent date
-        Query query = new Query("Wait").addSort("date", SortDirection.DESCENDING).setFilter(classFilter);
+        Query query =
+            new Query("Wait").addSort("date", SortDirection.DESCENDING).setFilter(classFilter);
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         PreparedQuery results = datastore.prepare(query);
 
