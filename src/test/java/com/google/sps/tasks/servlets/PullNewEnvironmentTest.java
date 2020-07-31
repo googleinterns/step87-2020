@@ -136,6 +136,7 @@ public class PullNewEnvironmentTest {
     String CLASS_ID = "CLASS_ID";
     String IMAGE = "IMAGE";
     String TAG = "TAG";
+    String ERROR = "ERROR";
 
     Entity envEntity = new Entity("Environment");
     envEntity.setProperty("status", STATUS);
@@ -146,7 +147,8 @@ public class PullNewEnvironmentTest {
     when(req.getReader()).thenReturn(reader);
     when(reader.lines()).thenReturn(lines);
     when(docker.pullImageCmd(anyString())).thenReturn(imgCmd);
-    when(imgCmd.exec(any())).thenThrow(new DockerException("message", 500));
+    when(imgCmd.exec(any()))
+        .thenThrow(new DockerException("{\"message\": \"" + ERROR + "\"}", 500));
 
     servlet.doPost(req, resp);
 
@@ -154,5 +156,34 @@ public class PullNewEnvironmentTest {
 
     envEntity = datastore.get(KeyFactory.stringToKey(envID));
     assertEquals("failed", envEntity.getProperty("status"));
+    assertEquals(ERROR, envEntity.getProperty("error"));
+  }
+
+  @Test
+  public void doPostTestFailParseError() throws Exception {
+    String STATUS = "STATUS";
+    String CLASS_ID = "CLASS_ID";
+    String IMAGE = "IMAGE";
+    String TAG = "TAG";
+    String ERROR = "Invalid Json";
+
+    Entity envEntity = new Entity("Environment");
+    envEntity.setProperty("status", STATUS);
+    String envID = KeyFactory.keyToString(datastore.put(envEntity));
+
+    Stream<String> lines = Arrays.asList(String.join(",", envID, CLASS_ID, IMAGE, TAG)).stream();
+
+    when(req.getReader()).thenReturn(reader);
+    when(reader.lines()).thenReturn(lines);
+    when(docker.pullImageCmd(anyString())).thenReturn(imgCmd);
+    when(imgCmd.exec(any())).thenThrow(new DockerException(ERROR, 500));
+
+    servlet.doPost(req, resp);
+
+    verify(docker, times(1)).pullImageCmd(eq(IMAGE + ':' + TAG));
+
+    envEntity = datastore.get(KeyFactory.stringToKey(envID));
+    assertEquals("failed", envEntity.getProperty("status"));
+    assertEquals("Status 500: " + ERROR, envEntity.getProperty("error"));
   }
 }
