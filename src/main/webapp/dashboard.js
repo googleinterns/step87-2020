@@ -224,6 +224,12 @@ function checkDeletionStatus(envID, row) {
   }));
 }
 
+function deleteEnv(row, envID, tok) {
+  row.querySelector(".envStatus").innerText = "deleting";
+  fetch(`/environment?envID=${envID}&idToken=${tok}`, {method: 'DELETE'});
+  checkDeletionStatus(envID, row);
+}
+
 function checkEnvStatus(envID, row) {
   getToken().then(tok => {
     fetch(`/environment?envID=${envID}&idToken=${tok}`).then(resp => resp.ok ? resp.json() : "failed").then(env => {
@@ -246,11 +252,7 @@ function checkEnvStatus(envID, row) {
       } else {
         const deleteButton = row.querySelector(".envDelete");
         deleteButton.disabled = false;
-        deleteButton.onclick = () => {
-          row.querySelector(".envStatus").innerText = "deleting";
-          getToken().then(tok => fetch(`/environment?envID=${envID}&idToken=${tok}`, {method: 'DELETE'}));
-          checkDeletionStatus(envID, row);
-        };
+        deleteButton.onclick = () => deleteEnv(row, envID, tok);
       }
     });
   });
@@ -277,11 +279,7 @@ function getEnvs() {
       for (var env of envs) {
        const row = addEnvRow(env.name, env.status, env.error);
   
-       row.querySelector(".envDelete").onclick = () => {
-        row.querySelector(".envStatus").innerText = "deleting";
-        fetch(`/environment?envID=${env.id}`, {method: 'DELETE'});
-        checkDeletionStatus(env.id, row);
-       }; 
+       row.querySelector(".envDelete").onclick = () => deleteEnv(row, env.id, tok); 
       }
     });
   });
@@ -306,8 +304,8 @@ function displayDelete(){
     const displayRequest = new Request("/get-role" + params, {method: "GET"});
     fetch(displayRequest).then(response => response.json()).then((role) => {
       var elem = document.getElementById("delete");
-      if (role !== "owner"){
-        elem.style.display = "none";
+      if (role === "owner"){
+        elem.classList.remove("hidden");
       }
     });
   });
