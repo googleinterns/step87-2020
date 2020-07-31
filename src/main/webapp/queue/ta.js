@@ -102,13 +102,13 @@ function setToken(token){
 
 function getToken() {
   firebase.auth().onAuthStateChanged(function(user) {
-  if (user) {
-    console.log("User is signed in");
-    user.getIdToken().then((token) => setToken(token));
-  } else {
-    console.log("User is not logged in");
-    window.location.href = "/"; // Redirect to home page if not logged in
-  }
+    if (user) {
+      console.log("User is signed in");
+      user.getIdToken().then((token) => setToken(token));
+    } else {
+      console.log("User is not logged in");
+      window.location.href = "/"; // Redirect to home page if not logged in
+    }
   });
 }
 
