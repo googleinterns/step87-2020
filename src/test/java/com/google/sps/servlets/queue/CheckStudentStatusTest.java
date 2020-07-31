@@ -334,10 +334,6 @@ public class CheckStudentStatusTest {
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("studentToken")).thenReturn("testID");
 
-    FirebaseToken mockToken = mock(FirebaseToken.class);
-    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
-    when(mockToken.getUid()).thenReturn("uID");
-
     when(auth.verifyInClass("testID", init.getKey())).thenReturn(false);
 
     queue.doGet(httpRequest, httpResponse);

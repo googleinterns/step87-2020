@@ -57,10 +57,10 @@ public class EndHelp extends HttpServlet {
     try {
       String classCode = request.getParameter("classCode").trim();
       String taToken = request.getParameter("taToken");
-      FirebaseToken decodedToken = authInstance.verifyIdToken(taToken);
-      String taID = decodedToken.getUid();
 
       if (auth.verifyTaOrOwner(taToken, classCode)) {
+        FirebaseToken decodedToken = authInstance.verifyIdToken(taToken);
+        String taID = decodedToken.getUid();
 
         int retries = 10;
         while (true) {

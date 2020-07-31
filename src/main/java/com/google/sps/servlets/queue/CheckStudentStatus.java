@@ -47,15 +47,13 @@ public class CheckStudentStatus extends HttpServlet {
     try {
       // Find user ID
       String studentToken = request.getParameter("studentToken");
-      FirebaseToken decodedToken = authInstance.verifyIdToken(studentToken);
-      String studentID = decodedToken.getUid();
-
-      // Retrive entity
       String classCode = request.getParameter("classCode").trim();
       Key classKey = KeyFactory.stringToKey(classCode);
-      Entity classEntity = datastore.get(classKey);
 
       if (auth.verifyInClass(studentToken, classKey)) {
+        FirebaseToken decodedToken = authInstance.verifyIdToken(studentToken);
+        String studentID = decodedToken.getUid();
+        Entity classEntity = datastore.get(classKey);
 
         // Find position in queue
         ArrayList<EmbeddedEntity> queue =

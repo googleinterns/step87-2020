@@ -149,10 +149,6 @@ public class EndHelpTest {
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("taToken")).thenReturn("testID");
 
-    FirebaseToken mockToken = mock(FirebaseToken.class);
-    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
-    when(mockToken.getUid()).thenReturn("uID");
-
     when(auth.verifyTaOrOwner("testID", KeyFactory.keyToString(init.getKey()))).thenReturn(false);
 
     finishStudent.doPost(httpRequest, httpResponse);
