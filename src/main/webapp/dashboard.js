@@ -72,65 +72,67 @@ function drawTime() {
   data.addColumn('number', 'Wait');
  
   // Organize wait data through wait-time servlet
-  fetch(`/wait-time?classCode=` + getParam("classCode"))
-    .then(response => response.json()).then(waits=> {
+  getToken().then(tok => {
+    fetch(`/wait-time?classCode=${getParam("classCode")}&idToken=${tok}`)
+      .then(response => response.json()).then(waits=> {
     
-    var dates = waits.dates;
+      var dates = waits.dates;
 
-    // Convert JSON date format to Date type
-    for (var k = 0; k < dates.length; k++) {
-      var dateStr = dates[k];
-      var realDate = new Date(dateStr);
-      dates[k] = realDate;
-    }
+      // Convert JSON date format to Date type
+      for (var k = 0; k < dates.length; k++) {
+        var dateStr = dates[k];
+        var realDate = new Date(dateStr);
+        dates[k] = realDate;
+      }
 
-    var waitAverages = waits.waitTimes;
+      var waitAverages = waits.waitTimes;
 
-    // Convert all times to minutes
-    for (var j = 0; j < waitAverages.length; j++) {
-      var timeInSeconds = waitAverages[j];
-      var timeInMinutes = timeInSeconds / 60.0;
-      waitAverages[j] = timeInMinutes.toFixed(2);  // Round to 2 decimal places
-    }
+      // Convert all times to minutes
+      for (var j = 0; j < waitAverages.length; j++) {
+        var timeInSeconds = waitAverages[j];
+        var timeInMinutes = timeInSeconds / 60.0;
+        waitAverages[j] = timeInMinutes.toFixed(2);  // Round to 2 decimal places
+      }
 
-    var tempDataHolder = []; // To be pushed into datatable after updating
+      var tempDataHolder = []; // To be pushed into datatable after updating
 
-    // Loop through both lists and add info sets for each class 
-    for (var i = 0; i < dates.length; i++) {
-      tempDataHolder.push([dates[i], Number(waitAverages[i])]);
-    }
+      // Loop through both lists and add info sets for each class 
+      for (var i = 0; i < dates.length; i++) {
+        tempDataHolder.push([dates[i], Number(waitAverages[i])]);
+      }
     
-    data.addRows(tempDataHolder); // Populate datatable with final data
+      data.addRows(tempDataHolder); // Populate datatable with final data
 
-    var options = {
-      title: 'Average Wait Time by Date',
-      hAxis: {
-        format: 'M/d/yy',
-        title: 'Date',
-        textStyle: {
-          bold:true
+      var options = {
+        title: 'Average Wait Time by Date',
+        hAxis: {
+          format: 'M/d/yy',
+          title: 'Date',
+          textStyle: {
+            bold:true
+          },
         },
-      },
-      vAxis: {
-        title: 'Wait Time (minutes)',
-        format: '0.00',
-        textStyle: {
-          bold:true
+        vAxis: {
+          title: 'Wait Time (minutes)',
+          format: '0.00',
+          textStyle: {
+            bold:true
+          },
         },
-      },
-      backgroundColor: {
-        fill: '#D6EBFF',
-        stroke: '#031430',
-        strokeWidth: 5
-      },
-    };
+        backgroundColor: {
+          fill: '#D6EBFF',
+          stroke: '#031430',
+          strokeWidth: 5
+        },
+      };
 
-    const waitChart = document.getElementById("wait-chart");
-    waitChart.classList.remove("hidden");
-    var chart = new google.visualization.LineChart(waitChart);
+      const waitChart = document.getElementById("wait-chart");
+      waitChart.classList.remove("hidden");
+      var chart = new google.visualization.LineChart(waitChart);
 
-    chart.draw(data, options);
-    waitChart.classList.add("hidden");
+      chart.draw(data, options);
+      waitChart.classList.add("hidden");
+    });
   });
 }
 
