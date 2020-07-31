@@ -100,6 +100,7 @@ function getQueue() {
     const beinghelpedElem = document.getElementById('beingHelped');
 
     if (queue.helping && !oppInProgress.has(queue.helping.email)) {
+      queueListElement.querySelectorAll(".notify-button").forEach((ele) => ele.classList.add("hidden"));
       beinghelpedElem.innerHTML = "";
       document.getElementById('beingHelped').appendChild(createHelpedElem(queue.helping.email, queue.helping.workspace));
     } else {
