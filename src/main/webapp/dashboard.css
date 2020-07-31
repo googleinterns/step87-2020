@@ -80,10 +80,12 @@ body {
   border-radius: 10px;
   margin: 0px 0px 10px 0px;
   border: 1px solid #C2E1FF;
-  padding: 20px;
+  padding: 10px;
   color: #031430;
   background: #EBF5FF;
   font-family: 'Noto Sans', sans-serif;
+  display: flex;
+  flex-direction: column;
 }
 
 .ta-form fieldset legend{
@@ -149,6 +151,12 @@ body {
 
 #envTable {
   width: 100%;
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+.envName {
+  max-width: 75px;
 }
 
 .footer {
@@ -255,4 +263,11 @@ body {
 
 .top-right-buttons.overflow-fix {
   overflow: visible;
+}
+
+#delete-button {
+  background-color: #EBF5FF;
+  color: #031430;
+  font-size: 14px;
+  font-family: 'Noto Sans', sans-serif;
 }
