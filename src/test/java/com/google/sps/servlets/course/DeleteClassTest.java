@@ -3,7 +3,6 @@ package com.google.sps.servlets.course;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,7 +20,7 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseToken;
+import com.google.sps.authentication.Authenticator;
 import com.google.sps.tasks.TaskScheduler;
 import com.google.sps.tasks.TaskSchedulerFactory;
 import com.google.sps.workspace.Workspace;
@@ -51,18 +50,13 @@ public class DeleteClassTest {
           new LocalDatastoreServiceTestConfig().setApplyAllHighRepJobPolicy());
 
   private DatastoreService datastore;
-
   @Mock HttpServletRequest httpRequest;
-
   @Mock HttpServletResponse httpResponse;
-
   @Mock FirebaseAuth authInstance;
-
+  @Mock Authenticator auth;
   @Mock Clock clock;
-
   @Mock WorkspaceFactory workspaceFactory;
   @Mock Workspace workspace;
-
   @Mock TaskSchedulerFactory taskSchedulerFactory;
   @Mock TaskScheduler scheduler;
 
@@ -177,16 +171,12 @@ public class DeleteClassTest {
     datastore.put(environInit2);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
-
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
-
-    FirebaseToken mockToken = mock(FirebaseToken.class);
-    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
-    when(mockToken.getUid()).thenReturn("ownerID");
 
     when(taskSchedulerFactory.create(anyString(), anyString())).thenReturn(scheduler);
     deleteClass.QUEUE_NAME = QUEUE_NAME;
     when(workspaceFactory.fromWorkspaceID("WORKSPACE_ID")).thenReturn(workspace);
+    when(auth.verifyOwner("testID", init.getKey())).thenReturn(true);
 
     assertEquals(2, datastore.prepare(new Query("Visit")).countEntities());
     assertEquals(2, datastore.prepare(new Query("Wait")).countEntities());
@@ -236,12 +226,10 @@ public class DeleteClassTest {
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
 
-    FirebaseToken mockToken = mock(FirebaseToken.class);
-    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
-    when(mockToken.getUid()).thenReturn("studentID");
+    when(auth.verifyOwner("testID", init.getKey())).thenReturn(false);
 
     deleteClass.doPost(httpRequest, httpResponse);
 
-    verify(httpResponse).sendError(403);
+    verify(httpResponse, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
   }
 }

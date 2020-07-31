@@ -15,8 +15,7 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseToken;
+import com.google.sps.authentication.Authenticator;
 import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.tasks.TaskSchedulerFactory;
 import com.google.sps.workspace.WorkspaceFactory;
@@ -38,6 +37,7 @@ public class DeleteClass extends HttpServlet {
   private DatastoreService datastore;
   private WorkspaceFactory workspaceFactory;
   private TaskSchedulerFactory taskSchedulerFactory;
+  private Authenticator auth;
   @VisibleForTesting protected String QUEUE_NAME;
 
   @Override
@@ -47,6 +47,7 @@ public class DeleteClass extends HttpServlet {
       taskSchedulerFactory = TaskSchedulerFactory.getInstance();
       workspaceFactory = WorkspaceFactory.getInstance();
       QUEUE_NAME = System.getenv("EXECUTION_QUEUE_ID");
+      auth = new Authenticator();
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -63,10 +64,8 @@ public class DeleteClass extends HttpServlet {
       Key classKey = KeyFactory.stringToKey(classCode);
 
       String idToken = request.getParameter("idToken");
-      FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
 
-      Entity ownerCheck = datastore.get(classKey);
-      if (ownerCheck.getProperty("owner").equals(decodedToken.getUid())) {
+      if (auth.verifyOwner(idToken, classKey)) {
         int retries = 10;
         EmbeddedEntity beingHelped;
         List<EmbeddedEntity> queue;
@@ -175,7 +174,7 @@ public class DeleteClass extends HttpServlet {
       } else {
         response.sendError(HttpServletResponse.SC_FORBIDDEN);
       }
-    } catch (EntityNotFoundException | FirebaseAuthException e) {
+    } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
     } catch (IllegalArgumentException e) {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST);
