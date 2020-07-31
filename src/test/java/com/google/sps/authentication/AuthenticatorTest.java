@@ -296,4 +296,58 @@ public class AuthenticatorTest {
 
     assertFalse(authenticator.verifyWorkspace(ID_TOKEN, workspace));
   }
+
+  @Test
+  public void verifyOwner() throws Exception {
+    Key classKey = datastore.put(new Entity("Class"));
+    Key classKey2 = datastore.put(new Entity("Class"));
+
+    Entity user = new Entity("User");
+    user.setProperty("registeredClasses", Collections.emptyList());
+    user.setProperty("taClasses", Collections.emptyList());
+    user.setProperty("ownedClasses", Arrays.asList(classKey2, classKey));
+    user.setProperty("userEmail", EMAIL);
+    datastore.put(user);
+
+    FirebaseToken tok = mock(FirebaseToken.class);
+    when(auth.verifyIdToken(ID_TOKEN)).thenReturn(tok);
+    when(tok.getEmail()).thenReturn(EMAIL);
+
+    assertTrue(authenticator.verifyOwner(ID_TOKEN, classKey));
+  }
+
+  @Test
+  public void verifyOwnerFail() throws Exception {
+    Key classKey = datastore.put(new Entity("Class"));
+
+    Entity user = new Entity("User");
+    user.setProperty("registeredClasses", Collections.emptyList());
+    user.setProperty("taClasses", Collections.emptyList());
+    user.setProperty("ownedClasses", Collections.emptyList());
+    user.setProperty("userEmail", EMAIL);
+    datastore.put(user);
+
+    FirebaseToken tok = mock(FirebaseToken.class);
+    when(auth.verifyIdToken(ID_TOKEN)).thenReturn(tok);
+    when(tok.getEmail()).thenReturn(EMAIL);
+
+    assertFalse(authenticator.verifyOwner(ID_TOKEN, classKey));
+  }
+
+  @Test
+  public void verifyOwnerException() throws Exception {
+    Key classKey = datastore.put(new Entity("Class"));
+
+    Entity user = new Entity("User");
+    user.setProperty("registeredClasses", Collections.emptyList());
+    user.setProperty("taClasses", Collections.emptyList());
+    user.setProperty("ownedClasses", Collections.emptyList());
+    user.setProperty("userEmail", EMAIL);
+    datastore.put(user);
+
+    when(auth.verifyIdToken(ID_TOKEN))
+        .thenThrow(new FirebaseAuthException("errorCode", "detailMessage"));
+
+    assertFalse(authenticator.verifyOwner(ID_TOKEN, classKey));
+  }
 }
