@@ -10,7 +10,7 @@ function drawBasic() {
  
   // Organize visit data through visit-by-date servlet
   getToken().then(tok => {
-    fetch(`/visit-date?classCode=${getParam("classCode")}&idToken=${tok}` + getParam("classCode"))
+    fetch(`/visit-date?classCode=${getParam("classCode")}&idToken=${tok}`)
       .then(response => response.json()).then(visits=> {
     
       var dates = visits.dates;

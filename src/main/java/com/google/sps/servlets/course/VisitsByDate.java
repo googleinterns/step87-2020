@@ -54,6 +54,7 @@ public class VisitsByDate extends HttpServlet {
     String classCode = request.getParameter("classCode").trim();
     Key classKey = KeyFactory.stringToKey(classCode);
 
+    // Only display visits chart to teaching staff
     if (auth.verifyTaOrOwner(idToken, classCode)) {
       try {
         ArrayList<Date> dates = new ArrayList<Date>();
@@ -87,40 +88,5 @@ public class VisitsByDate extends HttpServlet {
         response.sendError(HttpServletResponse.SC_BAD_REQUEST);
       }
     }
-    // try {
-    //   ArrayList<Date> dates = new ArrayList<Date>();
-    //   ArrayList<Long> classVisits = new ArrayList<Long>();
-
-    // //   // The class filter will be the unique class's key
-    // //   String classCode = request.getParameter("classCode").trim(); // Hidden parameter
-    // //   Key classKey = KeyFactory.stringToKey(classCode);
-
-    //   Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
-
-    //   // Obtain visits from datastore and filter them into results query;
-    //   // Sort by most recent date
-    //   Query query =
-    //       new Query("Visit").addSort("date", SortDirection.DESCENDING).setFilter(classFilter);
-    //   DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    //   PreparedQuery results = datastore.prepare(query);
-
-    //   // Store the date and number of visits into two separate lists
-    //   for (Entity entity : results.asIterable()) {
-    //     Date date = (Date) entity.getProperty("date");
-    //     long visitsForThisDate = (long) entity.getProperty("numVisits");
-
-    //     dates.add(date);
-    //     classVisits.add(visitsForThisDate);
-    //   }
-
-    //   // Send both class dates list and visits to line chart function
-    //   VisitParentDates parent = new VisitParentDates(dates, classVisits);
-    //   Gson gson = new Gson();
-    //   String json = gson.toJson(parent);
-    //   response.getWriter().println(json);
-
-    // } catch (IllegalArgumentException e) {
-    //   response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-    // }
   }
 }
