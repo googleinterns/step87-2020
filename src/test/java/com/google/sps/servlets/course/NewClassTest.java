@@ -3,7 +3,6 @@ package com.google.sps.servlets.course;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -194,24 +193,5 @@ public class NewClassTest {
         assertTrue(testQueue.isEmpty());
       }
     }
-  }
-
-  @Test
-  public void addDuplicateClass() throws Exception {
-
-    Entity init = new Entity("Class");
-
-    init.setProperty("owner", "ownerID");
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Collections.emptyList());
-
-    datastore.put(init);
-
-    when(httpRequest.getParameter("className")).thenReturn("testClass");
-
-    addNew.doPost(httpRequest, httpResponse);
-
-    verify(httpResponse).sendError(HttpServletResponse.SC_FORBIDDEN);
   }
 }
