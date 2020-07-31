@@ -87,6 +87,8 @@ public class VisitsByDate extends HttpServlet {
       } catch (IllegalArgumentException e) {
         response.sendError(HttpServletResponse.SC_BAD_REQUEST);
       }
+    } else {
+      response.sendError(HttpServletResponse.SC_FORBIDDEN);
     }
-  }
+  } // End of GET
 }
