@@ -69,33 +69,33 @@ function makeRequest(){
     var params = window.location.search + "&studentToken=" + studentToken;
     const request = new Request("/check-student" + params, {method: "GET"});
     fetch(request).then(response => response.json()).then((studentPosition) => {
-    if (studentPosition.position === 0) {
-        document.getElementById("queue_status").innerText = "";
+        if (studentPosition.position === 0) {
+            document.getElementById("queue_status").innerText = "";
+            
+            if (!studentPosition.ta){
+                document.getElementById("beingHelped").innerText = "You are done being helped.";
+                document.getElementById("workspaceRedirect").href = "";
+                document.getElementById("workspaceRedirect").innerText = "";
+                gotWorkspaceID = false;
         
-        if (!studentPosition.ta){
-            document.getElementById("beingHelped").innerText = "You are done being helped.";
-            document.getElementById("workspaceRedirect").href = "";
-            document.getElementById("workspaceRedirect").innerText = "";
-            gotWorkspaceID = false;
-            clearInterval(repeat);
-    
-        } else {
-            document.getElementById("beingHelped").innerText = "You are being helped by " + studentPosition.ta;
-        }
+            } else {
+                document.getElementById("beingHelped").innerText = "You are being helped by " + studentPosition.ta;
+                setTimeout(makeRequest, 1000);
+            }
 
-        if (notifyBool) {
-        sendNotification();
-        notifyBool = false;
-        }    
-    } else {
-        document.getElementById("studentPosition").innerText = "You are #" + studentPosition.position + " on the queue.";
-        
-        document.getElementById("workspaceRedirect").href = studentPosition.workspace;
-        document.getElementById("workspaceRedirect").innerText = "go to workspace";
-    }
+            if (notifyBool) {
+            sendNotification();
+            notifyBool = false;
+            }    
+        } else {
+            document.getElementById("studentPosition").innerText = "You are #" + studentPosition.position + " on the queue.";
+            
+            document.getElementById("workspaceRedirect").href = studentPosition.workspace;
+            document.getElementById("workspaceRedirect").innerText = "go to workspace";
+            setTimeout(makeRequest, 1000);
+        }
     });
 }
-let repeat = setInterval(makeRequest, 1000);
 
 function setToken(token){
     studentToken = token;
