@@ -46,6 +46,10 @@ public class EnvironmentServlet extends HttpServlet {
       Entity e = datastore.get(KeyFactory.stringToKey(envID));
 
       if (auth.verifyInClass(idToken, (Key) e.getProperty("class"))) {
+        String error = null;
+        if (e.hasProperty("error")) {
+          error = (String) e.getProperty("error");
+        }
         resp.getWriter()
             .print(
                 new Gson()
@@ -53,6 +57,7 @@ public class EnvironmentServlet extends HttpServlet {
                         new Environment(
                             (String) e.getProperty("name"),
                             (String) e.getProperty("status"),
+                            error,
                             KeyFactory.keyToString(e.getKey()))));
       } else {
         resp.sendError(HttpServletResponse.SC_FORBIDDEN);
