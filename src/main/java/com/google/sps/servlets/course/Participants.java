@@ -52,14 +52,12 @@ public class Participants extends HttpServlet {
       PreparedQuery results;
 
       if (!type.equals("student")) {
-
         // Filter for TAs that teach this class
         Query query =
             new Query("User")
                 .setFilter(new FilterPredicate("taClasses", FilterOperator.EQUAL, classKey));
         results = datastore.prepare(query);
       } else {
-
         // Filter for students that are in this class
         Query query2 =
             new Query("User")
