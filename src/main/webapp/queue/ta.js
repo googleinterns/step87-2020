@@ -24,7 +24,7 @@ function endHelp(studentEmail){
     const request = new Request("/end-help" + params, {method: "POST"});
     
     fetch(request).then(() => {
-    document.getElementById('beingHelped').innerText = "";
+        document.getElementById('beingHelped').innerText = "";
     });
 }
 
@@ -76,24 +76,25 @@ function getQueue() {
     const request = new Request("/get-queue" + params + "&idToken=" + taToken, {method: "GET"});
 
     fetch(request).then(response => response.json()).then((queue) => {
-    const queueListElement = document.getElementById('queue');
-    queueListElement.innerText = "";
-    queue.queue.forEach((studentEmail) => {
-        queueListElement.appendChild(createListElement(studentEmail));
-    });
+        const queueListElement = document.getElementById('queue');
+        queueListElement.innerText = "";
+        queue.queue.forEach((studentEmail) => {
+            queueListElement.appendChild(createListElement(studentEmail));
+        });
 
-    const beinghelpedElem = document.getElementById('beingHelped');
+        const beinghelpedElem = document.getElementById('beingHelped');
 
-    if (queue.helping) {
-        beinghelpedElem.innerHTML = "";
-        document.getElementById('beingHelped').appendChild(createHelpedElem(queue.helping.email, queue.helping.workspace));
-    } else {
-        beinghelpedElem.innerHTML = "";
-    }
+        if (queue.helping) {
+            beinghelpedElem.innerHTML = "";
+            document.getElementById('beingHelped').appendChild(createHelpedElem(queue.helping.email, queue.helping.workspace));
+        } else {
+            beinghelpedElem.innerHTML = "";
+        }
+
+        setTimeout(getQueue, 1000);
     });
 }
 
-var repeat = setInterval(getQueue, 1000);
 function setToken(token){
     taToken = token;
     getQueue();
