@@ -103,7 +103,6 @@ function getToken() {
 
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
-      console.log("User is signed in");
       user.getIdToken().then((token) => setToken(token));
     } 
     // Redirect to home page if not logged in

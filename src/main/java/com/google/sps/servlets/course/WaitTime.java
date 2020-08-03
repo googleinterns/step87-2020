@@ -13,6 +13,7 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
+import com.google.sps.authentication.Authenticator;
 import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.models.WaitData;
 import java.io.IOException;
@@ -31,12 +32,14 @@ import javax.servlet.http.HttpServletResponse;
 public class WaitTime extends HttpServlet {
 
   FirebaseAuth authInstance;
+  private Authenticator auth;
 
   // Get the current session
   @Override
   public void init(ServletConfig config) throws ServletException {
     try {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
+      auth = new Authenticator();
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -58,49 +61,56 @@ public class WaitTime extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-    try {
-      ArrayList<Date> dates = new ArrayList<Date>();
-      ArrayList<ArrayList<Long>> waitTimes = new ArrayList<ArrayList<Long>>();
+    String idToken = request.getParameter("idToken");
 
-      // The class filter will be the unique class's key
-      String classCode = request.getParameter("classCode").trim(); // Hidden parameter
-      Key classKey = KeyFactory.stringToKey(classCode);
+    // Find the corresponding class Key
+    String classCode = request.getParameter("classCode").trim();
+    Key classKey = KeyFactory.stringToKey(classCode);
 
-      Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
+    // Only display wait time chart to teaching staff
+    if (auth.verifyTaOrOwner(idToken, classCode)) {
+      try {
+        ArrayList<Date> dates = new ArrayList<Date>();
+        ArrayList<ArrayList<Long>> waitTimes = new ArrayList<ArrayList<Long>>();
 
-      // Obtain waits from datastore and filter them into results query;
-      // Sort by most recent date
-      Query query =
-          new Query("Wait").addSort("date", SortDirection.DESCENDING).setFilter(classFilter);
-      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-      PreparedQuery results = datastore.prepare(query);
+        Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
 
-      // Store the date and wait time lists into two separate lists
-      for (Entity entity : results.asIterable()) {
-        Date date = (Date) entity.getProperty("date");
-        ArrayList<Long> waitTimeList = (ArrayList<Long>) entity.getProperty("waitDurations");
+        // Obtain waits from datastore and filter them into results query;
+        // Sort by most recent date
+        Query query =
+            new Query("Wait").addSort("date", SortDirection.DESCENDING).setFilter(classFilter);
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+        PreparedQuery results = datastore.prepare(query);
 
-        dates.add(date);
-        waitTimes.add(waitTimeList);
+        // Store the date and wait time lists into two separate lists
+        for (Entity entity : results.asIterable()) {
+          Date date = (Date) entity.getProperty("date");
+          ArrayList<Long> waitTimeList = (ArrayList<Long>) entity.getProperty("waitDurations");
+
+          dates.add(date);
+          waitTimes.add(waitTimeList);
+        }
+
+        // List that holds average wait time
+        ArrayList<Long> finalWaitAverage = new ArrayList<Long>();
+
+        // Calculate average wait times for each date
+        for (ArrayList<Long> list : waitTimes) {
+          long average = calculateAverage(list);
+          finalWaitAverage.add(average);
+        }
+
+        // Send both class dates list and wait-times to line chart function
+        WaitData parent = new WaitData(dates, finalWaitAverage);
+        Gson gson = new Gson();
+        String json = gson.toJson(parent);
+        response.getWriter().println(json);
+
+      } catch (IllegalArgumentException e) {
+        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
       }
-
-      // List that holds average wait time
-      ArrayList<Long> finalWaitAverage = new ArrayList<Long>();
-
-      // Calculate average wait times for each date
-      for (ArrayList<Long> list : waitTimes) {
-        long average = calculateAverage(list);
-        finalWaitAverage.add(average);
-      }
-
-      // Send both class dates list and wait-times to line chart function
-      WaitData parent = new WaitData(dates, finalWaitAverage);
-      Gson gson = new Gson();
-      String json = gson.toJson(parent);
-      response.getWriter().println(json);
-
-    } catch (IllegalArgumentException e) {
-      response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+    } else {
+      response.sendError(HttpServletResponse.SC_FORBIDDEN);
     }
   }
 }

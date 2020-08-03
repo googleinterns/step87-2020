@@ -40,7 +40,6 @@
       var user = firebase.auth().currentUser;
       firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
-          console.log("User is signed in");
           user.getIdToken().then((token) => {
             userToken = token;
             document.getElementById("idToken").value = token;
