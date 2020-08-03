@@ -16,12 +16,17 @@ body {
   width: 100%;
 }
 
+.powered-by-firepad {
+  display: none;
+}
+
 #firepads {
   height: 100%;
   width: 100%;
   flex: 1;
   flex-shrink: 1;
   overflow: hidden;
+  position: relative;
 }
 
 .column {

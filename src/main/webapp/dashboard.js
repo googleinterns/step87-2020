@@ -204,13 +204,24 @@ function getRosterInputs() {
   return true;
 } 
 
-function addEnvRow(name, status) {
+function addEnvRow(name, status, error) {
 
   const template = document.getElementById("envRowTemplate");
   const copy = template.content.cloneNode(true).querySelector("tr");
 
   copy.querySelector(".envName").innerText = name;
-  copy.querySelector(".envStatus").innerText = status;
+  if (status !== "failed") {
+    copy.querySelector(".envStatus").innerText = status;
+  } else {
+    const failedLink = document.createElement("a");
+    failedLink.href = "#";
+    failedLink.onclick = () => {
+      alert(error);
+      return false;
+    };
+    failedLink.innerText = "failed";
+    copy.querySelector(".envStatus").appendChild(failedLink);
+  }
 
   const deleteButton = copy.querySelector(".envDelete");
   deleteButton.disabled = status !== "ready" && status !== "failed";
@@ -230,21 +241,35 @@ function checkDeletionStatus(envID, row) {
   }));
 }
 
+function deleteEnv(row, envID, tok) {
+  row.querySelector(".envStatus").innerText = "deleting";
+  fetch(`/environment?envID=${envID}&idToken=${tok}`, {method: 'DELETE'});
+  checkDeletionStatus(envID, row);
+}
+
 function checkEnvStatus(envID, row) {
   getToken().then(tok => {
     fetch(`/environment?envID=${envID}&idToken=${tok}`).then(resp => resp.ok ? resp.json() : "failed").then(env => {
-      row.querySelector(".envStatus").innerText = env.status;
+      if (env.status !== "failed") {
+        row.querySelector(".envStatus").innerText = env.status;
+      } else {
+        const failedLink = document.createElement("a");
+        failedLink.href = "#";
+        failedLink.onclick = () => {
+          alert(env.error);
+          return false;
+        };
+        failedLink.innerText = "failed";
+        row.querySelector(".envStatus").innerHTML = "";
+        row.querySelector(".envStatus").appendChild(failedLink);
+      }
   
       if (env.status === "pulling") {
         setTimeout(() => checkEnvStatus(envID, row), 1000);
       } else {
         const deleteButton = row.querySelector(".envDelete");
         deleteButton.disabled = false;
-        deleteButton.onclick = () => {
-          row.querySelector(".envStatus").innerText = "deleting";
-          getToken().then(tok => fetch(`/environment?envID=${envID}&idToken=${tok}`, {method: 'DELETE'}));
-          checkDeletionStatus(envID, row);
-        };
+        deleteButton.onclick = () => deleteEnv(row, envID, tok);
       }
     });
   });
@@ -269,13 +294,9 @@ function getEnvs() {
     fetch(`/getEnvironments?classID=${getParam("classCode")}&idToken=${tok}`).then(resp => resp.json()).then(envs => {
 
       for (var env of envs) {
-       const row = addEnvRow(env.name, env.status);
+       const row = addEnvRow(env.name, env.status, env.error);
   
-       row.querySelector(".envDelete").onclick = () => {
-        row.querySelector(".envStatus").innerText = "deleting";
-        fetch(`/environment?envID=${env.id}`, {method: 'DELETE'});
-        checkDeletionStatus(env.id, row);
-       }; 
+       row.querySelector(".envDelete").onclick = () => deleteEnv(row, env.id, tok); 
       }
     });
   });
@@ -300,8 +321,8 @@ function displayDelete(){
     const displayRequest = new Request("/get-role" + params, {method: "GET"});
     fetch(displayRequest).then(response => response.json()).then((role) => {
       var elem = document.getElementById("delete");
-      if (role !== "owner"){
-        elem.style.display = "none";
+      if (role === "owner"){
+        elem.classList.remove("hidden");
       }
     });
   });

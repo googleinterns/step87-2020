@@ -186,6 +186,7 @@ function createNewTab(filename, contents) {
     editor.getModel().setEOL("\n");
     
     const firepad = Firepad.fromMonaco(getFirebaseRef().child("files").child(encodeFileName(filename)), editor);
+    firepad.setUserColor("#6c2336");
 
     if (contents !== null) {
       firepad.on("ready", () => {

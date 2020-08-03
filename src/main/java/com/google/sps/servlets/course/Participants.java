@@ -65,7 +65,6 @@ public class Participants extends HttpServlet {
                   .setFilter(new FilterPredicate("taClasses", FilterOperator.EQUAL, classKey));
           results = datastore.prepare(query);
         } else {
-
           // Filter for students that are in this class
           Query query2 =
               new Query("User")

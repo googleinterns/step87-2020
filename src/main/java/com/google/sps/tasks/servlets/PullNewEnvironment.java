@@ -13,6 +13,8 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.ServletException;
@@ -71,9 +73,27 @@ public class PullNewEnvironment extends HttpServlet {
           e.setProperty("status", "timeout");
           datastore.put(e);
         }
-      } catch (InterruptedException | DockerException e) {
+      } catch (InterruptedException e) {
         Entity entity = datastore.get(KeyFactory.stringToKey(entityID));
         entity.setProperty("status", "failed");
+        entity.setProperty("error", e.getMessage());
+        datastore.put(entity);
+      } catch (DockerException e) {
+        Entity entity = datastore.get(KeyFactory.stringToKey(entityID));
+        entity.setProperty("status", "failed");
+
+        // Attempt to parse the error message in the format:
+        // Status CODE: {'message': '...'}
+        try {
+          String json =
+              e.getMessage()
+                  .replaceFirst("Status\\s*" + Integer.toString(e.getHttpStatus()) + ":\\s*", "");
+          DockerErrorMessage message = new Gson().fromJson(json, DockerErrorMessage.class);
+          entity.setProperty("error", message.getMessage());
+        } catch (JsonParseException parseE) {
+          entity.setProperty("error", e.getMessage());
+        }
+
         datastore.put(entity);
       }
     } catch (EntityNotFoundException e) {
@@ -83,5 +103,13 @@ public class PullNewEnvironment extends HttpServlet {
 
   public static String getImageName(String classID, String image) {
     return classID.replace("-", "").toLowerCase() + '-' + image;
+  }
+
+  private static class DockerErrorMessage {
+    private String message;
+
+    public String getMessage() {
+      return message;
+    }
   }
 }

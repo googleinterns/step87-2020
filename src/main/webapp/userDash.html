@@ -118,12 +118,12 @@
       if (type === "registeredClasses"){
         const request = new Request("/enterqueue" + params, {method: "POST"});
         fetch(request).then(response => {
-            window.location.assign(urlRedirect);
+          window.location.assign(urlRedirect);
         }).catch(function(err) {
             console.info(err);
         });
       } else {
-          window.location.assign(urlRedirect);
+        window.location.assign(urlRedirect);
       }
       
     }
@@ -182,7 +182,7 @@
       <div id="popup-container" class="overlay">
           <div class="popup">
               <a class="close" href="#">&times;</a>
-              <div id = "createClass">
+              <div id="createClass" class="wrapper">
                 <form action="/newclass" method="POST">
                   <input type="text" name="className" placeholder="Enter class name:"></input>
                   <input type="hidden" name="idToken" id="idToken" value=""/>
