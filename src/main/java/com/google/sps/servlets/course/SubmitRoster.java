@@ -100,44 +100,5 @@ public class SubmitRoster extends HttpServlet {
     } else {
       response.sendError(HttpServletResponse.SC_FORBIDDEN);
     }
-
-    // for (String email : allClassEmails) {
-    //   // Look for the student in the user datastore
-    //   PreparedQuery queryUser =
-    //       datastore.prepare(
-    //           new Query("User")
-    //               .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, email)));
-
-    //   Entity user;
-
-    //   // If the student user entity doesnt exist yet, create one
-    //   if (queryUser.countEntities() == 0) {
-
-    //     List<Key> regClassesList = Arrays.asList(classKey);
-
-    //     user = new Entity("User");
-    //     user.setProperty("userEmail", email);
-    //     user.setProperty("registeredClasses", regClassesList);
-    //     user.setProperty("ownedClasses", Collections.emptyList());
-    //     user.setProperty("taClasses", Collections.emptyList());
-
-    //     datastore.put(user);
-    //   } else {
-    //     // If student already exists, update their registered class list
-    //     user = queryUser.asSingleEntity();
-    //     List<Key> regClassesList = (List<Key>) user.getProperty("registeredClasses");
-
-    //     // Do not add a class that is already in the registered list
-    //     if (!regClassesList.contains(classKey)) {
-    //       regClassesList.add(classKey);
-    //       user.setProperty("registeredClasses", regClassesList);
-
-    //       datastore.put(user);
-    //     }
-    //   }
-    // }
-
-    // // Redirect to the class dashboard page
-    // response.sendRedirect(ApplicationDefaults.DASHBOARD + classCode);
   }
 }
