@@ -83,6 +83,7 @@ function getQueue() {
     const beinghelpedElem = document.getElementById('beingHelped');
 
     if (queue.helping) {
+      queueListElement.querySelectorAll(".notify-button").forEach((ele) => ele.classList.add("hidden"));
       beinghelpedElem.innerHTML = "";
       document.getElementById('beingHelped').appendChild(createHelpedElem(queue.helping.email, queue.helping.workspace));
     } else {
