@@ -111,20 +111,19 @@ function getQueue() {
     } else if (!notifying) {
       beinghelpedElem.innerHTML = "";
     }
+
+    setTimeout(getQueue, 1000);
   });
 }
 
-var repeat = setInterval(getQueue, 1000);
 function setToken(token){
   taToken = token;
   getQueue();
 }
 
 function getToken() {
-  var user = firebase.auth().currentUser;
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
-      console.log("User is signed in");
       user.getIdToken().then((token) => setToken(token));
     } else {
       console.log("User is not logged in");

@@ -81,6 +81,29 @@ public class Authenticator {
     }
   }
 
+  public boolean verifyOwner(String idToken, String classCode) {
+    return verifyOwner(idToken, KeyFactory.stringToKey(classCode));
+  }
+
+  public boolean verifyOwner(String idToken, Key classKey) {
+    try {
+      FirebaseToken tok = auth.verifyIdToken(idToken);
+      PreparedQuery q =
+          datastore.prepare(
+              new Query("User")
+                  .setFilter(
+                      new FilterPredicate("userEmail", FilterOperator.EQUAL, tok.getEmail())));
+
+      if (q.countEntities(FetchOptions.Builder.withLimit(1)) > 0) {
+        return ((List<Key>) q.asSingleEntity().getProperty("ownedClasses")).contains(classKey);
+      } else {
+        return false;
+      }
+    } catch (FirebaseAuthException | IllegalArgumentException e) {
+      return false;
+    }
+  }
+
   public boolean verifyWorkspace(String idToken, Workspace w)
       throws InterruptedException, ExecutionException {
     try {

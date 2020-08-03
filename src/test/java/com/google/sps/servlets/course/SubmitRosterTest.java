@@ -16,6 +16,7 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.sps.authentication.Authenticator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -41,9 +42,13 @@ public class SubmitRosterTest {
 
   @Mock HttpServletResponse httpResponse;
 
+  @Mock Authenticator auth;
+
   @Mock FirebaseAuth authInstance;
 
   @InjectMocks SubmitRoster submitRoster;
+
+  private final String ID_TOKEN = "ID_TOKEN";
 
   @Before
   public void setUp() {
@@ -73,6 +78,8 @@ public class SubmitRosterTest {
     // Submit a roster of 2 students
     when(httpRequest.getParameter("roster")).thenReturn("first@google.com, second@google.com");
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, init.getKey())).thenReturn(true);
 
     submitRoster.doPost(httpRequest, httpResponse);
 
@@ -139,6 +146,8 @@ public class SubmitRosterTest {
     // Submit a roster of 1 student
     when(httpRequest.getParameter("roster")).thenReturn("test1@google.com");
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(class2.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, class2.getKey())).thenReturn(true);
 
     submitRoster.doPost(httpRequest, httpResponse);
 
@@ -186,6 +195,8 @@ public class SubmitRosterTest {
     // Attempt to add the same class to user's registered list
     when(httpRequest.getParameter("roster")).thenReturn("test1@google.com");
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(class1.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, class1.getKey())).thenReturn(true);
 
     submitRoster.doPost(httpRequest, httpResponse);
 
@@ -241,6 +252,8 @@ public class SubmitRosterTest {
     // Submit a roster of 2 students
     when(httpRequest.getParameter("roster")).thenReturn("test1@google.com, test2@google.com");
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, init.getKey())).thenReturn(true);
 
     submitRoster.doPost(httpRequest, httpResponse);
 
@@ -304,6 +317,8 @@ public class SubmitRosterTest {
     when(httpRequest.getParameter("roster")).thenReturn("test1@google.com, test2@google.com");
     when(httpRequest.getParameter("classCode"))
         .thenReturn(KeyFactory.keyToString(classExample.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, classExample.getKey())).thenReturn(true);
 
     submitRoster.doPost(httpRequest, httpResponse);
 

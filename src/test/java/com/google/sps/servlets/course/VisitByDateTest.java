@@ -18,6 +18,7 @@ import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.gson.Gson;
+import com.google.sps.authentication.Authenticator;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -44,9 +45,13 @@ public class VisitByDateTest {
 
   @Mock HttpServletRequest httpRequest;
 
+  @Mock Authenticator auth;
+
   @Mock HttpServletResponse httpResponse;
 
   @InjectMocks VisitsByDate checkVisits;
+
+  private final String ID_TOKEN = "ID_TOKEN";
 
   @Before
   public void setUp() {
@@ -85,6 +90,8 @@ public class VisitByDateTest {
     datastore.put(visitEntity);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     // Obtain visits from datastore
     Query query = new Query("Visit");
@@ -168,6 +175,8 @@ public class VisitByDateTest {
     datastore.put(visitEntity3);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
@@ -300,6 +309,8 @@ public class VisitByDateTest {
     datastore.put(visitEntity8);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, init.getKey());
 
@@ -372,6 +383,8 @@ public class VisitByDateTest {
     datastore.delete(visitEntity.getKey());
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     Query query = new Query("Visit");
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();

@@ -40,7 +40,6 @@
       var user = firebase.auth().currentUser;
       firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
-          console.log("User is signed in");
           user.getIdToken().then((token) => {
             userToken = token;
             document.getElementById("idToken").value = token;
@@ -182,7 +181,7 @@
       <div id="popup-container" class="overlay">
           <div class="popup">
               <a class="close" href="#">&times;</a>
-              <div id = "createClass">
+              <div id="createClass" class="wrapper">
                 <form action="/newclass" method="POST">
                   <input type="text" name="className" placeholder="Enter class name:"></input>
                   <input type="hidden" name="idToken" id="idToken" value=""/>
