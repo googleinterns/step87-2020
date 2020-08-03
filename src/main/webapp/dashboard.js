@@ -152,28 +152,30 @@ function setRedirect(){
   document.getElementById("redirect").onclick = () => window.location.href = "/queue/ta.html" + params;
   document.getElementById("classCode").innerText =  params.slice(11);
 
-  // Get TA participants
-  fetch(`/participants?classCode=${getParam("classCode")}&type=teach-staff`).then(response => response.json()).then((list) => {
-    const listElement = document.getElementById('classTAList');
-    listElement.innerHTML = '';
+  getToken().then(tok => {
+    // Get TA participants
+    fetch(`/participants?classCode=${getParam("classCode")}&type=teach-staff&idToken=${tok}`).then(response => response.json()).then((list) => {
+      const listElement = document.getElementById('classTAList');
+      listElement.innerHTML = '';
     
-    // Use HTML to display each message
-    for (var i = 0; i < list.length; i++) {
-      listElement.appendChild(
-        createListElement(list[i]));
-    }
-  });
+      // Use HTML to display each message
+      for (var i = 0; i < list.length; i++) {
+        listElement.appendChild(
+          createListElement(list[i]));
+      }
+    }); 
 
-  // Get student participants
-  fetch(`/participants?classCode=${getParam("classCode")}&type=student`).then(response => response.json()).then((list) => {
-    const listElement = document.getElementById('classStudentList');
-    listElement.innerHTML = '';
+    // Get student participants
+    fetch(`/participants?classCode=${getParam("classCode")}&type=student&idToken=${tok}`).then(response => response.json()).then((list) => {
+      const listElement = document.getElementById('classStudentList');
+      listElement.innerHTML = '';
     
-    // Use HTML to display each user
-    for (var i = 0; i < list.length; i++) {
-      listElement.appendChild(
-        createListElement(list[i]));
-    }
+      // Use HTML to display each user
+      for (var i = 0; i < list.length; i++) {
+        listElement.appendChild(
+          createListElement(list[i]));
+      }
+    });
   });
 }
 
