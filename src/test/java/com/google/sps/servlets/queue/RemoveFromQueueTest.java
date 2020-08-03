@@ -82,7 +82,6 @@ public class RemoveFromQueueTest {
 
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
 
     EmbeddedEntity addQueue1 = new EmbeddedEntity();
@@ -126,7 +125,6 @@ public class RemoveFromQueueTest {
   @Test
   public void notStudent() throws Exception {
     Entity init = new Entity("Class");
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());

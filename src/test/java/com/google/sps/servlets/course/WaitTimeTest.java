@@ -69,7 +69,6 @@ public class WaitTimeTest {
 
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
@@ -137,7 +136,6 @@ public class WaitTimeTest {
 
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
@@ -234,7 +232,6 @@ public class WaitTimeTest {
 
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
@@ -272,7 +269,6 @@ public class WaitTimeTest {
 
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
@@ -281,7 +277,6 @@ public class WaitTimeTest {
 
     Entity target = new Entity("Class");
 
-    target.setProperty("owner", "ownerID2");
     target.setProperty("name", "testClass2");
     target.setProperty("beingHelped", new EmbeddedEntity());
     target.setProperty("studentQueue", Arrays.asList("test1"));
@@ -326,21 +321,18 @@ public class WaitTimeTest {
 
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
 
     Entity init2 = new Entity("Class");
 
-    init2.setProperty("owner", "ownerID2");
     init2.setProperty("name", "testClass2");
     init2.setProperty("beingHelped", new EmbeddedEntity());
     init2.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
 
     Entity init3 = new Entity("Class");
 
-    init3.setProperty("owner", "ownerID3");
     init3.setProperty("name", "testClass3");
     init3.setProperty("beingHelped", new EmbeddedEntity());
     init3.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));

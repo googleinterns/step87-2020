@@ -71,8 +71,6 @@ public class CheckStudentStatusTest {
   @Test
   public void firstInQueue() throws Exception {
     Entity init = new Entity("Class");
-
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
 
     EmbeddedEntity studentInfo1 = new EmbeddedEntity();
@@ -108,7 +106,6 @@ public class CheckStudentStatusTest {
   public void midQueue() throws Exception {
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", "");
 
@@ -159,7 +156,6 @@ public class CheckStudentStatusTest {
   public void duplicateInQueue() throws Exception {
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", "");
 
@@ -209,8 +205,6 @@ public class CheckStudentStatusTest {
   @Test
   public void notInQueue() throws Exception {
     Entity init = new Entity("Class");
-
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
 
     EmbeddedEntity beingHelped = new EmbeddedEntity();
@@ -271,8 +265,6 @@ public class CheckStudentStatusTest {
   @Test
   public void notBeingHelped() throws Exception {
     Entity init = new Entity("Class");
-
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
 
     EmbeddedEntity beingHelped = new EmbeddedEntity();
@@ -324,7 +316,6 @@ public class CheckStudentStatusTest {
   @Test
   public void notInClass() throws Exception {
     Entity init = new Entity("Class");
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());

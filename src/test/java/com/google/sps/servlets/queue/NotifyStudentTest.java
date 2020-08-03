@@ -94,8 +94,6 @@ public class NotifyStudentTest {
     String WORKSPACE_ID = "WORKSPACE_ID";
 
     Entity init = new Entity("Class");
-
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
 
     EmbeddedEntity addQueue1 = new EmbeddedEntity();
@@ -159,7 +157,6 @@ public class NotifyStudentTest {
   @Test
   public void isStudent() throws Exception {
     Entity init = new Entity("Class");
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
