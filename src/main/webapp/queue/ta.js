@@ -22,6 +22,7 @@ function endHelp(studentEmail){
     
   oppInProgress.add(studentEmail);
   document.getElementById('beingHelped').innerText = "";
+  document.querySelectorAll(".notify-button").forEach((ele) => ele.classList.remove("hidden"));
 
   fetch(request).then(() => {
     oppInProgress.delete(studentEmail);
@@ -59,6 +60,7 @@ function notifyStudent(studentEmail, notifyElem){
   notifyElem.remove();
 
   document.getElementById('beingHelped').appendChild(createHelpedElem(studentEmail));
+  document.querySelectorAll(".notify-button").forEach((ele) => ele.classList.add("hidden"));
 
   fetch(request).then(resp => oppInProgress.delete(studentEmail));
 }
@@ -99,11 +101,13 @@ function getQueue() {
 
     const beinghelpedElem = document.getElementById('beingHelped');
 
-    if (queue.helping && !oppInProgress.has(queue.helping.email)) {
-      queueListElement.querySelectorAll(".notify-button").forEach((ele) => ele.classList.add("hidden"));
-      beinghelpedElem.innerHTML = "";
-      document.getElementById('beingHelped').appendChild(createHelpedElem(queue.helping.email, queue.helping.workspace));
-    } else {
+    if (queue.helping) {
+      if (!oppInProgress.has(queue.helping.email)){
+        queueListElement.querySelectorAll(".notify-button").forEach((ele) => ele.classList.add("hidden"));
+        beinghelpedElem.innerHTML = "";
+        document.getElementById('beingHelped').appendChild(createHelpedElem(queue.helping.email, queue.helping.workspace));
+      }
+    } else if (oppInProgress.size === 0) {
       beinghelpedElem.innerHTML = "";
     }
   });
