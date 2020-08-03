@@ -92,14 +92,14 @@ public class NotifyStudent extends HttpServlet {
           EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
 
           // Check if the ta is already helping someone.
-          boolean helpingAlredy =
+          boolean helpingAlready =
               beingHelped.getProperties().values().stream()
                       .map(ent -> (EmbeddedEntity) ent)
                       .filter(ent -> ent.getProperty("taID").equals(taID))
                       .count()
                   > 0;
 
-          if (!helpingAlredy) {
+          if (!helpingAlready) {
             // Query wait entity for particular day
             Filter classWaitFilter =
                 new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
