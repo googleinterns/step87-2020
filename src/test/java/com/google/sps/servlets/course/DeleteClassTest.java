@@ -86,7 +86,6 @@ public class DeleteClassTest {
   @Test
   public void delClass() throws Exception {
     Entity init = new Entity("Class");
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
 
     EmbeddedEntity queueInfo = new EmbeddedEntity();
@@ -216,11 +215,6 @@ public class DeleteClassTest {
   @Test
   public void forbiddenDelete() throws Exception {
     Entity init = new Entity("Class");
-    init.setProperty("owner", "ownerID");
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Collections.emptyList());
-
     datastore.put(init);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));

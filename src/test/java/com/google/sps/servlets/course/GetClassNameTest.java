@@ -56,7 +56,6 @@ public class GetClassNameTest {
   public void getName() throws Exception {
     Entity initClass = new Entity("Class");
 
-    initClass.setProperty("owner", "ownerID");
     initClass.setProperty("name", "testClass");
     initClass.setProperty("beingHelped", new EmbeddedEntity());
     initClass.setProperty("studentQueue", Collections.emptyList());

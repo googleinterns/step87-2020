@@ -56,7 +56,6 @@ public class NewClass extends HttpServlet {
       FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
 
       Entity classEntity = new Entity("Class");
-      classEntity.setProperty("owner", decodedToken.getUid());
       classEntity.setProperty("name", className);
 
       EmbeddedEntity beingHelped = new EmbeddedEntity();

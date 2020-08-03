@@ -62,7 +62,6 @@ public class NewClassTest {
 
   @Test
   public void addUniqueClass() throws Exception {
-
     when(httpRequest.getParameter("className")).thenReturn("testClass");
     when(httpRequest.getParameter("idToken")).thenReturn("testID");
 
@@ -92,7 +91,6 @@ public class NewClassTest {
 
     Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
 
-    assertEquals(testClassEntity.getProperty("owner"), "ownerID");
     assertEquals(testClassEntity.getProperty("name"), "testClass");
     assertEquals(testClassEntity.getProperty("beingHelped"), new EmbeddedEntity());
 
@@ -106,21 +104,18 @@ public class NewClassTest {
 
     Entity init1 = new Entity("Class");
 
-    init1.setProperty("owner", "ownerID1");
     init1.setProperty("name", "testClass1");
     init1.setProperty("beingHelped", new EmbeddedEntity());
     init1.setProperty("studentQueue", Collections.emptyList());
 
     Entity init2 = new Entity("Class");
 
-    init2.setProperty("owner", "ownerID2");
     init2.setProperty("name", "testClass2");
     init2.setProperty("beingHelped", new EmbeddedEntity());
     init2.setProperty("studentQueue", Collections.emptyList());
 
     Entity init3 = new Entity("Class");
 
-    init3.setProperty("owner", "ownerID");
     init3.setProperty("name", "testClass3");
     init3.setProperty("beingHelped", new EmbeddedEntity());
     init3.setProperty("studentQueue", Collections.emptyList());
@@ -184,7 +179,6 @@ public class NewClassTest {
     // Verify class was created properly
     for (Entity testClassEntity : results2.asIterable()) {
       if (testClassEntity.getProperty("className") == "testClass") {
-        assertEquals(testClassEntity.getProperty("owner"), "ownerID");
         assertEquals(testClassEntity.getProperty("name"), "testClass");
         assertEquals(testClassEntity.getProperty("beingHelped"), new EmbeddedEntity());
 
