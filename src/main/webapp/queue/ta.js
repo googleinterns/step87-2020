@@ -26,7 +26,7 @@ function endHelp(studentEmail){
   document.querySelectorAll(".notify-button").forEach((ele) => ele.classList.remove("hidden"));
 
   fetch(request).then(() => {
-    endingHelp = false;
+    setTimeout(() => endingHelp = false, 100);
   });
 }
 
@@ -63,7 +63,7 @@ function notifyStudent(studentEmail, notifyElem){
   document.getElementById('beingHelped').appendChild(createHelpedElem(studentEmail));
   document.querySelectorAll(".notify-button").forEach((ele) => ele.classList.add("hidden"));
 
-  fetch(request).then(resp => notifying = false);
+  fetch(request).then(() => setTimeout(() => notifying = false, 100));
 }
 
 function createListElement(studentEmail) {
