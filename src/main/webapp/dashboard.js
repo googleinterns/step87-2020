@@ -136,8 +136,10 @@ function drawTime() {
   });
 }
 
-google.charts.setOnLoadCallback(drawBasic);
-google.charts.setOnLoadCallback(drawTime);
+function makeCharts() {
+  google.charts.setOnLoadCallback(drawBasic);
+  google.charts.setOnLoadCallback(drawTime);   
+}
 
 /* Creates a <li> element for every item in json */
 function createListElement(text) {
@@ -355,16 +357,15 @@ function deleteClass(){
   }
 }
 
-function onload() {
-  setRedirect();
 
-  firebase.auth().onAuthStateChanged(function(user) {
-    displayClass();
-    displayDelete();
-    displayAddOwner();
-    getEnvs();
-  });
-}
+firebase.auth().onAuthStateChanged(function(user) {
+  setRedirect();
+  displayClass();
+  displayDelete();
+  displayAddOwner();
+  makeCharts();
+  getEnvs();
+});
 
 function switchTab(tabName) {
   const tabs = document.getElementsByClassName("tab");
