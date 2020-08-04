@@ -109,7 +109,7 @@ public class AddOwnerTest {
   @Test
   // For a user that doesn't own any class, add a class
   public void addOneOwnerEmptyList() throws Exception {
-   
+
     datastore.put(init);
     datastore.put(user);
 
