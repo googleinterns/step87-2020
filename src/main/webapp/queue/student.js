@@ -10,19 +10,17 @@ messaging.usePublicVapidKey(VAPID_KEY);
 
 //Ask user for permission to send notifications
 messaging
-    .requestPermission()
-    .then(function () {
+  .requestPermission()
+  .then(function () {
     console.log("Notification permission granted.");
-        
+      
     // Get the token in the form of promise
     return messaging.getToken();
-    })
-    .then(function(token) {
+  }).then(function(token) {
     iidToken = token;
-    })
-    .catch(function (err) {
+  }).catch(function (err) {
     console.log("Unable to get permission to notify.", err);
-    });
+  });
 
 // If user on page, no notification sent
 messaging.onMessage(function(payload) {
@@ -32,7 +30,6 @@ messaging.onMessage(function(payload) {
 function removeSelf(){
   var params = window.location.search + "&idToken=" + studentToken;
   const request = new Request("/remove-from-queue" + params, {method: "POST"});
-    
   fetch(request).then(() => {
     window.location.href = "/userDash.html";
   });
@@ -51,14 +48,13 @@ function sendNotification(){
   fetch('https://fcm.googleapis.com/fcm/send', {
     'method': 'POST',
     'headers': {
-      'Authorization': 'key=' + key,
-      'Content-Type': 'application/json'
-    },
+    'Authorization': 'key=' + key,
+    'Content-Type': 'application/json'
+  },
     'body': JSON.stringify({
-      'notification': notification,
-      'to': to
-    })
-  }).then(function(response) {
+    'notification': notification,
+    'to': to
+  })}).then(function(response) {
     console.log(response);
   }).catch(function(error) {
     console.error(error);
@@ -70,18 +66,18 @@ function makeRequest(){
   const request = new Request("/check-student" + params, {method: "GET"});
   fetch(request).then(response => response.json()).then((studentPosition) => {
     if (studentPosition.position === 0) {
-        document.getElementById("queue_status").innerText = "";
-        
-        if (!studentPosition.ta){
-            document.getElementById("beingHelped").innerText = "You are done being helped.";
-            document.getElementById("workspaceRedirect").href = "";
-            document.getElementById("workspaceRedirect").innerText = "";
-            gotWorkspaceID = false;
-            clearInterval(repeat);
+      document.getElementById("queue_status").innerText = "";
+      
+      if (!studentPosition.ta){
+        document.getElementById("beingHelped").innerText = "You are done being helped.";
+        document.getElementById("workspaceRedirect").href = "";
+        document.getElementById("workspaceRedirect").innerText = "";
+        gotWorkspaceID = false;
     
-        } else {
-            document.getElementById("beingHelped").innerText = "You are being helped by " + studentPosition.ta;
-        }
+      } else {
+        document.getElementById("beingHelped").innerText = "You are being helped by " + studentPosition.ta;
+        setTimeout(makeRequest, 1000);
+      }
 
       if (notifyBool) {
         sendNotification();
@@ -89,13 +85,13 @@ function makeRequest(){
       }    
     } else {
       document.getElementById("studentPosition").innerText = "You are #" + studentPosition.position + " on the queue.";
-        
+      
       document.getElementById("workspaceRedirect").href = studentPosition.workspace;
       document.getElementById("workspaceRedirect").innerText = "go to workspace";
+      setTimeout(makeRequest, 1000);
     }
   });
 }
-let repeat = setInterval(makeRequest, 1000);
 
 function setToken(token){
   studentToken = token;
@@ -104,10 +100,9 @@ function setToken(token){
 
 function getToken() {
   // Initialize user's Firebase token
-  var user = firebase.auth().currentUser;
+
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
-      console.log("User is signed in");
       user.getIdToken().then((token) => setToken(token));
     } 
     // Redirect to home page if not logged in

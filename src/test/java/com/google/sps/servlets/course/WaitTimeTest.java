@@ -18,6 +18,7 @@ import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.gson.Gson;
+import com.google.sps.authentication.Authenticator;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -42,11 +43,15 @@ public class WaitTimeTest {
 
   private DatastoreService datastore;
 
+  @Mock Authenticator auth;
+
   @Mock HttpServletRequest httpRequest;
 
   @Mock HttpServletResponse httpResponse;
 
   @InjectMocks WaitTime wait;
+
+  private final String ID_TOKEN = "ID_TOKEN";
 
   @Before
   public void setUp() {
@@ -87,6 +92,8 @@ public class WaitTimeTest {
     datastore.put(waitEntity);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, init.getKey());
 
@@ -176,6 +183,8 @@ public class WaitTimeTest {
     datastore.put(waitEntity4);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, init.getKey());
 
@@ -251,6 +260,8 @@ public class WaitTimeTest {
     datastore.delete(waitEntity.getKey());
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
@@ -295,6 +306,8 @@ public class WaitTimeTest {
     datastore.put(waitEntity);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(target.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(target.getKey()))).thenReturn(true);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
@@ -395,6 +408,8 @@ public class WaitTimeTest {
     datastore.put(waitEntity7);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, init.getKey());
 

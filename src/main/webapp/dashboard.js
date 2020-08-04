@@ -9,56 +9,57 @@ function drawBasic() {
   data.addColumn('number', 'Visits');
  
   // Organize visit data through visit-by-date servlet
-  fetch(`/visit-date?classCode=` + getParam("classCode"))
-    .then(response => response.json()).then(visits=> {
+  getToken().then(tok => {
+    fetch(`/visit-date?classCode=${getParam("classCode")}&idToken=${tok}`)
+      .then(response => response.json()).then(visits=> {
     
-    var dates = visits.dates;
+      var dates = visits.dates;
 
-    // Convert JSON date format to Date type
-    for (var k = 0; k < dates.length; k++) {
-      var dateStr = dates[k];
-      var realDate = new Date(dateStr);
-      dates[k] = realDate;
-    }
+      // Convert JSON date format to Date type
+      for (var k = 0; k < dates.length; k++) {
+        var dateStr = dates[k];
+        var realDate = new Date(dateStr);
+        dates[k] = realDate;
+      }
 
-    var numVisits = visits.classVisits;
+      var numVisits = visits.classVisits;
 
-    var tempDataHolder = []; // To be pushed into datatable after updating
+      var tempDataHolder = []; // To be pushed into datatable after updating
 
-    // Loop through both lists and add info sets for each class 
-    for (var i = 0; i < dates.length; i++) {
-      tempDataHolder.push([dates[i], numVisits[i]]);
-    }
+      // Loop through both lists and add info sets for each class 
+      for (var i = 0; i < dates.length; i++) {
+        tempDataHolder.push([dates[i], numVisits[i]]);
+      }
     
-    data.addRows(tempDataHolder); // Populate datatable with final data
+      data.addRows(tempDataHolder); // Populate datatable with final data
 
-    var options = {
-      title: 'Number of Student Office Hour Visits',
-      hAxis: {
-        format: 'M/d/yy',
-        title: 'Date',
-        textStyle: {
-          bold:true
+      var options = {
+        title: 'Number of Student Office Hour Visits',
+        hAxis: {
+          format: 'M/d/yy',
+          title: 'Date',
+          textStyle: {
+            bold:true
+          },
         },
-      },
-      vAxis: {
-        title: 'Number of Visits',
-        textStyle: {
-          bold:true
+        vAxis: {
+          title: 'Number of Visits',
+          textStyle: {
+            bold:true
+          },
         },
-      },
-      backgroundColor: {
-        fill: '#D6EBFF',
-        stroke: '#031430',
-        strokeWidth: 5
-      },
-    };
+        backgroundColor: {
+          fill: '#D6EBFF',
+          stroke: '#031430',
+          strokeWidth: 5
+        },
+      };
 
-    var chart = new google.visualization.LineChart(
-    document.getElementById("visit-chart"));
+      var chart = new google.visualization.LineChart(
+      document.getElementById("visit-chart"));
 
-    chart.draw(data, options);
-
+      chart.draw(data, options);
+    });
   });
 }
 
@@ -71,70 +72,74 @@ function drawTime() {
   data.addColumn('number', 'Wait');
  
   // Organize wait data through wait-time servlet
-  fetch(`/wait-time?classCode=` + getParam("classCode"))
-    .then(response => response.json()).then(waits=> {
+  getToken().then(tok => {
+    fetch(`/wait-time?classCode=${getParam("classCode")}&idToken=${tok}`)
+      .then(response => response.json()).then(waits=> {
     
-    var dates = waits.dates;
+      var dates = waits.dates;
 
-    // Convert JSON date format to Date type
-    for (var k = 0; k < dates.length; k++) {
-      var dateStr = dates[k];
-      var realDate = new Date(dateStr);
-      dates[k] = realDate;
-    }
+      // Convert JSON date format to Date type
+      for (var k = 0; k < dates.length; k++) {
+        var dateStr = dates[k];
+        var realDate = new Date(dateStr);
+        dates[k] = realDate;
+      }
 
-    var waitAverages = waits.waitTimes;
+      var waitAverages = waits.waitTimes;
 
-    // Convert all times to minutes
-    for (var j = 0; j < waitAverages.length; j++) {
-      var timeInSeconds = waitAverages[j];
-      var timeInMinutes = timeInSeconds / 60.0;
-      waitAverages[j] = timeInMinutes.toFixed(2);  // Round to 2 decimal places
-    }
+      // Convert all times to minutes
+      for (var j = 0; j < waitAverages.length; j++) {
+        var timeInSeconds = waitAverages[j];
+        var timeInMinutes = timeInSeconds / 60.0;
+        waitAverages[j] = timeInMinutes.toFixed(2);  // Round to 2 decimal places
+      }
 
-    var tempDataHolder = []; // To be pushed into datatable after updating
+      var tempDataHolder = []; // To be pushed into datatable after updating
 
-    // Loop through both lists and add info sets for each class 
-    for (var i = 0; i < dates.length; i++) {
-      tempDataHolder.push([dates[i], Number(waitAverages[i])]);
-    }
+      // Loop through both lists and add info sets for each class 
+      for (var i = 0; i < dates.length; i++) {
+        tempDataHolder.push([dates[i], Number(waitAverages[i])]);
+      }
     
-    data.addRows(tempDataHolder); // Populate datatable with final data
+      data.addRows(tempDataHolder); // Populate datatable with final data
 
-    var options = {
-      title: 'Average Wait Time by Date',
-      hAxis: {
-        format: 'M/d/yy',
-        title: 'Date',
-        textStyle: {
-          bold:true
+      var options = {
+        title: 'Average Wait Time by Date',
+        hAxis: {
+          format: 'M/d/yy',
+          title: 'Date',
+          textStyle: {
+            bold:true
+          },
         },
-      },
-      vAxis: {
-        title: 'Wait Time (minutes)',
-        format: '0.00',
-        textStyle: {
-          bold:true
+        vAxis: {
+          title: 'Wait Time (minutes)',
+          format: '0.00',
+          textStyle: {
+            bold:true
+          },
         },
-      },
-      backgroundColor: {
-        fill: '#D6EBFF',
-        stroke: '#031430',
-        strokeWidth: 5
-      },
-    };
+        backgroundColor: {
+          fill: '#D6EBFF',
+          stroke: '#031430',
+          strokeWidth: 5
+        },
+      };
 
-    const waitChart = document.getElementById("wait-chart");
-    waitChart.classList.remove("hidden");
-    var chart = new google.visualization.LineChart(waitChart);
+      const waitChart = document.getElementById("wait-chart");
+      waitChart.classList.remove("hidden");
+      var chart = new google.visualization.LineChart(waitChart);
 
-    chart.draw(data, options);
-    waitChart.classList.add("hidden");
+      chart.draw(data, options);
+      waitChart.classList.add("hidden");
+    });
   });
 }
 
-google.charts.setOnLoadCallback(drawBasic);
-google.charts.setOnLoadCallback(drawTime);
+function makeCharts() {
+  google.charts.setOnLoadCallback(drawBasic);
+  google.charts.setOnLoadCallback(drawTime);   
+}
 
 /* Creates a <li> element for every item in json */
 function createListElement(text) {
@@ -149,41 +154,55 @@ function setRedirect(){
   document.getElementById("redirect").onclick = () => window.location.href = "/queue/ta.html" + params;
   document.getElementById("classCode").innerText =  params.slice(11);
 
-  // Get TA participants
-  fetch(`/participants?classCode=${getParam("classCode")}&type=teach-staff`).then(response => response.json()).then((list) => {
-    const listElement = document.getElementById('classTAList');
-    listElement.innerHTML = '';
+  getToken().then(tok => {
+    // Get TA participants
+    fetch(`/participants?classCode=${getParam("classCode")}&type=teach-staff&idToken=${tok}`).then(response => response.json()).then((list) => {
+      const listElement = document.getElementById('classTAList');
+      listElement.innerHTML = '';
     
-    // Use HTML to display each message
-    for (var i = 0; i < list.length; i++) {
-      listElement.appendChild(
-        createListElement(list[i]));
-    }
-  });
+      // Use HTML to display each message
+      for (var i = 0; i < list.length; i++) {
+        listElement.appendChild(
+          createListElement(list[i]));
+      }
+    }); 
 
-  // Get student participants
-  fetch(`/participants?classCode=${getParam("classCode")}&type=student`).then(response => response.json()).then((list) => {
-    const listElement = document.getElementById('classStudentList');
-    listElement.innerHTML = '';
+    // Get student participants
+    fetch(`/participants?classCode=${getParam("classCode")}&type=student&idToken=${tok}`).then(response => response.json()).then((list) => {
+      const listElement = document.getElementById('classStudentList');
+      listElement.innerHTML = '';
     
-    // Use HTML to display each user
-    for (var i = 0; i < list.length; i++) {
-      listElement.appendChild(
-        createListElement(list[i]));
-    }
+      // Use HTML to display each user
+      for (var i = 0; i < list.length; i++) {
+        listElement.appendChild(
+          createListElement(list[i]));
+      }
+    });
   });
 }
 
 // Obtain the class's specific code from URL parameter
-function getClassCode() {
+function getTAInputs() {
   document.getElementById("hiddenClassCode").value = getParam("classCode");
-  document.getElementById("hiddenClassCode2").value = getParam("classCode");
+  getToken().then(tok => {
+    document.getElementById("idTokenForTA").value = tok;
+  });
   return true;
 }  
 
-// Obtain the class's specific code from URL parameter
-function getRosterClassCode() {
+function getOwnerInputs() {
+  document.getElementById("hiddenClassCode2").value = getParam("classCode");
+  getToken().then(tok => {
+    document.getElementById("idTokenOwner").value = tok;
+  });
+  return true;
+}
+
+function getRosterInputs() {
   document.getElementById("hiddenRosterClassCode").value = getParam("classCode");
+  getToken().then(tok => {
+    document.getElementById("roster-id").value = tok;
+  });
   return true;
 } 
 
@@ -224,6 +243,12 @@ function checkDeletionStatus(envID, row) {
   }));
 }
 
+function deleteEnv(row, envID, tok) {
+  row.querySelector(".envStatus").innerText = "deleting";
+  fetch(`/environment?envID=${envID}&idToken=${tok}`, {method: 'DELETE'});
+  checkDeletionStatus(envID, row);
+}
+
 function checkEnvStatus(envID, row) {
   getToken().then(tok => {
     fetch(`/environment?envID=${envID}&idToken=${tok}`).then(resp => resp.ok ? resp.json() : "failed").then(env => {
@@ -246,11 +271,7 @@ function checkEnvStatus(envID, row) {
       } else {
         const deleteButton = row.querySelector(".envDelete");
         deleteButton.disabled = false;
-        deleteButton.onclick = () => {
-          row.querySelector(".envStatus").innerText = "deleting";
-          getToken().then(tok => fetch(`/environment?envID=${envID}&idToken=${tok}`, {method: 'DELETE'}));
-          checkDeletionStatus(envID, row);
-        };
+        deleteButton.onclick = () => deleteEnv(row, envID, tok);
       }
     });
   });
@@ -277,11 +298,7 @@ function getEnvs() {
       for (var env of envs) {
        const row = addEnvRow(env.name, env.status, env.error);
   
-       row.querySelector(".envDelete").onclick = () => {
-        row.querySelector(".envStatus").innerText = "deleting";
-        fetch(`/environment?envID=${env.id}`, {method: 'DELETE'});
-        checkDeletionStatus(env.id, row);
-       }; 
+       row.querySelector(".envDelete").onclick = () => deleteEnv(row, env.id, tok); 
       }
     });
   });
@@ -306,8 +323,8 @@ function displayDelete(){
     const displayRequest = new Request("/get-role" + params, {method: "GET"});
     fetch(displayRequest).then(response => response.json()).then((role) => {
       var elem = document.getElementById("delete");
-      if (role !== "owner"){
-        elem.style.display = "none";
+      if (role === "owner"){
+        elem.classList.remove("hidden");
       }
     });
   });
@@ -340,16 +357,15 @@ function deleteClass(){
   }
 }
 
-function onload() {
-  setRedirect();
 
-  firebase.auth().onAuthStateChanged(function(user) {
-    displayClass();
-    displayDelete();
-    displayAddOwner();
-    getEnvs();
-  });
-}
+firebase.auth().onAuthStateChanged(function(user) {
+  setRedirect();
+  displayClass();
+  displayDelete();
+  displayAddOwner();
+  makeCharts();
+  getEnvs();
+});
 
 function switchTab(tabName) {
   const tabs = document.getElementsByClassName("tab");

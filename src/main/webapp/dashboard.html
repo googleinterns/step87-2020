@@ -25,12 +25,12 @@
     <!--Font-->
     <link href='https://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'></link>
     
+    <script src="/script/auth.js"></script>
     <script src="dashboard.js"></script>
     <script src="/script/util.js"></script>
-    <script src="/script/auth.js"></script>
   </head>
 
-  <body onload = "onload()">
+  <body onload>
     
     <!--Contains the TA email form and workspace environment-->
     <div class="left">
@@ -39,13 +39,14 @@
       <div class="centered">
         <div class="ta-form">
           <!--Attach the TA email to the user class TA list on submission-->
-          <form action="/add-class-ta" method="POST" onsubmit="getClassCode()" >
+          <form action="/add-class-ta" method="POST" onsubmit="getTAInputs()" >
             <fieldset><legend>Add a TA by Email</legend>
               <label for="TAemail">
                 <span>Email <span class="required">*</span></span>
                 <input type="text" class="input-field" name="taEmail" value="" /></br>
                 <input id="submitButton" type="submit" value="Submit">
                  <input class="hidden" id="hiddenClassCode" name="classCode">
+                 <input class="hidden" id="idTokenForTA" name="idToken">
               </label>
             </fieldset>
           </form>
@@ -84,21 +85,22 @@
           </div>
 
           <!--Add an owner-->
-          <form id="ownerForm" action="/add-owner" method="POST" onsubmit="getClassCode()" >
+          <form id="ownerForm" action="/add-owner" method="POST" onsubmit="getOwnerInputs()" >
             <fieldset><legend>Add an Owner by Email</legend>
               <label for="ownerEmailSubmit">
                 <span>Email <span class="required">*</span></span>
                 <input type="text" class="input-field" name="ownerEmail" value="" /></br>
                 <input id="owner-button" type="submit" value="Submit">
                 <input class="hidden" id="hiddenClassCode2" name="classCode">
+                <input class="hidden" id="idTokenOwner" name="idToken">
               </label>
             </fieldset>
           </form>
-
+ 
         </div>
 
         <br>
-        <div id= "delete">
+        <div id="delete" class="hidden">
           <button id="delete-button" onclick="deleteClass()">Delete Class</button>
         </div>
         <br>
@@ -135,16 +137,17 @@
       <div class="footer">
         <br>
         <h2>Class Roster</h2>
-
+ 
         <div class="roster-section">
            <!--Form for submitting a class roster-->
-          <form action="/submit-roster" method="POST" onsubmit="getRosterClassCode()">
+          <form action="/submit-roster" method="POST" onsubmit="getRosterInputs()">
             <label for="roster"><span>Enter students as comma separated list:</span></label>
             <br>
             <textarea id="roster" name="roster" height="400px" width="500px"></textarea>
             <br>
             <input type="submit" value="Submit" class="roster-button">
             <input class="hidden" id="hiddenRosterClassCode" name="classCode">
+            <input class="hidden" id="roster-id" name="idToken">
           </form> 
         </div>
         <br>

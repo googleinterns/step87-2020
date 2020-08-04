@@ -11,6 +11,7 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.sps.authentication.Authenticator;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -35,11 +36,15 @@ public class ParticipantTest {
 
   @Mock FirebaseAuth authInstance;
 
+  @Mock Authenticator auth;
+
   @InjectMocks Participants displayParticipants;
 
   @Mock HttpServletRequest httpRequest;
 
   @Mock HttpServletResponse httpResponse;
+
+  private final String ID_TOKEN = "ID_TOKEN";
 
   @Before
   public void setUp() {
@@ -77,6 +82,8 @@ public class ParticipantTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("type")).thenReturn("teach-staff");
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
@@ -112,6 +119,8 @@ public class ParticipantTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("type")).thenReturn("student");
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
@@ -163,6 +172,8 @@ public class ParticipantTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("type")).thenReturn("teach-staff");
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
@@ -216,6 +227,8 @@ public class ParticipantTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("type")).thenReturn("student");
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
@@ -243,6 +256,8 @@ public class ParticipantTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("type")).thenReturn("teach-staff");
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
@@ -268,6 +283,8 @@ public class ParticipantTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("type")).thenReturn("student");
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
@@ -326,6 +343,8 @@ public class ParticipantTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("type")).thenReturn("student");
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
@@ -385,6 +404,8 @@ public class ParticipantTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("type")).thenReturn("teach-staff");
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);

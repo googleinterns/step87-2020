@@ -1,6 +1,7 @@
 package com.google.sps.servlets.course;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,6 +18,7 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.sps.authentication.Authenticator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -40,11 +42,15 @@ public class AddClassTATest {
 
   @Mock FirebaseAuth authInstance;
 
-  @InjectMocks AddClassTA addTA;
+  @Mock Authenticator auth;
 
   @Mock HttpServletRequest httpRequest;
 
   @Mock HttpServletResponse httpResponse;
+
+  @InjectMocks AddClassTA addTA;
+
+  private final String ID_TOKEN = "ID_TOKEN";
 
   @Before
   public void setUp() {
@@ -83,6 +89,8 @@ public class AddClassTATest {
     // Create examples for the TA email and class code
     when(httpRequest.getParameter("taEmail")).thenReturn("test@google.com");
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     addTA.doPost(httpRequest, httpResponse);
 
@@ -136,6 +144,9 @@ public class AddClassTATest {
     // Create examples for the TA email and class code
     when(httpRequest.getParameter("taEmail")).thenReturn("test@google.com");
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init2.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(eq(ID_TOKEN), eq(KeyFactory.keyToString(init2.getKey()))))
+        .thenReturn(true);
 
     addTA.doPost(httpRequest, httpResponse);
 
@@ -189,6 +200,8 @@ public class AddClassTATest {
     // Create examples for the TA email and class code
     when(httpRequest.getParameter("taEmail")).thenReturn("testTA@google.com");
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     addTA.doPost(httpRequest, httpResponse);
 
@@ -256,6 +269,8 @@ public class AddClassTATest {
     // Create examples for the TA email and class code
     when(httpRequest.getParameter("taEmail")).thenReturn("test@google.com");
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init4.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init4.getKey()))).thenReturn(true);
 
     addTA.doPost(httpRequest, httpResponse);
 
@@ -281,14 +296,26 @@ public class AddClassTATest {
   @Test
   // Throw an exception if class key isn't correct
   public void keyUnavailable() throws Exception {
+    // Create multiple classes
+    Entity init = new Entity("Class");
+
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("studentQueue", Collections.emptyList());
+
+    datastore.put(init);
+    datastore.delete(init.getKey());
 
     // Create examples for the TA email and class code
     when(httpRequest.getParameter("taEmail")).thenReturn("test@google.com");
-    when(httpRequest.getParameter("classCode")).thenReturn("testClassCode");
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     addTA.doPost(httpRequest, httpResponse);
 
-    verify(httpResponse).sendError(HttpServletResponse.SC_BAD_REQUEST);
+    verify(httpResponse).sendError(HttpServletResponse.SC_NOT_FOUND);
   }
 
   // Add multiple TA's at the same time
@@ -327,6 +354,8 @@ public class AddClassTATest {
     // Create examples for the TA email and class code
     when(httpRequest.getParameter("taEmail")).thenReturn("test@google.com,test2@google.com");
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     addTA.doPost(httpRequest, httpResponse);
 
@@ -375,9 +404,10 @@ public class AddClassTATest {
 
     datastore.put(user2);
 
-    // Create examples for the TA email and class code
     when(httpRequest.getParameter("taEmail")).thenReturn("test@google.com, \n\t test2@google.com");
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     addTA.doPost(httpRequest, httpResponse);
 

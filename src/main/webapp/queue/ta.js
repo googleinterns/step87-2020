@@ -15,14 +15,12 @@ function createLink(url){
 function notifyStudent(studentEmail){
   var params = window.location.search + "&studentEmail=" + studentEmail + "&taToken=" + taToken;
   const request = new Request("/notify-student" + params, {method: "POST"});
-    
   fetch(request);
 }
 
 function endHelp(studentEmail){
   var params = window.location.search + "&studentEmail=" + studentEmail + "&taToken=" + taToken;
   const request = new Request("/end-help" + params, {method: "POST"});
-    
   fetch(request).then(() => {
     document.getElementById('beingHelped').innerText = "";
   });
@@ -85,25 +83,25 @@ function getQueue() {
     const beinghelpedElem = document.getElementById('beingHelped');
 
     if (queue.helping) {
+      queueListElement.querySelectorAll(".notify-button").forEach((ele) => ele.classList.add("hidden"));
       beinghelpedElem.innerHTML = "";
       document.getElementById('beingHelped').appendChild(createHelpedElem(queue.helping.email, queue.helping.workspace));
     } else {
       beinghelpedElem.innerHTML = "";
     }
+
+    setTimeout(getQueue, 1000);
   });
 }
 
-var repeat = setInterval(getQueue, 1000);
 function setToken(token){
   taToken = token;
   getQueue();
 }
 
 function getToken() {
-  var user = firebase.auth().currentUser;
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
-      console.log("User is signed in");
       user.getIdToken().then((token) => setToken(token));
     } else {
       console.log("User is not logged in");
