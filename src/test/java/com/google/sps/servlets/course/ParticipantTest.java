@@ -45,11 +45,86 @@ public class ParticipantTest {
   @Mock HttpServletResponse httpResponse;
 
   private final String ID_TOKEN = "ID_TOKEN";
+  private final String STAFF = "teach-staff";
+  private final String STUDENT = "student";
+  private final String STUDENT_1 = "student1@google.com";
+  private final String STUDENT_2 = "student2@google.com";
+  private final String STUDENT_3 = "student3@google.com";
+  private final String TA_1 = "ta1@google.com";
+  private final String TA_2 = "ta2@google.com";
+  private final String TA_3 = "ta3@google.com";
+
+  private Entity init;
+  private Entity student1;
+  private Entity student2;
+  private Entity student3;
+  private Entity ta1;
+  private Entity ta2;
+  private Entity ta3;
 
   @Before
   public void setUp() {
     helper.setUp();
     datastore = DatastoreServiceFactory.getDatastoreService();
+
+    // Create a class
+    init = new Entity("Class");
+
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("studentQueue", Collections.emptyList());
+
+    //
+    // Create student/TA users
+    //
+    student1 = new Entity("User");
+
+    student1.setProperty("userEmail", STUDENT_1);
+    student1.setProperty("registeredClasses", Arrays.asList(init.getKey()));
+    student1.setProperty("taClasses", Collections.emptyList());
+    student1.setProperty("ownedClasses", Collections.emptyList());
+
+    student2 = new Entity("User");
+
+    student2.setProperty("userEmail", STUDENT_2);
+    student2.setProperty("registeredClasses", Arrays.asList(init.getKey()));
+    student2.setProperty("taClasses", Collections.emptyList());
+    student2.setProperty("ownedClasses", Collections.emptyList());
+
+    student3 = new Entity("User");
+
+    student3.setProperty("userEmail", STUDENT_3);
+    student3.setProperty("registeredClasses", Arrays.asList(init.getKey()));
+    student3.setProperty("taClasses", Collections.emptyList());
+    student3.setProperty("ownedClasses", Collections.emptyList());
+
+    ta1 = new Entity("User");
+
+    ta1.setProperty("userEmail", TA_1);
+    ta1.setProperty("registeredClasses", Collections.emptyList());
+    ta1.setProperty("taClasses", Arrays.asList(init.getKey()));
+    ta1.setProperty("ownedClasses", Collections.emptyList());
+
+    ta2 = new Entity("User");
+
+    ta2.setProperty("userEmail", TA_2);
+    ta2.setProperty("registeredClasses", Collections.emptyList());
+    ta2.setProperty("taClasses", Arrays.asList(init.getKey()));
+    ta2.setProperty("ownedClasses", Collections.emptyList());
+
+    ta2 = new Entity("User");
+
+    ta2.setProperty("userEmail", TA_2);
+    ta2.setProperty("registeredClasses", Collections.emptyList());
+    ta2.setProperty("taClasses", Arrays.asList(init.getKey()));
+    ta2.setProperty("ownedClasses", Collections.emptyList());
+
+    ta3 = new Entity("User");
+
+    ta3.setProperty("userEmail", TA_3);
+    ta3.setProperty("registeredClasses", Collections.emptyList());
+    ta3.setProperty("taClasses", Arrays.asList(init.getKey()));
+    ta3.setProperty("ownedClasses", Collections.emptyList());
   }
 
   @After
@@ -61,27 +136,11 @@ public class ParticipantTest {
   // Check if a single TA participant is retrieved properly
   public void basicCheckTA() throws Exception {
 
-    // Create a class
-    Entity init = new Entity("Class");
-
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Collections.emptyList());
-
     datastore.put(init);
-
-    // Create a user
-    Entity user = new Entity("User");
-
-    user.setProperty("userEmail", "test@google.com");
-    user.setProperty("registeredClasses", Collections.emptyList());
-    user.setProperty("taClasses", Arrays.asList(init.getKey()));
-    user.setProperty("ownedClasses", Collections.emptyList());
-
-    datastore.put(user);
+    datastore.put(ta1);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
-    when(httpRequest.getParameter("type")).thenReturn("teach-staff");
+    when(httpRequest.getParameter("type")).thenReturn(STAFF);
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
@@ -91,34 +150,18 @@ public class ParticipantTest {
 
     displayParticipants.doGet(httpRequest, httpResponse);
 
-    assertTrue(stringWriter.toString().contains("test@google.com"));
+    assertTrue(stringWriter.toString().contains(TA_1));
   }
 
   @Test
   // Check if a single student participant is retrieved properly
   public void basicCheckStudent() throws Exception {
 
-    // Create a class
-    Entity init = new Entity("Class");
-
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Collections.emptyList());
-
     datastore.put(init);
-
-    // Create a user
-    Entity user = new Entity("User");
-
-    user.setProperty("userEmail", "student1@google.com");
-    user.setProperty("registeredClasses", Arrays.asList(init.getKey()));
-    user.setProperty("taClasses", Collections.emptyList());
-    user.setProperty("ownedClasses", Collections.emptyList());
-
-    datastore.put(user);
+    datastore.put(student1);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
-    when(httpRequest.getParameter("type")).thenReturn("student");
+    when(httpRequest.getParameter("type")).thenReturn(STUDENT);
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
@@ -128,50 +171,20 @@ public class ParticipantTest {
 
     displayParticipants.doGet(httpRequest, httpResponse);
 
-    assertTrue(stringWriter.toString().contains("student1@google.com"));
+    assertTrue(stringWriter.toString().contains(STUDENT_1));
   }
 
   @Test
   // Check if multiple TA participants are retrieved properly
   public void multipleTAs() throws Exception {
 
-    // Create a class
-    Entity init = new Entity("Class");
-
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Collections.emptyList());
-
     datastore.put(init);
-
-    // Create users
-    Entity user = new Entity("User");
-
-    user.setProperty("userEmail", "test@google.com");
-    user.setProperty("registeredClasses", Collections.emptyList());
-    user.setProperty("taClasses", Arrays.asList(init.getKey()));
-    user.setProperty("ownedClasses", Collections.emptyList());
-
-    Entity user2 = new Entity("User");
-
-    user2.setProperty("userEmail", "test2@google.com");
-    user2.setProperty("registeredClasses", Collections.emptyList());
-    user2.setProperty("taClasses", Arrays.asList(init.getKey()));
-    user2.setProperty("ownedClasses", Collections.emptyList());
-
-    Entity user3 = new Entity("User");
-
-    user3.setProperty("userEmail", "test3@google.com");
-    user3.setProperty("registeredClasses", Collections.emptyList());
-    user3.setProperty("taClasses", Arrays.asList(init.getKey()));
-    user3.setProperty("ownedClasses", Collections.emptyList());
-
-    datastore.put(user);
-    datastore.put(user2);
-    datastore.put(user3);
+    datastore.put(ta1);
+    datastore.put(ta2);
+    datastore.put(ta3);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
-    when(httpRequest.getParameter("type")).thenReturn("teach-staff");
+    when(httpRequest.getParameter("type")).thenReturn(STAFF);
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
@@ -181,52 +194,22 @@ public class ParticipantTest {
 
     displayParticipants.doGet(httpRequest, httpResponse);
 
-    assertTrue(stringWriter.toString().contains("test@google.com"));
-    assertTrue(stringWriter.toString().contains("test2@google.com"));
-    assertTrue(stringWriter.toString().contains("test3@google.com"));
+    assertTrue(stringWriter.toString().contains(TA_1));
+    assertTrue(stringWriter.toString().contains(TA_2));
+    assertTrue(stringWriter.toString().contains(TA_3));
   }
 
   @Test
   // Check if multiple student participants are retrieved properly
   public void multipleStudents() throws Exception {
 
-    // Create a class
-    Entity init = new Entity("Class");
-
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Collections.emptyList());
-
     datastore.put(init);
-
-    // Create users
-    Entity user = new Entity("User");
-
-    user.setProperty("userEmail", "student1@google.com");
-    user.setProperty("registeredClasses", Arrays.asList(init.getKey()));
-    user.setProperty("taClasses", Collections.emptyList());
-    user.setProperty("ownedClasses", Collections.emptyList());
-
-    Entity user2 = new Entity("User");
-
-    user2.setProperty("userEmail", "student2@google.com");
-    user2.setProperty("registeredClasses", Arrays.asList(init.getKey()));
-    user2.setProperty("taClasses", Collections.emptyList());
-    user2.setProperty("ownedClasses", Collections.emptyList());
-
-    Entity user3 = new Entity("User");
-
-    user3.setProperty("userEmail", "student3@google.com");
-    user3.setProperty("registeredClasses", Arrays.asList(init.getKey()));
-    user3.setProperty("taClasses", Collections.emptyList());
-    user3.setProperty("ownedClasses", Collections.emptyList());
-
-    datastore.put(user);
-    datastore.put(user2);
-    datastore.put(user3);
+    datastore.put(student1);
+    datastore.put(student2);
+    datastore.put(student3);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
-    when(httpRequest.getParameter("type")).thenReturn("student");
+    when(httpRequest.getParameter("type")).thenReturn(STUDENT);
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
@@ -236,26 +219,19 @@ public class ParticipantTest {
 
     displayParticipants.doGet(httpRequest, httpResponse);
 
-    assertTrue(stringWriter.toString().contains("student1@google.com"));
-    assertTrue(stringWriter.toString().contains("student2@google.com"));
-    assertTrue(stringWriter.toString().contains("student3@google.com"));
+    assertTrue(stringWriter.toString().contains(STUDENT_1));
+    assertTrue(stringWriter.toString().contains(STUDENT_2));
+    assertTrue(stringWriter.toString().contains(STUDENT_3));
   }
 
   @Test
   // Verify that a class with no TAs returns nothing
   public void emptyTA() throws Exception {
 
-    // Create a class
-    Entity init = new Entity("Class");
-
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Collections.emptyList());
-
     datastore.put(init);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
-    when(httpRequest.getParameter("type")).thenReturn("teach-staff");
+    when(httpRequest.getParameter("type")).thenReturn(STAFF);
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
@@ -272,17 +248,10 @@ public class ParticipantTest {
   // Verify that a class with no students returns nothing
   public void emptyStudent() throws Exception {
 
-    // Create a class
-    Entity init = new Entity("Class");
-
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Collections.emptyList());
-
     datastore.put(init);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
-    when(httpRequest.getParameter("type")).thenReturn("student");
+    when(httpRequest.getParameter("type")).thenReturn(STUDENT);
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
@@ -298,51 +267,14 @@ public class ParticipantTest {
   @Test
   public void pickStudents() throws Exception {
 
-    // Create a class
-    Entity init = new Entity("Class");
-
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Collections.emptyList());
-
     datastore.put(init);
-
-    // Create users
-    Entity user = new Entity("User");
-
-    user.setProperty("userEmail", "student1@google.com");
-    user.setProperty("registeredClasses", Arrays.asList(init.getKey()));
-    user.setProperty("taClasses", Collections.emptyList());
-    user.setProperty("ownedClasses", Collections.emptyList());
-
-    Entity user2 = new Entity("User");
-
-    user2.setProperty("userEmail", "student2@google.com");
-    user2.setProperty("registeredClasses", Arrays.asList(init.getKey()));
-    user2.setProperty("taClasses", Collections.emptyList());
-    user2.setProperty("ownedClasses", Collections.emptyList());
-
-    Entity user3 = new Entity("User");
-
-    user3.setProperty("userEmail", "ta1@google.com");
-    user3.setProperty("registeredClasses", Collections.emptyList());
-    user3.setProperty("taClasses", Arrays.asList(init.getKey()));
-    user3.setProperty("ownedClasses", Collections.emptyList());
-
-    Entity user4 = new Entity("User");
-
-    user4.setProperty("userEmail", "ta2@google.com");
-    user4.setProperty("registeredClasses", Collections.emptyList());
-    user4.setProperty("taClasses", Arrays.asList(init.getKey()));
-    user4.setProperty("ownedClasses", Collections.emptyList());
-
-    datastore.put(user);
-    datastore.put(user2);
-    datastore.put(user3);
-    datastore.put(user4);
+    datastore.put(student1);
+    datastore.put(student2);
+    datastore.put(ta1);
+    datastore.put(ta2);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
-    when(httpRequest.getParameter("type")).thenReturn("student");
+    when(httpRequest.getParameter("type")).thenReturn(STUDENT);
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
@@ -352,58 +284,21 @@ public class ParticipantTest {
 
     displayParticipants.doGet(httpRequest, httpResponse);
 
-    assertTrue(stringWriter.toString().contains("student1@google.com"));
-    assertTrue(stringWriter.toString().contains("student2@google.com"));
+    assertTrue(stringWriter.toString().contains(STUDENT_1));
+    assertTrue(stringWriter.toString().contains(STUDENT_2));
   }
 
   @Test
   public void pickTAs() throws Exception {
 
-    // Create a class
-    Entity init = new Entity("Class");
-
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Collections.emptyList());
-
     datastore.put(init);
-
-    // Create users
-    Entity user = new Entity("User");
-
-    user.setProperty("userEmail", "student1@google.com");
-    user.setProperty("registeredClasses", Arrays.asList(init.getKey()));
-    user.setProperty("taClasses", Collections.emptyList());
-    user.setProperty("ownedClasses", Collections.emptyList());
-
-    Entity user2 = new Entity("User");
-
-    user2.setProperty("userEmail", "student2@google.com");
-    user2.setProperty("registeredClasses", Arrays.asList(init.getKey()));
-    user2.setProperty("taClasses", Collections.emptyList());
-    user2.setProperty("ownedClasses", Collections.emptyList());
-
-    Entity user3 = new Entity("User");
-
-    user3.setProperty("userEmail", "ta1@google.com");
-    user3.setProperty("registeredClasses", Collections.emptyList());
-    user3.setProperty("taClasses", Arrays.asList(init.getKey()));
-    user3.setProperty("ownedClasses", Collections.emptyList());
-
-    Entity user4 = new Entity("User");
-
-    user4.setProperty("userEmail", "ta2@google.com");
-    user4.setProperty("registeredClasses", Collections.emptyList());
-    user4.setProperty("taClasses", Arrays.asList(init.getKey()));
-    user4.setProperty("ownedClasses", Collections.emptyList());
-
-    datastore.put(user);
-    datastore.put(user2);
-    datastore.put(user3);
-    datastore.put(user4);
+    datastore.put(student1);
+    datastore.put(student2);
+    datastore.put(ta1);
+    datastore.put(ta2);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
-    when(httpRequest.getParameter("type")).thenReturn("teach-staff");
+    when(httpRequest.getParameter("type")).thenReturn(STAFF);
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
@@ -413,7 +308,7 @@ public class ParticipantTest {
 
     displayParticipants.doGet(httpRequest, httpResponse);
 
-    assertTrue(stringWriter.toString().contains("ta1@google.com"));
-    assertTrue(stringWriter.toString().contains("ta2@google.com"));
+    assertTrue(stringWriter.toString().contains(TA_1));
+    assertTrue(stringWriter.toString().contains(TA_2));
   }
 }

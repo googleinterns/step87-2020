@@ -53,10 +53,109 @@ public class VisitByDateTest {
 
   private final String ID_TOKEN = "ID_TOKEN";
 
+  private final Date date1 = new Date(2020, 1, 1);
+  private final Date date2 = new Date(2020, 1, 5);
+  private final Date date3 = new Date(2020, 5, 1);
+  private final Date date4 = new Date(2020, 6, 6);
+  private final Date date5 = new Date(2020, 5, 1);
+  private final Date date6 = new Date(2020, 5, 5);
+  private final Date date7 = new Date(2020, 7, 12);
+  private final Date date8 = new Date(2020, 5, 10);
+
+  private Entity init;
+  private Entity init2;
+  private Entity init3;
+  private Entity init4;
+  private Entity init5;
+  private Entity visitEntity1;
+  private Entity visitEntity2;
+  private Entity visitEntity3;
+  private Entity visitEntity4;
+  private Entity visitEntity5;
+  private Entity visitEntity6;
+  private Entity visitEntity7;
+  private Entity visitEntity8;
+
   @Before
   public void setUp() {
     helper.setUp();
     datastore = DatastoreServiceFactory.getDatastoreService();
+
+    //
+    // Create classes
+    //
+    init = new Entity("Class");
+
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
+
+    init2 = new Entity("Class");
+
+    init2.setProperty("name", "testClass2");
+    init2.setProperty("beingHelped", new EmbeddedEntity());
+    init2.setProperty("studentQueue", Collections.emptyList());
+
+    init3 = new Entity("Class");
+
+    init3.setProperty("name", "testClass3");
+    init3.setProperty("beingHelped", new EmbeddedEntity());
+    init3.setProperty("studentQueue", Collections.emptyList());
+
+    init4 = new Entity("Class");
+
+    init4.setProperty("name", "testClass4");
+    init4.setProperty("beingHelped", new EmbeddedEntity());
+    init4.setProperty("studentQueue", Collections.emptyList());
+
+    init5 = new Entity("Class");
+
+    init5.setProperty("name", "testClass5");
+    init5.setProperty("beingHelped", new EmbeddedEntity());
+    init5.setProperty("studentQueue", Collections.emptyList());
+
+    //
+    // Create Visit Entities
+    //
+    visitEntity1 = new Entity("Visit");
+    visitEntity1.setProperty("classKey", init.getKey());
+    visitEntity1.setProperty("numVisits", 3);
+    visitEntity1.setProperty("date", date1);
+
+    visitEntity2 = new Entity("Visit");
+    visitEntity2.setProperty("classKey", init.getKey());
+    visitEntity2.setProperty("numVisits", 7);
+    visitEntity2.setProperty("date", date2);
+
+    visitEntity3 = new Entity("Visit");
+    visitEntity3.setProperty("classKey", init2.getKey());
+    visitEntity3.setProperty("numVisits", 20);
+    visitEntity3.setProperty("date", date3);
+
+    visitEntity4 = new Entity("Visit");
+    visitEntity4.setProperty("classKey", init.getKey());
+    visitEntity4.setProperty("numVisits", 10);
+    visitEntity4.setProperty("date", date4);
+
+    visitEntity5 = new Entity("Visit");
+    visitEntity5.setProperty("classKey", init2.getKey());
+    visitEntity5.setProperty("numVisits", 20);
+    visitEntity5.setProperty("date", date5);
+
+    visitEntity6 = new Entity("Visit");
+    visitEntity6.setProperty("classKey", init3.getKey());
+    visitEntity6.setProperty("numVisits", 30);
+    visitEntity6.setProperty("date", date6);
+
+    visitEntity7 = new Entity("Visit");
+    visitEntity7.setProperty("classKey", init3.getKey());
+    visitEntity7.setProperty("numVisits", 40);
+    visitEntity7.setProperty("date", date7);
+
+    visitEntity8 = new Entity("Visit");
+    visitEntity8.setProperty("classKey", init4.getKey());
+    visitEntity8.setProperty("numVisits", 1);
+    visitEntity8.setProperty("date", date8);
   }
 
   @After
@@ -67,26 +166,12 @@ public class VisitByDateTest {
   @Test
   // With a single class in the Visit entity, there should only be one date populated in the lists
   public void oneClassOneDate() throws Exception {
-    Date date1 = new Date(2020, 1, 1);
 
     ArrayList<Date> listOfDates = new ArrayList<Date>();
     ArrayList<Long> visitsPerClass = new ArrayList<Long>();
 
-    Entity init = new Entity("Class");
-
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
-
     datastore.put(init);
-
-    // Create a test entity in Visits
-    Entity visitEntity = new Entity("Visit");
-    visitEntity.setProperty("classKey", init.getKey());
-    visitEntity.setProperty("numVisits", 3);
-    visitEntity.setProperty("date", date1);
-
-    datastore.put(visitEntity);
+    datastore.put(visitEntity1);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
@@ -116,7 +201,7 @@ public class VisitByDateTest {
 
     when(httpResponse.getWriter()).thenReturn(writer);
 
-    checkVisits.doGet(httpRequest, httpResponse);
+    checkVisits.doGet(httpRequest, httpResponse); // Servlet response
 
     Gson gson = new Gson();
 
@@ -127,47 +212,13 @@ public class VisitByDateTest {
   @Test
   // Verify that only one target class's data is being retrieved
   public void twoClasses() throws Exception {
-    Date date1 = new Date(2020, 2, 1);
-    Date date2 = new Date(2020, 1, 5);
-    Date date3 = new Date(2020, 5, 1);
 
     ArrayList<Date> listOfDates = new ArrayList<Date>();
     ArrayList<Long> visitsPerClass = new ArrayList<Long>();
 
-    Entity init = new Entity("Class");
-
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
-
-    Entity init2 = new Entity("Class2");
-
-    init2.setProperty("name", "testClass2");
-    init2.setProperty("beingHelped", new EmbeddedEntity());
-    init2.setProperty("studentQueue", Collections.emptyList());
-
     datastore.put(init);
     datastore.put(init2);
-
-    // Target class w/ 15 visits on 1/1/2020
-    Entity visitEntity = new Entity("Visit");
-    visitEntity.setProperty("classKey", init.getKey());
-    visitEntity.setProperty("numVisits", 15);
-    visitEntity.setProperty("date", date1);
-
-    // Target class w/ 7 visits on 1/5/2020
-    Entity visitEntity2 = new Entity("Visit");
-    visitEntity2.setProperty("classKey", init.getKey());
-    visitEntity2.setProperty("numVisits", 7);
-    visitEntity2.setProperty("date", date2);
-
-    // Class 2 w/ 20 visits on 5/1/2020
-    Entity visitEntity3 = new Entity("Visit");
-    visitEntity3.setProperty("classKey", init2.getKey());
-    visitEntity3.setProperty("numVisits", 20);
-    visitEntity3.setProperty("date", date3);
-
-    datastore.put(visitEntity);
+    datastore.put(visitEntity1);
     datastore.put(visitEntity2);
     datastore.put(visitEntity3);
 
@@ -185,113 +236,23 @@ public class VisitByDateTest {
 
     assertTrue(stringWriter.toString().contains(gson.toJson(date1)));
     assertTrue(stringWriter.toString().contains(gson.toJson(date2)));
-    assertTrue(stringWriter.toString().contains("15"));
+    assertTrue(stringWriter.toString().contains("3"));
     assertTrue(stringWriter.toString().contains("7"));
   }
 
   @Test
   // Filter one class's visit data from multiple entities
   public void multipleClasses() throws Exception {
-    Date date1 = new Date(2020, 5, 10);
-    Date date2 = new Date(2020, 11, 5);
-    Date date3 = new Date(2020, 9, 3);
-    Date date4 = new Date(2020, 6, 6);
-    Date date5 = new Date(2020, 5, 1);
-    Date date6 = new Date(2020, 5, 5);
-    Date date7 = new Date(2020, 7, 12);
-    Date date8 = new Date(2020, 1, 1);
 
     ArrayList<Date> listOfDates = new ArrayList<Date>();
     ArrayList<Long> visitsPerClass = new ArrayList<Long>();
-
-    //
-    // Create 4 different classes
-    //
-    Entity init = new Entity("Class");
-
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
-
-    Entity init2 = new Entity("Class2");
-
-    init2.setProperty("name", "testClass2");
-    init2.setProperty("beingHelped", new EmbeddedEntity());
-    init2.setProperty("studentQueue", Collections.emptyList());
-
-    Entity init3 = new Entity("Class3");
-
-    init3.setProperty("name", "testClass3");
-    init3.setProperty("beingHelped", new EmbeddedEntity());
-    init3.setProperty("studentQueue", Collections.emptyList());
-
-    Entity init4 = new Entity("Class4");
-
-    init4.setProperty("name", "testClass4");
-    init4.setProperty("beingHelped", new EmbeddedEntity());
-    init4.setProperty("studentQueue", Collections.emptyList());
-
-    Entity init5 = new Entity("Class5");
-
-    init5.setProperty("name", "testClass5");
-    init5.setProperty("beingHelped", new EmbeddedEntity());
-    init5.setProperty("studentQueue", Collections.emptyList());
 
     datastore.put(init);
     datastore.put(init2);
     datastore.put(init3);
     datastore.put(init4);
     datastore.put(init5);
-
-    // Target class w/ 24 visits on 6/10/2020
-    Entity visitEntity = new Entity("Visit");
-    visitEntity.setProperty("classKey", init.getKey());
-    visitEntity.setProperty("numVisits", 24);
-    visitEntity.setProperty("date", date1);
-
-    // Target class w/ 17 visits on 12/5/2020
-    Entity visitEntity2 = new Entity("Visit");
-    visitEntity2.setProperty("classKey", init.getKey());
-    visitEntity2.setProperty("numVisits", 17);
-    visitEntity2.setProperty("date", date2);
-
-    // Target class w/ 4 visits on 10/3/2020
-    Entity visitEntity3 = new Entity("Visit");
-    visitEntity3.setProperty("classKey", init.getKey());
-    visitEntity3.setProperty("numVisits", 4);
-    visitEntity3.setProperty("date", date3);
-
-    // Target class w/ 10 visits on 7/6/2020
-    Entity visitEntity4 = new Entity("Visit");
-    visitEntity4.setProperty("classKey", init.getKey());
-    visitEntity4.setProperty("numVisits", 10);
-    visitEntity4.setProperty("date", date4);
-
-    // Class 2 w/ 20 visits on 6/1/2020
-    Entity visitEntity5 = new Entity("Visit");
-    visitEntity5.setProperty("classKey", init2.getKey());
-    visitEntity5.setProperty("numVisits", 20);
-    visitEntity5.setProperty("date", date5);
-
-    // Class 3 w/ 30 visits on 6/5/2020
-    Entity visitEntity6 = new Entity("Visit");
-    visitEntity6.setProperty("classKey", init3.getKey());
-    visitEntity6.setProperty("numVisits", 30);
-    visitEntity6.setProperty("date", date6);
-
-    // Class 3 w/ 40 visits on 8/12/2020
-    Entity visitEntity7 = new Entity("Visit");
-    visitEntity7.setProperty("classKey", init3.getKey());
-    visitEntity7.setProperty("numVisits", 40);
-    visitEntity7.setProperty("date", date7);
-
-    // Class 4 w/ 1 visit on 2/1/2020
-    Entity visitEntity8 = new Entity("Visit");
-    visitEntity8.setProperty("classKey", init4.getKey());
-    visitEntity8.setProperty("numVisits", 1);
-    visitEntity8.setProperty("date", date8);
-
-    datastore.put(visitEntity);
+    datastore.put(visitEntity1);
     datastore.put(visitEntity2);
     datastore.put(visitEntity3);
     datastore.put(visitEntity4);
@@ -306,13 +267,11 @@ public class VisitByDateTest {
 
     Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, init.getKey());
 
-    // Obtain visits from datastore
     Query query =
         new Query("Visit").addSort("date", SortDirection.DESCENDING).setFilter(classFilter);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
 
-    // Store the class name and number of visits
     for (Entity entity : results.asIterable()) {
       Date date = (Date) entity.getProperty("date");
       long classVisits = (long) entity.getProperty("numVisits");
@@ -321,16 +280,14 @@ public class VisitByDateTest {
       visitsPerClass.add(classVisits);
     }
 
-    assertEquals(date2, (Date) listOfDates.get(0));
-    assertEquals((long) 17, (long) visitsPerClass.get(0));
-    assertEquals(date3, (Date) listOfDates.get(1));
-    assertEquals((long) 4, (long) visitsPerClass.get(1));
-    assertEquals(date4, (Date) listOfDates.get(2));
-    assertEquals((long) 10, (long) visitsPerClass.get(2));
-    assertEquals(date1, (Date) listOfDates.get(3));
-    assertEquals((long) 24, (long) visitsPerClass.get(3));
-    assertTrue(visitsPerClass.size() == 4);
-    assertTrue(listOfDates.size() == 4);
+    assertEquals(date4, (Date) listOfDates.get(0));
+    assertEquals((long) 10, (long) visitsPerClass.get(0));
+    assertEquals(date2, (Date) listOfDates.get(1));
+    assertEquals((long) 7, (long) visitsPerClass.get(1));
+    assertEquals(date1, (Date) listOfDates.get(2));
+    assertEquals((long) 3, (long) visitsPerClass.get(2));
+    assertTrue(visitsPerClass.size() == 3);
+    assertTrue(listOfDates.size() == 3);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
@@ -342,11 +299,9 @@ public class VisitByDateTest {
 
     assertTrue(stringWriter.toString().contains(gson.toJson(date1)));
     assertTrue(stringWriter.toString().contains(gson.toJson(date2)));
-    assertTrue(stringWriter.toString().contains(gson.toJson(date3)));
     assertTrue(stringWriter.toString().contains(gson.toJson(date4)));
-    assertTrue(stringWriter.toString().contains("24"));
-    assertTrue(stringWriter.toString().contains("17"));
-    assertTrue(stringWriter.toString().contains("4"));
+    assertTrue(stringWriter.toString().contains("3"));
+    assertTrue(stringWriter.toString().contains("7"));
     assertTrue(stringWriter.toString().contains("10"));
   }
 
@@ -356,22 +311,9 @@ public class VisitByDateTest {
     ArrayList<Date> listOfDates = new ArrayList<Date>();
     ArrayList<Long> visitsPerClass = new ArrayList<Long>();
 
-    Entity init = new Entity("Class");
-
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
-
     datastore.put(init);
-
-    // Create a test entity in Visits
-    Entity visitEntity = new Entity("Visit");
-    visitEntity.setProperty("classKey", init.getKey());
-    visitEntity.setProperty("numVisits", 3);
-    visitEntity.setProperty("date", new Date(2020, 1, 1));
-
-    datastore.put(visitEntity);
-    datastore.delete(visitEntity.getKey());
+    datastore.put(visitEntity1);
+    datastore.delete(visitEntity1.getKey());
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
