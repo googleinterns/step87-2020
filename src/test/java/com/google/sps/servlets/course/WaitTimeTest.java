@@ -77,6 +77,9 @@ public class WaitTimeTest {
     helper.setUp();
     datastore = DatastoreServiceFactory.getDatastoreService();
 
+    //
+    // Create classes
+    //
     init = new Entity("Class");
 
     init.setProperty("owner", "ownerID");
@@ -105,6 +108,9 @@ public class WaitTimeTest {
     init4.setProperty("beingHelped", new EmbeddedEntity());
     init4.setProperty("studentQueue", Arrays.asList("test1"));
 
+    //
+    // Create Wait Entities
+    //
     ArrayList<Long> waitDurList1 = new ArrayList<Long>(Arrays.asList(10L, 3L, 6L, 1L));
     ArrayList<Long> waitDurList2 = new ArrayList<Long>(Arrays.asList(3L, 6L));
     ArrayList<Long> waitDurList3 = new ArrayList<Long>(Arrays.asList(45L, 17L, 11L));
@@ -156,7 +162,7 @@ public class WaitTimeTest {
   @Test
   // Get average wait time for a single class, single day
   public void basic() throws Exception {
-    
+
     ArrayList<Date> listOfDates = new ArrayList<Date>();
     ArrayList<ArrayList<Long>> averagesList = new ArrayList<ArrayList<Long>>();
 
@@ -282,7 +288,7 @@ public class WaitTimeTest {
 
     when(httpResponse.getWriter()).thenReturn(writer);
 
-    wait.doGet(httpRequest, httpResponse); 
+    wait.doGet(httpRequest, httpResponse);
 
     assertTrue(stringWriter.toString().contains(":[]"));
   }
@@ -290,7 +296,7 @@ public class WaitTimeTest {
   @Test
   // Verify empty wait time for a class that has no time averages
   public void noWaits() throws Exception {
-   
+
     datastore.put(init);
     datastore.put(init4);
     datastore.put(waitEntity1);

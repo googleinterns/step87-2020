@@ -50,20 +50,26 @@ public class AddOwnerTest {
   @Mock HttpServletResponse httpResponse;
 
   private final String ID_TOKEN = "ID_TOKEN";
-  private final String OWNER_EMAIL = "testOwner@google.com";
+  private final String OWNER_EMAIL_1 = "testOwner@google.com";
+  private final String OWNER_EMAIL_2 = "testOwner2@google.com";
+  private final String OWNER_EMAIL_3 = "testOwner3@google.com";
 
   private Entity init;
   private Entity init2;
   private Entity init3;
   private Entity init4;
-  private Entity user;
+  private Entity userOwner1;
+  private Entity userOwner2;
+  private Entity userOwner3;
 
   @Before
   public void setUp() {
     helper.setUp();
     datastore = DatastoreServiceFactory.getDatastoreService();
 
+    //
     // Create classes
+    //
     init = new Entity("Class");
 
     init.setProperty("owner", "ownerID");
@@ -92,13 +98,31 @@ public class AddOwnerTest {
     init4.setProperty("beingHelped", new EmbeddedEntity());
     init4.setProperty("studentQueue", Collections.emptyList());
 
-    // Create a user
-    user = new Entity("User");
+    //
+    // Create users that are owners
+    //
+    userOwner1 = new Entity("User");
 
-    user.setProperty("userEmail", OWNER_EMAIL);
-    user.setProperty("registeredClasses", Collections.emptyList());
-    user.setProperty("taClasses", Collections.emptyList());
-    user.setProperty("ownedClasses", Collections.emptyList());
+    userOwner1.setProperty("userEmail", OWNER_EMAIL_1);
+    userOwner1.setProperty("registeredClasses", Collections.emptyList());
+    userOwner1.setProperty("taClasses", Collections.emptyList());
+    userOwner1.setProperty("ownedClasses", Collections.emptyList());
+
+    userOwner2 = new Entity("User");
+
+    List<Key> ownedClassList2 = Arrays.asList(init.getKey(), init2.getKey());
+    userOwner2.setProperty("userEmail", OWNER_EMAIL_2);
+    userOwner2.setProperty("registeredClasses", Collections.emptyList());
+    userOwner2.setProperty("taClasses", Collections.emptyList());
+    userOwner2.setProperty("ownedClasses", ownedClassList2);
+
+    userOwner3 = new Entity("User");
+
+    List<Key> ownedClassList3 = Arrays.asList(init.getKey(), init2.getKey(), init3.getKey());
+    userOwner3.setProperty("userEmail", OWNER_EMAIL_3);
+    userOwner3.setProperty("registeredClasses", Collections.emptyList());
+    userOwner3.setProperty("taClasses", Collections.emptyList());
+    userOwner3.setProperty("ownedClasses", ownedClassList3);
   }
 
   @After
@@ -111,9 +135,9 @@ public class AddOwnerTest {
   public void addOneOwnerEmptyList() throws Exception {
 
     datastore.put(init);
-    datastore.put(user);
+    datastore.put(userOwner1);
 
-    when(httpRequest.getParameter("ownerEmail")).thenReturn(OWNER_EMAIL);
+    when(httpRequest.getParameter("ownerEmail")).thenReturn(OWNER_EMAIL_1);
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(auth.verifyOwner(eq(ID_TOKEN), eq(init.getKey()))).thenReturn(true);
@@ -124,7 +148,7 @@ public class AddOwnerTest {
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
-                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, OWNER_EMAIL)));
+                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, OWNER_EMAIL_1)));
 
     Entity owner = queryUser.asSingleEntity();
 
@@ -139,20 +163,9 @@ public class AddOwnerTest {
 
     datastore.put(init);
     datastore.put(init2);
+    datastore.put(userOwner2);
 
-    // Initialize an owner user
-    Entity userOwner = new Entity("User");
-
-    List<Key> ownedClassList = Arrays.asList(init.getKey(), init2.getKey());
-
-    userOwner.setProperty("userEmail", OWNER_EMAIL);
-    userOwner.setProperty("registeredClasses", Collections.emptyList());
-    userOwner.setProperty("taClasses", Collections.emptyList());
-    userOwner.setProperty("ownedClasses", ownedClassList);
-
-    datastore.put(userOwner);
-
-    when(httpRequest.getParameter("ownerEmail")).thenReturn(OWNER_EMAIL);
+    when(httpRequest.getParameter("ownerEmail")).thenReturn(OWNER_EMAIL_2);
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(auth.verifyOwner(eq(ID_TOKEN), eq(init.getKey()))).thenReturn(true);
@@ -162,7 +175,7 @@ public class AddOwnerTest {
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
-                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, OWNER_EMAIL)));
+                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, OWNER_EMAIL_2)));
 
     Entity owner = queryUser.asSingleEntity();
 
@@ -181,20 +194,9 @@ public class AddOwnerTest {
     datastore.put(init2);
     datastore.put(init3);
     datastore.put(init4);
+    datastore.put(userOwner3);
 
-    // Create a user
-    Entity user = new Entity("User");
-
-    List<Key> ownedClassList = Arrays.asList(init.getKey(), init2.getKey(), init3.getKey());
-
-    user.setProperty("userEmail", OWNER_EMAIL);
-    user.setProperty("registeredClasses", Collections.emptyList());
-    user.setProperty("taClasses", Collections.emptyList());
-    user.setProperty("ownedClasses", ownedClassList);
-
-    datastore.put(user);
-
-    when(httpRequest.getParameter("ownerEmail")).thenReturn(OWNER_EMAIL);
+    when(httpRequest.getParameter("ownerEmail")).thenReturn(OWNER_EMAIL_3);
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init4.getKey()));
     when(auth.verifyOwner(eq(ID_TOKEN), eq(init4.getKey()))).thenReturn(true);
@@ -204,7 +206,7 @@ public class AddOwnerTest {
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
-                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, OWNER_EMAIL)));
+                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, OWNER_EMAIL_3)));
 
     Entity owner = queryUser.asSingleEntity();
 

@@ -51,8 +51,11 @@ public class AddClassTATest {
   @InjectMocks AddClassTA addTA;
 
   private final String ID_TOKEN = "ID_TOKEN";
-  private final String TA_EMAIL = "test@google.com";
-  private final String EMAIL_2 = "test2@google.com";
+  private final String TA_EMAIL_1 = "test@google.com";
+  private final String TA_EMAIL_2 = "test2@google.com";
+  private final String TA_EMAIL_3 = "test3@google.com";
+  private final String TA_EMAIL_4 = "test4@google.com";
+  private final String TA_EMAIL_5 = "test5@google.com";
 
   private Entity init;
   private Entity init2;
@@ -60,13 +63,18 @@ public class AddClassTATest {
   private Entity init4;
   private Entity user;
   private Entity user2;
+  private Entity user3;
+  private Entity user4;
+  private Entity user5;
 
   @Before
   public void setUp() {
     helper.setUp();
     datastore = DatastoreServiceFactory.getDatastoreService();
 
+    //
     // Create classes
+    //
     init = new Entity("Class");
 
     init.setProperty("owner", "ownerID");
@@ -95,20 +103,46 @@ public class AddClassTATest {
     init4.setProperty("beingHelped", new EmbeddedEntity());
     init4.setProperty("studentQueue", Collections.emptyList());
 
+    //
     // Create users
+    //
     user = new Entity("User");
 
-    user.setProperty("userEmail", TA_EMAIL);
+    user.setProperty("userEmail", TA_EMAIL_1);
     user.setProperty("registeredClasses", Collections.emptyList());
     user.setProperty("taClasses", Collections.emptyList());
     user.setProperty("ownedClasses", Collections.emptyList());
 
     user2 = new Entity("User");
 
-    user2.setProperty("userEmail", EMAIL_2);
+    user2.setProperty("userEmail", TA_EMAIL_2);
     user2.setProperty("registeredClasses", Collections.emptyList());
     user2.setProperty("taClasses", Collections.emptyList());
     user2.setProperty("ownedClasses", Collections.emptyList());
+
+    user3 = new Entity("User");
+
+    List<Key> taClassList3 = Arrays.asList(init.getKey());
+    user3.setProperty("userEmail", TA_EMAIL_3);
+    user3.setProperty("registeredClasses", Collections.emptyList());
+    user3.setProperty("taClasses", taClassList3);
+    user3.setProperty("ownedClasses", Collections.emptyList());
+
+    user4 = new Entity("User");
+
+    List<Key> taClassList4 = Arrays.asList(init.getKey(), init2.getKey(), init3.getKey());
+    user4.setProperty("userEmail", TA_EMAIL_4);
+    user4.setProperty("registeredClasses", Collections.emptyList());
+    user4.setProperty("taClasses", taClassList4);
+    user4.setProperty("ownedClasses", Collections.emptyList());
+
+    user5 = new Entity("User");
+
+    List<Key> taClassList5 = Arrays.asList(init.getKey(), init2.getKey());
+    user5.setProperty("userEmail", TA_EMAIL_5);
+    user5.setProperty("registeredClasses", Collections.emptyList());
+    user5.setProperty("taClasses", taClassList5);
+    user5.setProperty("ownedClasses", Collections.emptyList());
   }
 
   @After
@@ -124,7 +158,7 @@ public class AddClassTATest {
     datastore.put(user);
 
     // Create examples for the TA email and class code
-    when(httpRequest.getParameter("taEmail")).thenReturn(TA_EMAIL);
+    when(httpRequest.getParameter("taEmail")).thenReturn(TA_EMAIL_1);
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
@@ -135,7 +169,7 @@ public class AddClassTATest {
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
-                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, TA_EMAIL)));
+                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, TA_EMAIL_1)));
 
     Entity userTA = queryUser.asSingleEntity();
 
@@ -150,21 +184,9 @@ public class AddClassTATest {
 
     datastore.put(init);
     datastore.put(init2);
+    datastore.put(user3);
 
-    // Initialize a user
-    Entity testUser = new Entity("User");
-
-    List<Key> taClassList = Arrays.asList(init.getKey());
-
-    testUser.setProperty("userEmail", TA_EMAIL);
-    testUser.setProperty("registeredClasses", Collections.emptyList());
-    testUser.setProperty("taClasses", taClassList);
-    testUser.setProperty("ownedClasses", Collections.emptyList());
-
-    datastore.put(testUser);
-
-    // Create examples for the TA email and class code
-    when(httpRequest.getParameter("taEmail")).thenReturn(TA_EMAIL);
+    when(httpRequest.getParameter("taEmail")).thenReturn(TA_EMAIL_3);
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init2.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(auth.verifyTaOrOwner(eq(ID_TOKEN), eq(KeyFactory.keyToString(init2.getKey()))))
@@ -172,11 +194,10 @@ public class AddClassTATest {
 
     addTA.doPost(httpRequest, httpResponse);
 
-    // Look for the TA in the user datastore
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
-                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, TA_EMAIL)));
+                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, TA_EMAIL_3)));
 
     Entity userTA = queryUser.asSingleEntity();
 
@@ -192,32 +213,19 @@ public class AddClassTATest {
 
     datastore.put(init);
     datastore.put(init2);
+    datastore.put(user5);
 
-    // Initialize a TA user
-    Entity testUser = new Entity("User");
-
-    List<Key> taClassList = Arrays.asList(init.getKey(), init2.getKey());
-
-    testUser.setProperty("userEmail", TA_EMAIL);
-    testUser.setProperty("registeredClasses", Collections.emptyList());
-    testUser.setProperty("taClasses", taClassList);
-    testUser.setProperty("ownedClasses", Collections.emptyList());
-
-    datastore.put(testUser);
-
-    // Create examples for the TA email and class code
-    when(httpRequest.getParameter("taEmail")).thenReturn(TA_EMAIL);
+    when(httpRequest.getParameter("taEmail")).thenReturn(TA_EMAIL_5);
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     addTA.doPost(httpRequest, httpResponse);
 
-    // Look for the TA in the user datastore
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
-                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, TA_EMAIL)));
+                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, TA_EMAIL_5)));
 
     Entity userTA = queryUser.asSingleEntity();
 
@@ -236,32 +244,20 @@ public class AddClassTATest {
     datastore.put(init2);
     datastore.put(init3);
     datastore.put(init4);
-
-    // Create a user
-    Entity testUser = new Entity("User");
-
-    List<Key> taClassList = Arrays.asList(init.getKey(), init2.getKey(), init3.getKey());
-
-    testUser.setProperty("userEmail", TA_EMAIL);
-    testUser.setProperty("registeredClasses", Collections.emptyList());
-    testUser.setProperty("taClasses", taClassList);
-    testUser.setProperty("ownedClasses", Collections.emptyList());
-
-    datastore.put(testUser);
+    datastore.put(user4);
 
     // Create examples for the TA email and class code
-    when(httpRequest.getParameter("taEmail")).thenReturn(TA_EMAIL);
+    when(httpRequest.getParameter("taEmail")).thenReturn(TA_EMAIL_4);
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init4.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init4.getKey()))).thenReturn(true);
 
     addTA.doPost(httpRequest, httpResponse);
 
-    // Look for the TA in the user datastore
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
-                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, TA_EMAIL)));
+                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, TA_EMAIL_4)));
 
     Entity userTA = queryUser.asSingleEntity();
 
@@ -282,8 +278,7 @@ public class AddClassTATest {
     datastore.put(init);
     datastore.delete(init.getKey());
 
-    // Create examples for the TA email and class code
-    when(httpRequest.getParameter("taEmail")).thenReturn(TA_EMAIL);
+    when(httpRequest.getParameter("taEmail")).thenReturn(TA_EMAIL_1);
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init.getKey()))).thenReturn(true);
@@ -301,7 +296,6 @@ public class AddClassTATest {
     datastore.put(user);
     datastore.put(user2);
 
-    // Create examples for the TA email and class code
     when(httpRequest.getParameter("taEmail")).thenReturn("test@google.com,test2@google.com");
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);

@@ -174,7 +174,6 @@ public class SubmitRosterTest {
 
     submitRoster.doPost(httpRequest, httpResponse);
 
-    // Look for the student in the user datastore
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
@@ -203,7 +202,6 @@ public class SubmitRosterTest {
 
     submitRoster.doPost(httpRequest, httpResponse);
 
-    // Look for the student in the user datastore
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
@@ -223,7 +221,6 @@ public class SubmitRosterTest {
     datastore.put(student3);
     datastore.put(student4);
 
-    // Submit a roster of 2 students
     when(httpRequest.getParameter("roster")).thenReturn("student3@google.com, student4@google.com");
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
@@ -231,7 +228,6 @@ public class SubmitRosterTest {
 
     submitRoster.doPost(httpRequest, httpResponse);
 
-    // Look for the students in the user datastore
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
@@ -260,7 +256,6 @@ public class SubmitRosterTest {
     datastore.put(student1);
     datastore.put(student2);
 
-    // Submit a roster of 2 students
     when(httpRequest.getParameter("roster")).thenReturn("student1@google.com, student2@google.com");
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
@@ -268,7 +263,6 @@ public class SubmitRosterTest {
 
     submitRoster.doPost(httpRequest, httpResponse);
 
-    // Look for the students in the user datastore
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")

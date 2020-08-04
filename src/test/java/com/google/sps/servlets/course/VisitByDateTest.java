@@ -81,6 +81,9 @@ public class VisitByDateTest {
     helper.setUp();
     datastore = DatastoreServiceFactory.getDatastoreService();
 
+    //
+    // Create classes
+    //
     init = new Entity("Class");
 
     init.setProperty("owner", "ownerID");
@@ -116,6 +119,9 @@ public class VisitByDateTest {
     init5.setProperty("beingHelped", new EmbeddedEntity());
     init5.setProperty("studentQueue", Collections.emptyList());
 
+    //
+    // Create Visit Entities
+    //
     visitEntity1 = new Entity("Visit");
     visitEntity1.setProperty("classKey", init.getKey());
     visitEntity1.setProperty("numVisits", 3);
