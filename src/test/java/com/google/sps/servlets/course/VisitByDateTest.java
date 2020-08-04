@@ -200,7 +200,7 @@ public class VisitByDateTest {
 
     when(httpResponse.getWriter()).thenReturn(writer);
 
-    checkVisits.doGet(httpRequest, httpResponse);
+    checkVisits.doGet(httpRequest, httpResponse); // Servlet response
 
     Gson gson = new Gson();
 
@@ -266,13 +266,11 @@ public class VisitByDateTest {
 
     Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, init.getKey());
 
-    // Obtain visits from datastore
     Query query =
         new Query("Visit").addSort("date", SortDirection.DESCENDING).setFilter(classFilter);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
 
-    // Store the class name and number of visits
     for (Entity entity : results.asIterable()) {
       Date date = (Date) entity.getProperty("date");
       long classVisits = (long) entity.getProperty("numVisits");

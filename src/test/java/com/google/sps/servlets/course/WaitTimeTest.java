@@ -53,10 +53,99 @@ public class WaitTimeTest {
 
   private final String ID_TOKEN = "ID_TOKEN";
 
+  private final Date date1 = new Date(2020, 1, 1);
+  private final Date date2 = new Date(2020, 1, 2);
+  private final Date date3 = new Date(2020, 1, 3);
+  private final Date date4 = new Date(2020, 1, 4);
+  private final Date date5 = new Date(2020, 1, 5);
+  private final Date date6 = new Date(2020, 1, 6);
+
+  private Entity init;
+  private Entity init2;
+  private Entity init3;
+  private Entity init4;
+  private Entity waitEntity1;
+  private Entity waitEntity2;
+  private Entity waitEntity3;
+  private Entity waitEntity4;
+  private Entity waitEntity5;
+  private Entity waitEntity6;
+  private Entity waitEntity7;
+
   @Before
   public void setUp() {
     helper.setUp();
     datastore = DatastoreServiceFactory.getDatastoreService();
+
+    init = new Entity("Class");
+
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
+
+    init2 = new Entity("Class");
+
+    init2.setProperty("owner", "ownerID2");
+    init2.setProperty("name", "testClass2");
+    init2.setProperty("beingHelped", new EmbeddedEntity());
+    init2.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
+
+    init3 = new Entity("Class");
+
+    init3.setProperty("owner", "ownerID3");
+    init3.setProperty("name", "testClass3");
+    init3.setProperty("beingHelped", new EmbeddedEntity());
+    init3.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
+
+    init4 = new Entity("Class");
+
+    init4.setProperty("owner", "ownerID4");
+    init4.setProperty("name", "testClass4");
+    init4.setProperty("beingHelped", new EmbeddedEntity());
+    init4.setProperty("studentQueue", Arrays.asList("test1"));
+
+    ArrayList<Long> waitDurList1 = new ArrayList<Long>(Arrays.asList(10L, 3L, 6L, 1L));
+    ArrayList<Long> waitDurList2 = new ArrayList<Long>(Arrays.asList(3L, 6L));
+    ArrayList<Long> waitDurList3 = new ArrayList<Long>(Arrays.asList(45L, 17L, 11L));
+    ArrayList<Long> waitDurList4 = new ArrayList<Long>(Arrays.asList(10L, 33L, 6L, 19L));
+    ArrayList<Long> waitDurList5 = new ArrayList<Long>(Arrays.asList(33L));
+    ArrayList<Long> waitDurList6 = new ArrayList<Long>(Arrays.asList(5L, 6L, 19L));
+
+    waitEntity1 = new Entity("Wait");
+    waitEntity1.setProperty("classKey", init.getKey());
+    waitEntity1.setProperty("waitDurations", waitDurList1);
+    waitEntity1.setProperty("date", date1);
+
+    waitEntity2 = new Entity("Wait");
+    waitEntity2.setProperty("classKey", init.getKey());
+    waitEntity2.setProperty("waitDurations", waitDurList2);
+    waitEntity2.setProperty("date", date2);
+
+    waitEntity3 = new Entity("Wait");
+    waitEntity3.setProperty("classKey", init.getKey());
+    waitEntity3.setProperty("waitDurations", waitDurList3);
+    waitEntity3.setProperty("date", date3);
+
+    waitEntity4 = new Entity("Wait");
+    waitEntity4.setProperty("classKey", init.getKey());
+    waitEntity4.setProperty("waitDurations", waitDurList4);
+    waitEntity4.setProperty("date", date4);
+
+    waitEntity5 = new Entity("Wait");
+    waitEntity5.setProperty("classKey", init2.getKey());
+    waitEntity5.setProperty("waitDurations", waitDurList4);
+    waitEntity5.setProperty("date", date4);
+
+    waitEntity6 = new Entity("Wait");
+    waitEntity6.setProperty("classKey", init2.getKey());
+    waitEntity6.setProperty("waitDurations", waitDurList5);
+    waitEntity6.setProperty("date", date5);
+
+    waitEntity7 = new Entity("Wait");
+    waitEntity7.setProperty("classKey", init3.getKey());
+    waitEntity7.setProperty("waitDurations", waitDurList6);
+    waitEntity7.setProperty("date", date6);
   }
 
   @After
@@ -67,30 +156,12 @@ public class WaitTimeTest {
   @Test
   // Get average wait time for a single class, single day
   public void basic() throws Exception {
-    Date date1 = new Date(2020, 1, 1);
-
+    
     ArrayList<Date> listOfDates = new ArrayList<Date>();
     ArrayList<ArrayList<Long>> averagesList = new ArrayList<ArrayList<Long>>();
 
-    Entity init = new Entity("Class");
-
-    init.setProperty("owner", "ownerID");
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
-
     datastore.put(init);
-
-    // Create a test entity in Wait
-    Entity waitEntity = new Entity("Wait");
-    waitEntity.setProperty("classKey", init.getKey());
-
-    ArrayList<Long> waitDurList = new ArrayList<Long>(Arrays.asList(10L, 3L, 6L, 1L));
-
-    waitEntity.setProperty("waitDurations", waitDurList);
-    waitEntity.setProperty("date", date1);
-
-    datastore.put(waitEntity);
+    datastore.put(waitEntity1);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
@@ -134,51 +205,11 @@ public class WaitTimeTest {
 
   @Test
   public void multipleDatesOneClass() throws Exception {
-    Date date1 = new Date(2020, 1, 1);
-    Date date2 = new Date(2020, 1, 2);
-    Date date3 = new Date(2020, 1, 3);
-    Date date4 = new Date(2020, 1, 4);
 
     ArrayList<Date> listOfDates = new ArrayList<Date>();
     ArrayList<ArrayList<Long>> averagesList = new ArrayList<ArrayList<Long>>();
 
-    Entity init = new Entity("Class");
-
-    init.setProperty("owner", "ownerID");
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
-
     datastore.put(init);
-
-    ArrayList<Long> waitDurList1 = new ArrayList<Long>(Arrays.asList(10L, 3L, 6L, 1L));
-    ArrayList<Long> waitDurList2 = new ArrayList<Long>(Arrays.asList(3L, 6L));
-    ArrayList<Long> waitDurList3 = new ArrayList<Long>(Arrays.asList(45L, 17L, 11L));
-    ArrayList<Long> waitDurList4 = new ArrayList<Long>(Arrays.asList(10L, 33L, 6L, 19L));
-
-    //
-    // Target class has 4 different wait dates
-    //
-    Entity waitEntity1 = new Entity("Wait");
-    waitEntity1.setProperty("classKey", init.getKey());
-    waitEntity1.setProperty("waitDurations", waitDurList1);
-    waitEntity1.setProperty("date", date1);
-
-    Entity waitEntity2 = new Entity("Wait");
-    waitEntity2.setProperty("classKey", init.getKey());
-    waitEntity2.setProperty("waitDurations", waitDurList2);
-    waitEntity2.setProperty("date", date2);
-
-    Entity waitEntity3 = new Entity("Wait");
-    waitEntity3.setProperty("classKey", init.getKey());
-    waitEntity3.setProperty("waitDurations", waitDurList3);
-    waitEntity3.setProperty("date", date3);
-
-    Entity waitEntity4 = new Entity("Wait");
-    waitEntity4.setProperty("classKey", init.getKey());
-    waitEntity4.setProperty("waitDurations", waitDurList4);
-    waitEntity4.setProperty("date", date4);
-
     datastore.put(waitEntity1);
     datastore.put(waitEntity2);
     datastore.put(waitEntity3);
@@ -190,13 +221,11 @@ public class WaitTimeTest {
 
     Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, init.getKey());
 
-    // Obtain waits from datastore and filter them into results query
     Query query =
         new Query("Wait").addSort("date", SortDirection.DESCENDING).setFilter(classFilter);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
 
-    // Store the date and time average into two separate lists
     for (Entity entity : results.asIterable()) {
       Date date = (Date) entity.getProperty("date");
       ArrayList<Long> durationList = (ArrayList<Long>) entity.getProperty("waitDurations");
@@ -239,28 +268,10 @@ public class WaitTimeTest {
   @Test
   // Verify empty wait time
   public void emptyWaits() throws Exception {
-    Date date1 = new Date(2020, 1, 1);
-
-    Entity init = new Entity("Class");
-
-    init.setProperty("owner", "ownerID");
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
 
     datastore.put(init);
-
-    // Create a test entity in Wait
-    Entity waitEntity = new Entity("Wait");
-    waitEntity.setProperty("classKey", init.getKey());
-
-    ArrayList<Long> waitDurList = new ArrayList<Long>(Arrays.asList(10L, 3L, 6L, 1L));
-
-    waitEntity.setProperty("waitDurations", waitDurList);
-    waitEntity.setProperty("date", date1);
-
-    datastore.put(waitEntity);
-    datastore.delete(waitEntity.getKey());
+    datastore.put(waitEntity1);
+    datastore.delete(waitEntity1.getKey());
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
@@ -271,7 +282,7 @@ public class WaitTimeTest {
 
     when(httpResponse.getWriter()).thenReturn(writer);
 
-    wait.doGet(httpRequest, httpResponse); // Servlet response
+    wait.doGet(httpRequest, httpResponse); 
 
     assertTrue(stringWriter.toString().contains(":[]"));
   }
@@ -279,47 +290,21 @@ public class WaitTimeTest {
   @Test
   // Verify empty wait time for a class that has no time averages
   public void noWaits() throws Exception {
-    Date date1 = new Date(2020, 1, 1);
-
-    Entity init = new Entity("Class");
-
-    init.setProperty("owner", "ownerID");
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
-
+   
     datastore.put(init);
+    datastore.put(init4);
+    datastore.put(waitEntity1);
 
-    Entity target = new Entity("Class");
-
-    target.setProperty("owner", "ownerID2");
-    target.setProperty("name", "testClass2");
-    target.setProperty("beingHelped", new EmbeddedEntity());
-    target.setProperty("studentQueue", Arrays.asList("test1"));
-
-    datastore.put(target);
-
-    // Create a test entity in Wait
-    Entity waitEntity = new Entity("Wait");
-    waitEntity.setProperty("classKey", init.getKey());
-
-    ArrayList<Long> waitDurList = new ArrayList<Long>(Arrays.asList(10L, 3L, 6L, 1L));
-
-    waitEntity.setProperty("waitDurations", waitDurList);
-    waitEntity.setProperty("date", date1);
-
-    datastore.put(waitEntity);
-
-    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(target.getKey()));
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init4.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
-    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(target.getKey()))).thenReturn(true);
+    when(auth.verifyTaOrOwner(ID_TOKEN, KeyFactory.keyToString(init4.getKey()))).thenReturn(true);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
 
     when(httpResponse.getWriter()).thenReturn(writer);
 
-    wait.doGet(httpRequest, httpResponse); // Servlet response
+    wait.doGet(httpRequest, httpResponse);
 
     assertTrue(stringWriter.toString().contains(":[]"));
   }
@@ -327,86 +312,13 @@ public class WaitTimeTest {
   @Test
   // Verify correct averages within multiple classes/dates
   public void multipleDatesMultipleClasses() throws Exception {
-    Date date1 = new Date(2020, 1, 1);
-    Date date2 = new Date(2020, 1, 2);
-    Date date3 = new Date(2020, 1, 3);
-    Date date4 = new Date(2020, 1, 4);
-    Date date5 = new Date(2020, 1, 5);
-    Date date6 = new Date(2020, 1, 6);
 
     ArrayList<Date> listOfDates = new ArrayList<Date>();
     ArrayList<ArrayList<Long>> averagesList = new ArrayList<ArrayList<Long>>();
 
-    Entity init = new Entity("Class");
-
-    init.setProperty("owner", "ownerID");
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
-
-    Entity init2 = new Entity("Class");
-
-    init2.setProperty("owner", "ownerID2");
-    init2.setProperty("name", "testClass2");
-    init2.setProperty("beingHelped", new EmbeddedEntity());
-    init2.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
-
-    Entity init3 = new Entity("Class");
-
-    init3.setProperty("owner", "ownerID3");
-    init3.setProperty("name", "testClass3");
-    init3.setProperty("beingHelped", new EmbeddedEntity());
-    init3.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
-
     datastore.put(init);
     datastore.put(init2);
     datastore.put(init3);
-
-    ArrayList<Long> waitDurList1 = new ArrayList<Long>(Arrays.asList(10L, 3L, 6L, 1L));
-    ArrayList<Long> waitDurList2 = new ArrayList<Long>(Arrays.asList(3L, 6L));
-    ArrayList<Long> waitDurList3 = new ArrayList<Long>(Arrays.asList(45L, 17L, 11L));
-    ArrayList<Long> waitDurList4 = new ArrayList<Long>(Arrays.asList(10L, 33L, 6L, 19L));
-    ArrayList<Long> waitDurList5 = new ArrayList<Long>(Arrays.asList(33L));
-    ArrayList<Long> waitDurList6 = new ArrayList<Long>(Arrays.asList(5L, 6L, 19L));
-
-    //
-    // Target class has 4 different wait dates
-    //
-    Entity waitEntity1 = new Entity("Wait");
-    waitEntity1.setProperty("classKey", init.getKey());
-    waitEntity1.setProperty("waitDurations", waitDurList1);
-    waitEntity1.setProperty("date", date1);
-
-    Entity waitEntity2 = new Entity("Wait");
-    waitEntity2.setProperty("classKey", init.getKey());
-    waitEntity2.setProperty("waitDurations", waitDurList2);
-    waitEntity2.setProperty("date", date2);
-
-    Entity waitEntity3 = new Entity("Wait");
-    waitEntity3.setProperty("classKey", init.getKey());
-    waitEntity3.setProperty("waitDurations", waitDurList3);
-    waitEntity3.setProperty("date", date3);
-
-    Entity waitEntity4 = new Entity("Wait");
-    waitEntity4.setProperty("classKey", init.getKey());
-    waitEntity4.setProperty("waitDurations", waitDurList4);
-    waitEntity4.setProperty("date", date4);
-
-    Entity waitEntity5 = new Entity("Wait");
-    waitEntity5.setProperty("classKey", init2.getKey());
-    waitEntity5.setProperty("waitDurations", waitDurList4);
-    waitEntity5.setProperty("date", date4);
-
-    Entity waitEntity6 = new Entity("Wait");
-    waitEntity6.setProperty("classKey", init2.getKey());
-    waitEntity6.setProperty("waitDurations", waitDurList5);
-    waitEntity6.setProperty("date", date5);
-
-    Entity waitEntity7 = new Entity("Wait");
-    waitEntity7.setProperty("classKey", init3.getKey());
-    waitEntity7.setProperty("waitDurations", waitDurList6);
-    waitEntity7.setProperty("date", date6);
-
     datastore.put(waitEntity1);
     datastore.put(waitEntity2);
     datastore.put(waitEntity3);
@@ -421,13 +333,11 @@ public class WaitTimeTest {
 
     Filter classFilter = new FilterPredicate("classKey", FilterOperator.EQUAL, init.getKey());
 
-    // Obtain waits from datastore and filter them into results query
     Query query =
         new Query("Wait").addSort("date", SortDirection.DESCENDING).setFilter(classFilter);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
 
-    // Store the date and time average into two separate lists
     for (Entity entity : results.asIterable()) {
       Date date = (Date) entity.getProperty("date");
       ArrayList<Long> durationList = (ArrayList<Long>) entity.getProperty("waitDurations");
@@ -436,7 +346,6 @@ public class WaitTimeTest {
       averagesList.add(durationList);
     }
 
-    // Date/time pairs should be from most recent
     assertEquals(date4, (Date) listOfDates.get(0));
     assertEquals(date3, (Date) listOfDates.get(1));
     assertEquals(date2, (Date) listOfDates.get(2));
