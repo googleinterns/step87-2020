@@ -49,11 +49,72 @@ public class SubmitRosterTest {
   @InjectMocks SubmitRoster submitRoster;
 
   private final String ID_TOKEN = "ID_TOKEN";
+  private final String STUDENT_1 = "student1@google.com";
+  private final String STUDENT_2 = "student2@google.com";
+  private final String STUDENT_3 = "student3@google.com";
+  private final String STUDENT_4 = "student4@google.com";
+
+  private Entity init;
+  private Entity init2;
+  private Entity student1;
+  private Entity student2;
+  private Entity student3;
+  private Entity student4;
 
   @Before
   public void setUp() {
     helper.setUp();
     datastore = DatastoreServiceFactory.getDatastoreService();
+
+    //
+    // Create classes
+    //
+    init = new Entity("Class");
+
+    init.setProperty("owner", "ownerID");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("studentQueue", Collections.emptyList());
+
+    init2 = new Entity("Class");
+
+    init2.setProperty("owner", "ownerID2");
+    init2.setProperty("name", "testClass2");
+    init2.setProperty("beingHelped", new EmbeddedEntity());
+    init2.setProperty("studentQueue", Collections.emptyList());
+
+    //
+    // Create student users
+    //
+    student1 = new Entity("User");
+
+    student1.setProperty("userEmail", STUDENT_1);
+    student1.setProperty("registeredClasses", Arrays.asList(init.getKey()));
+    student1.setProperty("taClasses", Collections.emptyList());
+    student1.setProperty("ownedClasses", Collections.emptyList());
+
+    student2 = new Entity("User");
+
+    student2.setProperty("userEmail", STUDENT_2);
+    student2.setProperty("registeredClasses", Arrays.asList(init.getKey()));
+    student2.setProperty("taClasses", Collections.emptyList());
+    student2.setProperty("ownedClasses", Collections.emptyList());
+
+    student3 = new Entity("User");
+
+    List<Key> reg1 = Arrays.asList(init.getKey());
+    student3.setProperty("userEmail", STUDENT_3);
+    student3.setProperty("registeredClasses", reg1);
+    student3.setProperty("taClasses", Collections.emptyList());
+    student3.setProperty("ownedClasses", Collections.emptyList());
+
+    student4 = new Entity("User");
+
+    List<Key> reg2 = Arrays.asList(init.getKey());
+    student4.setProperty("userEmail", STUDENT_4);
+    student4.setProperty("registeredClasses", reg2);
+    student4.setProperty("taClasses", Collections.emptyList());
+    student4.setProperty("ownedClasses", Collections.emptyList());
   }
 
   @After
@@ -65,18 +126,10 @@ public class SubmitRosterTest {
   // Create new student users when a roster is submitted
   public void addRosterNewStudents() throws Exception {
 
-    // Create a class
-    Entity init = new Entity("Class");
-
-    init.setProperty("owner", "ownerID");
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Collections.emptyList());
-
     datastore.put(init);
 
     // Submit a roster of 2 students
-    when(httpRequest.getParameter("roster")).thenReturn("first@google.com, second@google.com");
+    when(httpRequest.getParameter("roster")).thenReturn("student1@google.com, student2@google.com");
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(auth.verifyTaOrOwner(ID_TOKEN, init.getKey())).thenReturn(true);
@@ -87,13 +140,11 @@ public class SubmitRosterTest {
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
-                .setFilter(
-                    new FilterPredicate("userEmail", FilterOperator.EQUAL, "first@google.com")));
+                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, STUDENT_1)));
     PreparedQuery queryUser2 =
         datastore.prepare(
             new Query("User")
-                .setFilter(
-                    new FilterPredicate("userEmail", FilterOperator.EQUAL, "second@google.com")));
+                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, STUDENT_2)));
 
     Entity userStudent = queryUser.asSingleEntity();
     Entity userStudent2 = queryUser2.asSingleEntity();
@@ -111,43 +162,15 @@ public class SubmitRosterTest {
   // User is already registered for one class, add another
   public void existingUserAddClass() throws Exception {
 
-    // Create 2 classes
-    Entity class1 = new Entity("Class");
-
-    class1.setProperty("owner", "ownerID");
-    class1.setProperty("name", "testClass");
-    class1.setProperty("beingHelped", new EmbeddedEntity());
-    class1.setProperty("studentQueue", Collections.emptyList());
-    class1.setProperty("taList", Collections.emptyList());
-
-    datastore.put(class1);
-
-    Entity class2 = new Entity("Class");
-
-    class2.setProperty("owner", "ownerID2");
-    class2.setProperty("name", "testClass2");
-    class2.setProperty("beingHelped", new EmbeddedEntity());
-    class2.setProperty("studentQueue", Collections.emptyList());
-
-    datastore.put(class2);
-
-    // Add one student user with one registered class
-    Entity user1 = new Entity("User");
-
-    List<Key> reg1 = Arrays.asList(class1.getKey());
-
-    user1.setProperty("userEmail", "test1@google.com");
-    user1.setProperty("registeredClasses", reg1);
-    user1.setProperty("taClasses", Collections.emptyList());
-    user1.setProperty("ownedClasses", Collections.emptyList());
-
-    datastore.put(user1);
+    datastore.put(init);
+    datastore.put(init2);
+    datastore.put(student3);
 
     // Submit a roster of 1 student
-    when(httpRequest.getParameter("roster")).thenReturn("test1@google.com");
-    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(class2.getKey()));
+    when(httpRequest.getParameter("roster")).thenReturn(STUDENT_3);
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init2.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
-    when(auth.verifyTaOrOwner(ID_TOKEN, class2.getKey())).thenReturn(true);
+    when(auth.verifyTaOrOwner(ID_TOKEN, init2.getKey())).thenReturn(true);
 
     submitRoster.doPost(httpRequest, httpResponse);
 
@@ -155,14 +178,13 @@ public class SubmitRosterTest {
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
-                .setFilter(
-                    new FilterPredicate("userEmail", FilterOperator.EQUAL, "test1@google.com")));
+                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, STUDENT_3)));
 
     Entity userStudent = queryUser.asSingleEntity();
 
     List<Key> testRegistered = (List<Key>) userStudent.getProperty("registeredClasses");
-    assertTrue(testRegistered.contains(class1.getKey()));
-    assertTrue(testRegistered.contains(class2.getKey()));
+    assertTrue(testRegistered.contains(init.getKey()));
+    assertTrue(testRegistered.contains(init2.getKey()));
     assertTrue(testRegistered.size() == 2);
   }
 
@@ -170,33 +192,14 @@ public class SubmitRosterTest {
   // If owner adds the same class to a user's registered list, verify that it doesn't get added
   public void duplicates() throws Exception {
 
-    // Create a class
-    Entity class1 = new Entity("Class");
-
-    class1.setProperty("owner", "ownerID");
-    class1.setProperty("name", "testClass");
-    class1.setProperty("beingHelped", new EmbeddedEntity());
-    class1.setProperty("studentQueue", Collections.emptyList());
-
-    datastore.put(class1);
-
-    // Add one student user with one registered class
-    Entity user1 = new Entity("User");
-
-    List<Key> reg1 = Arrays.asList(class1.getKey());
-
-    user1.setProperty("userEmail", "test1@google.com");
-    user1.setProperty("registeredClasses", reg1);
-    user1.setProperty("taClasses", Collections.emptyList());
-    user1.setProperty("ownedClasses", Collections.emptyList());
-
-    datastore.put(user1);
+    datastore.put(init);
+    datastore.put(student3);
 
     // Attempt to add the same class to user's registered list
-    when(httpRequest.getParameter("roster")).thenReturn("test1@google.com");
-    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(class1.getKey()));
+    when(httpRequest.getParameter("roster")).thenReturn(STUDENT_3);
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
-    when(auth.verifyTaOrOwner(ID_TOKEN, class1.getKey())).thenReturn(true);
+    when(auth.verifyTaOrOwner(ID_TOKEN, init.getKey())).thenReturn(true);
 
     submitRoster.doPost(httpRequest, httpResponse);
 
@@ -204,53 +207,24 @@ public class SubmitRosterTest {
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
-                .setFilter(
-                    new FilterPredicate("userEmail", FilterOperator.EQUAL, "test1@google.com")));
+                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, STUDENT_3)));
 
     Entity userStudent = queryUser.asSingleEntity();
 
     List<Key> testRegistered = (List<Key>) userStudent.getProperty("registeredClasses");
-    assertTrue(testRegistered.contains(class1.getKey()));
+    assertTrue(testRegistered.contains(init.getKey()));
     assertTrue(testRegistered.size() == 1);
   }
 
   @Test
   public void preventDuplicateMultipleStudents() throws Exception {
 
-    // Create a class
-    Entity init = new Entity("Class");
-
-    init.setProperty("owner", "ownerID");
-    init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", new EmbeddedEntity());
-    init.setProperty("studentQueue", Collections.emptyList());
     datastore.put(init);
-
-    // Example student 1
-    Entity user1 = new Entity("User");
-
-    List<Key> reg1 = Arrays.asList(init.getKey());
-
-    user1.setProperty("userEmail", "test1@google.com");
-    user1.setProperty("registeredClasses", reg1);
-    user1.setProperty("taClasses", Collections.emptyList());
-    user1.setProperty("ownedClasses", Collections.emptyList());
-
-    // Example student 2
-    Entity user2 = new Entity("User");
-
-    List<Key> reg2 = Arrays.asList(init.getKey());
-
-    user2.setProperty("userEmail", "test2@google.com");
-    user2.setProperty("registeredClasses", reg2);
-    user2.setProperty("taClasses", Collections.emptyList());
-    user2.setProperty("ownedClasses", Collections.emptyList());
-
-    datastore.put(user1);
-    datastore.put(user2);
+    datastore.put(student3);
+    datastore.put(student4);
 
     // Submit a roster of 2 students
-    when(httpRequest.getParameter("roster")).thenReturn("test1@google.com, test2@google.com");
+    when(httpRequest.getParameter("roster")).thenReturn("student3@google.com, student4@google.com");
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(auth.verifyTaOrOwner(ID_TOKEN, init.getKey())).thenReturn(true);
@@ -261,13 +235,11 @@ public class SubmitRosterTest {
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
-                .setFilter(
-                    new FilterPredicate("userEmail", FilterOperator.EQUAL, "test1@google.com")));
+                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, STUDENT_3)));
     PreparedQuery queryUser2 =
         datastore.prepare(
             new Query("User")
-                .setFilter(
-                    new FilterPredicate("userEmail", FilterOperator.EQUAL, "test2@google.com")));
+                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, STUDENT_4)));
 
     Entity userStudent = queryUser.asSingleEntity();
     Entity userStudent2 = queryUser2.asSingleEntity();
@@ -284,41 +256,15 @@ public class SubmitRosterTest {
   @Test
   public void existingStudents() throws Exception {
 
-    // Create a class
-    Entity classExample = new Entity("Class");
-
-    classExample.setProperty("owner", "ownerID");
-    classExample.setProperty("name", "testClass");
-    classExample.setProperty("beingHelped", new EmbeddedEntity());
-    classExample.setProperty("studentQueue", Collections.emptyList());
-
-    datastore.put(classExample);
-
-    // Example student 1
-    Entity user1 = new Entity("User");
-
-    user1.setProperty("userEmail", "test1@google.com");
-    user1.setProperty("registeredClasses", Collections.emptyList());
-    user1.setProperty("taClasses", Collections.emptyList());
-    user1.setProperty("ownedClasses", Collections.emptyList());
-
-    // Example student 2
-    Entity user2 = new Entity("User");
-
-    user2.setProperty("userEmail", "test2@google.com");
-    user2.setProperty("registeredClasses", Collections.emptyList());
-    user2.setProperty("taClasses", Collections.emptyList());
-    user2.setProperty("ownedClasses", Collections.emptyList());
-
-    datastore.put(user1);
-    datastore.put(user2);
+    datastore.put(init);
+    datastore.put(student1);
+    datastore.put(student2);
 
     // Submit a roster of 2 students
-    when(httpRequest.getParameter("roster")).thenReturn("test1@google.com, test2@google.com");
-    when(httpRequest.getParameter("classCode"))
-        .thenReturn(KeyFactory.keyToString(classExample.getKey()));
+    when(httpRequest.getParameter("roster")).thenReturn("student1@google.com, student2@google.com");
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn(ID_TOKEN);
-    when(auth.verifyTaOrOwner(ID_TOKEN, classExample.getKey())).thenReturn(true);
+    when(auth.verifyTaOrOwner(ID_TOKEN, init.getKey())).thenReturn(true);
 
     submitRoster.doPost(httpRequest, httpResponse);
 
@@ -326,13 +272,11 @@ public class SubmitRosterTest {
     PreparedQuery queryUser =
         datastore.prepare(
             new Query("User")
-                .setFilter(
-                    new FilterPredicate("userEmail", FilterOperator.EQUAL, "test1@google.com")));
+                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, STUDENT_1)));
     PreparedQuery queryUser2 =
         datastore.prepare(
             new Query("User")
-                .setFilter(
-                    new FilterPredicate("userEmail", FilterOperator.EQUAL, "test2@google.com")));
+                .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, STUDENT_2)));
 
     Entity userStudent = queryUser.asSingleEntity();
     Entity userStudent2 = queryUser2.asSingleEntity();
@@ -340,9 +284,9 @@ public class SubmitRosterTest {
     List<Key> testRegistered = (List<Key>) userStudent.getProperty("registeredClasses");
     List<Key> testRegistered2 = (List<Key>) userStudent2.getProperty("registeredClasses");
 
-    assertTrue(testRegistered.contains(classExample.getKey()));
+    assertTrue(testRegistered.contains(init.getKey()));
     assertTrue(testRegistered.size() == 1);
-    assertTrue(testRegistered2.contains(classExample.getKey()));
+    assertTrue(testRegistered2.contains(init.getKey()));
     assertTrue(testRegistered2.size() == 1);
   }
 }
