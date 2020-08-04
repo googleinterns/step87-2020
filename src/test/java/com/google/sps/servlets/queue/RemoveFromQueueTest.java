@@ -2,6 +2,8 @@ package com.google.sps.servlets.queue;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -15,12 +17,14 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.sps.authentication.Authenticator;
 import com.google.sps.workspace.Workspace;
 import com.google.sps.workspace.WorkspaceFactory;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,14 +47,11 @@ public class RemoveFromQueueTest {
   private DatastoreService datastore;
 
   @Mock HttpServletRequest httpRequest;
-
   @Mock HttpServletResponse httpResponse;
-
   @Mock FirebaseAuth authInstance;
-
   @Mock WorkspaceFactory factory;
-
   @Mock Workspace workspace;
+  @Mock Authenticator auth;
 
   @InjectMocks RemoveFromQueue removeFromQueue;
 
@@ -81,7 +82,6 @@ public class RemoveFromQueueTest {
 
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
 
     EmbeddedEntity addQueue1 = new EmbeddedEntity();
@@ -103,6 +103,7 @@ public class RemoveFromQueueTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("idToken")).thenReturn("token");
+    when(auth.verifyInClass("token", KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("token")).thenReturn(mockToken);
@@ -119,5 +120,23 @@ public class RemoveFromQueueTest {
     assertEquals(
         KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
     assertEquals(1, testQueue.size());
+  }
+
+  @Test
+  public void notStudent() throws Exception {
+    Entity init = new Entity("Class");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("studentQueue", Collections.emptyList());
+
+    datastore.put(init);
+
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn("token");
+    when(auth.verifyInClass("token", KeyFactory.keyToString(init.getKey()))).thenReturn(false);
+
+    removeFromQueue.doPost(httpRequest, httpResponse);
+
+    verify(httpResponse, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
   }
 }

@@ -68,7 +68,6 @@ public class SubmitRosterTest {
     // Create a class
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
@@ -114,7 +113,6 @@ public class SubmitRosterTest {
     // Create 2 classes
     Entity class1 = new Entity("Class");
 
-    class1.setProperty("owner", "ownerID");
     class1.setProperty("name", "testClass");
     class1.setProperty("beingHelped", new EmbeddedEntity());
     class1.setProperty("studentQueue", Collections.emptyList());
@@ -124,7 +122,6 @@ public class SubmitRosterTest {
 
     Entity class2 = new Entity("Class");
 
-    class2.setProperty("owner", "ownerID2");
     class2.setProperty("name", "testClass2");
     class2.setProperty("beingHelped", new EmbeddedEntity());
     class2.setProperty("studentQueue", Collections.emptyList());
@@ -173,7 +170,6 @@ public class SubmitRosterTest {
     // Create a class
     Entity class1 = new Entity("Class");
 
-    class1.setProperty("owner", "ownerID");
     class1.setProperty("name", "testClass");
     class1.setProperty("beingHelped", new EmbeddedEntity());
     class1.setProperty("studentQueue", Collections.emptyList());
@@ -220,7 +216,6 @@ public class SubmitRosterTest {
     // Create a class
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
@@ -287,7 +282,6 @@ public class SubmitRosterTest {
     // Create a class
     Entity classExample = new Entity("Class");
 
-    classExample.setProperty("owner", "ownerID");
     classExample.setProperty("name", "testClass");
     classExample.setProperty("beingHelped", new EmbeddedEntity());
     classExample.setProperty("studentQueue", Collections.emptyList());

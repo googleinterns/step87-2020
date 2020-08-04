@@ -74,7 +74,6 @@ public class VisitByDateTest {
 
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
@@ -137,14 +136,12 @@ public class VisitByDateTest {
 
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
 
     Entity init2 = new Entity("Class2");
 
-    init2.setProperty("owner", "ownerID");
     init2.setProperty("name", "testClass2");
     init2.setProperty("beingHelped", new EmbeddedEntity());
     init2.setProperty("studentQueue", Collections.emptyList());
@@ -212,35 +209,30 @@ public class VisitByDateTest {
     //
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));
 
     Entity init2 = new Entity("Class2");
 
-    init2.setProperty("owner", "ownerID2");
     init2.setProperty("name", "testClass2");
     init2.setProperty("beingHelped", new EmbeddedEntity());
     init2.setProperty("studentQueue", Collections.emptyList());
 
     Entity init3 = new Entity("Class3");
 
-    init3.setProperty("owner", "ownerID3");
     init3.setProperty("name", "testClass3");
     init3.setProperty("beingHelped", new EmbeddedEntity());
     init3.setProperty("studentQueue", Collections.emptyList());
 
     Entity init4 = new Entity("Class4");
 
-    init4.setProperty("owner", "ownerID4");
     init4.setProperty("name", "testClass4");
     init4.setProperty("beingHelped", new EmbeddedEntity());
     init4.setProperty("studentQueue", Collections.emptyList());
 
     Entity init5 = new Entity("Class5");
 
-    init5.setProperty("owner", "ownerID5");
     init5.setProperty("name", "testClass5");
     init5.setProperty("beingHelped", new EmbeddedEntity());
     init5.setProperty("studentQueue", Collections.emptyList());
@@ -366,7 +358,6 @@ public class VisitByDateTest {
 
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Arrays.asList("test1", "test2", "test3"));

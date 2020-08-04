@@ -74,16 +74,26 @@ public class RequestAccess extends HttpServlet {
 
       if (registeredClasses == null || !registeredClasses.contains(classKey)) {
         Entity classEntity = datastore.get(classKey);
-        UserRecord owner = auth.getUser((String) classEntity.getProperty("owner"));
 
         Properties props = new Properties();
         Session session = Session.getDefaultInstance(props, null);
 
         Message msg = new MimeMessage(session);
         msg.setFrom(new InternetAddress(FROM_ADDRESS));
-        msg.addRecipient(
-            Message.RecipientType.TO,
-            new InternetAddress(owner.getEmail(), owner.getDisplayName()));
+
+        PreparedQuery owners =
+            datastore.prepare(
+                new Query("User")
+                    .setFilter(
+                        new FilterPredicate("ownedClasses", FilterOperator.EQUAL, classKey)));
+
+        for (Entity entity : owners.asIterable()) {
+          String ownerEmail = (String) entity.getProperty("userEmail");
+          UserRecord owner = auth.getUserByEmail(ownerEmail);
+          msg.addRecipient(
+              Message.RecipientType.TO,
+              new InternetAddress(owner.getEmail(), owner.getDisplayName()));
+        }
 
         PreparedQuery tas =
             datastore.prepare(
@@ -99,9 +109,7 @@ public class RequestAccess extends HttpServlet {
 
         msg.setText(
             new StringBuilder()
-                .append("Hello ")
-                .append(owner.getDisplayName())
-                .append(", \n\n")
+                .append("Hello, \n\n")
                 .append("The user ")
                 .append(tok.getName())
                 .append(" (")

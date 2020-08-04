@@ -61,6 +61,9 @@ public class RequestAccessTest {
   private String OWNER_EMAIL = "owner@example.com";
   private String OWNER_ID = "OWNER_ID";
   private String OWNER_NAME = "OWNER_NAME";
+  private String OWNER_EMAIL2 = "owner2@example.com";
+  private String OWNER_ID2 = "OWNER_ID2";
+  private String OWNER_NAME2 = "OWNER_NAME2";
   private String SCHEME = "https";
   private String SERVER_NAME = "SERVER_NAME";
 
@@ -79,8 +82,12 @@ public class RequestAccessTest {
   @Test
   public void doGetUserDoesntExist() throws Exception {
     Entity classEntity = new Entity("Class");
-    classEntity.setProperty("owner", OWNER_ID);
     datastore.put(classEntity);
+
+    Entity ownerEntity = new Entity("User");
+    ownerEntity.setProperty("userEmail", OWNER_EMAIL);
+    ownerEntity.setProperty("ownedClasses", Arrays.asList(classEntity.getKey()));
+    datastore.put(ownerEntity);
 
     when(req.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(req.getParameter("classCode")).thenReturn(KeyFactory.keyToString(classEntity.getKey()));
@@ -93,7 +100,7 @@ public class RequestAccessTest {
     when(tok.getName()).thenReturn(USER_NAME);
 
     UserRecord owner = mock(UserRecord.class);
-    when(auth.getUser(OWNER_ID)).thenReturn(owner);
+    when(auth.getUserByEmail(OWNER_EMAIL)).thenReturn(owner);
     when(owner.getEmail()).thenReturn(OWNER_EMAIL);
     when(owner.getDisplayName()).thenReturn(OWNER_NAME);
 
@@ -123,13 +130,17 @@ public class RequestAccessTest {
   @Test
   public void doGetUserExists() throws Exception {
     Entity classEntity = new Entity("Class");
-    classEntity.setProperty("owner", OWNER_ID);
     datastore.put(classEntity);
 
     Entity user = new Entity("User");
     user.setProperty("userEmail", USER_EMAIL);
     user.setProperty("registeredClasses", Collections.emptyList());
     datastore.put(user);
+
+    Entity ownerEntity = new Entity("User");
+    ownerEntity.setProperty("userEmail", OWNER_EMAIL);
+    ownerEntity.setProperty("ownedClasses", Arrays.asList(classEntity.getKey()));
+    datastore.put(ownerEntity);
 
     when(req.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(req.getParameter("classCode")).thenReturn(KeyFactory.keyToString(classEntity.getKey()));
@@ -142,7 +153,7 @@ public class RequestAccessTest {
     when(tok.getName()).thenReturn(USER_NAME);
 
     UserRecord owner = mock(UserRecord.class);
-    when(auth.getUser(OWNER_ID)).thenReturn(owner);
+    when(auth.getUserByEmail(OWNER_EMAIL)).thenReturn(owner);
     when(owner.getEmail()).thenReturn(OWNER_EMAIL);
     when(owner.getDisplayName()).thenReturn(OWNER_NAME);
 
@@ -172,13 +183,17 @@ public class RequestAccessTest {
   @Test
   public void doGetAlreadyInClass() throws Exception {
     Entity classEntity = new Entity("Class");
-    classEntity.setProperty("owner", OWNER_ID);
     datastore.put(classEntity);
 
     Entity user = new Entity("User");
     user.setProperty("userEmail", USER_EMAIL);
     user.setProperty("registeredClasses", Arrays.asList(classEntity.getKey()));
     datastore.put(user);
+
+    Entity ownerEntity = new Entity("User");
+    ownerEntity.setProperty("userEmail", OWNER_EMAIL);
+    ownerEntity.setProperty("ownedClasses", Arrays.asList(classEntity.getKey()));
+    datastore.put(ownerEntity);
 
     when(req.getParameter("idToken")).thenReturn(ID_TOKEN);
     when(req.getParameter("classCode")).thenReturn(KeyFactory.keyToString(classEntity.getKey()));
@@ -195,12 +210,16 @@ public class RequestAccessTest {
   @Test
   public void doGetWithTAs() throws Exception {
     Entity classEntity = new Entity("Class");
-    classEntity.setProperty("owner", OWNER_ID);
     datastore.put(classEntity);
 
     Entity classEntity2 = new Entity("Class");
-    classEntity.setProperty("owner", OWNER_ID);
     datastore.put(classEntity2);
+
+    Entity ownerEntity = new Entity("User");
+    ownerEntity.setProperty("userEmail", OWNER_EMAIL);
+    ownerEntity.setProperty(
+        "ownedClasses", Arrays.asList(classEntity.getKey(), classEntity2.getKey()));
+    datastore.put(ownerEntity);
 
     Entity user = new Entity("User");
     user.setProperty("userEmail", USER_EMAIL);
@@ -231,7 +250,7 @@ public class RequestAccessTest {
     when(tok.getName()).thenReturn(USER_NAME);
 
     UserRecord owner = mock(UserRecord.class);
-    when(auth.getUser(OWNER_ID)).thenReturn(owner);
+    when(auth.getUserByEmail(OWNER_EMAIL)).thenReturn(owner);
     when(owner.getEmail()).thenReturn(OWNER_EMAIL);
     when(owner.getDisplayName()).thenReturn(OWNER_NAME);
 
@@ -252,6 +271,72 @@ public class RequestAccessTest {
     assertTrue(
         Arrays.asList(msg.getRecipients(Message.RecipientType.CC))
             .contains(new InternetAddress(TA_EMAIL_2)));
+
+    assertTrue(((String) msg.getContent()).contains(USER_EMAIL));
+    assertTrue(
+        ((String) msg.getContent())
+            .contains(
+                new URL(
+                        req.getScheme(),
+                        req.getServerName(),
+                        ApplicationDefaults.DASHBOARD.concat(
+                            KeyFactory.keyToString(classEntity.getKey())))
+                    .toString()));
+  }
+
+  @Test
+  public void multipleOwners() throws Exception {
+    Entity classEntity = new Entity("Class");
+    datastore.put(classEntity);
+
+    Entity user = new Entity("User");
+    user.setProperty("userEmail", USER_EMAIL);
+    user.setProperty("registeredClasses", Collections.emptyList());
+    datastore.put(user);
+
+    Entity ownerEntity = new Entity("User");
+    ownerEntity.setProperty("userEmail", OWNER_EMAIL);
+    ownerEntity.setProperty("ownedClasses", Arrays.asList(classEntity.getKey()));
+    datastore.put(ownerEntity);
+
+    Entity ownerEntity2 = new Entity("User");
+    ownerEntity2.setProperty("userEmail", OWNER_EMAIL2);
+    ownerEntity2.setProperty("ownedClasses", Arrays.asList(classEntity.getKey()));
+    datastore.put(ownerEntity2);
+
+    when(req.getParameter("idToken")).thenReturn(ID_TOKEN);
+    when(req.getParameter("classCode")).thenReturn(KeyFactory.keyToString(classEntity.getKey()));
+    when(req.getScheme()).thenReturn(SCHEME);
+    when(req.getServerName()).thenReturn(SERVER_NAME);
+
+    FirebaseToken tok = mock(FirebaseToken.class);
+    when(auth.verifyIdToken(ID_TOKEN)).thenReturn(tok);
+    when(tok.getEmail()).thenReturn(USER_EMAIL);
+    when(tok.getName()).thenReturn(USER_NAME);
+
+    UserRecord owner = mock(UserRecord.class);
+    when(auth.getUserByEmail(OWNER_EMAIL)).thenReturn(owner);
+    when(owner.getEmail()).thenReturn(OWNER_EMAIL);
+    when(owner.getDisplayName()).thenReturn(OWNER_NAME);
+
+    UserRecord owner2 = mock(UserRecord.class);
+    when(auth.getUserByEmail(OWNER_EMAIL2)).thenReturn(owner2);
+    when(owner2.getEmail()).thenReturn(OWNER_EMAIL2);
+    when(owner2.getDisplayName()).thenReturn(OWNER_NAME2);
+
+    servlet.doGet(req, resp);
+
+    verify(transportDelegate, times(1)).send(msgCaptor.capture());
+
+    Message msg = msgCaptor.getValue();
+
+    assertEquals(new InternetAddress(FROM_EMAIL), msg.getFrom()[0]);
+    assertEquals(
+        new InternetAddress(OWNER_EMAIL, OWNER_NAME),
+        msg.getRecipients(Message.RecipientType.TO)[0]);
+    assertEquals(
+        new InternetAddress(OWNER_EMAIL2, OWNER_NAME2),
+        msg.getRecipients(Message.RecipientType.TO)[1]);
 
     assertTrue(((String) msg.getContent()).contains(USER_EMAIL));
     assertTrue(

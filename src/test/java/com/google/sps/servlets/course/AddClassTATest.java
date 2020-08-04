@@ -70,7 +70,6 @@ public class AddClassTATest {
     // Create a class
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
@@ -116,14 +115,12 @@ public class AddClassTATest {
     // Create a ta and non-ta class
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
 
     Entity init2 = new Entity("Class");
 
-    init2.setProperty("owner", "ownerID2");
     init2.setProperty("name", "testClass2");
     init2.setProperty("beingHelped", new EmbeddedEntity());
     init2.setProperty("studentQueue", Collections.emptyList());
@@ -175,14 +172,12 @@ public class AddClassTATest {
     // Create some classes
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
 
     Entity init2 = new Entity("Class");
 
-    init2.setProperty("owner", "ownerID2");
     init2.setProperty("name", "testClass2");
     init2.setProperty("beingHelped", new EmbeddedEntity());
     init2.setProperty("studentQueue", Collections.emptyList());
@@ -233,27 +228,23 @@ public class AddClassTATest {
     // Create multiple classes
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
 
     Entity init2 = new Entity("Class");
 
-    init2.setProperty("owner", "ownerID2");
     init2.setProperty("name", "testClass2");
     init2.setProperty("beingHelped", new EmbeddedEntity());
     init2.setProperty("studentQueue", Collections.emptyList());
     Entity init3 = new Entity("Class");
 
-    init3.setProperty("owner", "ownerID3");
     init3.setProperty("name", "testClass3");
     init3.setProperty("beingHelped", new EmbeddedEntity());
     init3.setProperty("studentQueue", Collections.emptyList());
 
     Entity init4 = new Entity("Class");
 
-    init4.setProperty("owner", "ownerID4");
     init4.setProperty("name", "testClass4");
     init4.setProperty("beingHelped", new EmbeddedEntity());
     init4.setProperty("studentQueue", Collections.emptyList());
@@ -334,7 +325,6 @@ public class AddClassTATest {
     // Create a class
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
@@ -388,7 +378,6 @@ public class AddClassTATest {
     // Create a class
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());

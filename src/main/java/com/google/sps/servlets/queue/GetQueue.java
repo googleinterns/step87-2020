@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.gson.Gson;
+import com.google.sps.authentication.Authenticator;
 import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.queue.Queue;
 import java.io.IOException;
@@ -30,11 +31,13 @@ import javax.servlet.http.HttpServletResponse;
 public class GetQueue extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
+  private Authenticator auth;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
     try {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
+      auth = new Authenticator();
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -48,44 +51,51 @@ public class GetQueue extends HttpServlet {
       // Retrieve class entity
       String classCode = request.getParameter("classCode").trim();
       String idToken = request.getParameter("idToken");
-      Key classKey = KeyFactory.stringToKey(classCode);
-      Entity classEntity = datastore.get(classKey);
 
-      String TaID = authInstance.verifyIdToken(idToken).getUid();
+      if (auth.verifyTaOrOwner(idToken, classCode)) {
 
-      // Get queue
-      ArrayList<EmbeddedEntity> entityQueue =
-          (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
+        Key classKey = KeyFactory.stringToKey(classCode);
+        Entity classEntity = datastore.get(classKey);
 
-      // Reconstruct queue using names
-      ArrayList<String> queue = new ArrayList<String>();
-      for (EmbeddedEntity elem : entityQueue) {
-        String uid = (String) elem.getProperty("uID");
-        UserRecord userRecord = authInstance.getUser(uid);
-        String studentName = userRecord.getEmail();
-        queue.add(studentName);
+        String TaID = authInstance.verifyIdToken(idToken).getUid();
+
+        // Get queue
+        ArrayList<EmbeddedEntity> entityQueue =
+            (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
+
+        // Reconstruct queue using names
+        ArrayList<String> queue = new ArrayList<String>();
+        for (EmbeddedEntity elem : entityQueue) {
+          String uid = (String) elem.getProperty("uID");
+          UserRecord userRecord = authInstance.getUser(uid);
+          String studentName = userRecord.getEmail();
+          queue.add(studentName);
+        }
+
+        Optional<Queue.Helping> beingHelpedEntity =
+            ((EmbeddedEntity) classEntity.getProperty("beingHelped"))
+                .getProperties().entrySet().stream()
+                    .map(
+                        entry ->
+                            new SimpleEntry<String, EmbeddedEntity>(
+                                entry.getKey(), (EmbeddedEntity) entry.getValue()))
+                    .filter(entry -> entry.getValue().getProperty("taID").equals(TaID))
+                    .map(
+                        wrap(
+                            entry ->
+                                new Queue.Helping(
+                                    authInstance.getUser(entry.getKey()).getEmail(),
+                                    (String) entry.getValue().getProperty("workspaceID"))))
+                    .findFirst();
+
+        response.setContentType("application/json;");
+
+        Gson gson = new Gson();
+        response.getWriter().print(gson.toJson(new Queue(queue, beingHelpedEntity.orElse(null))));
+
+      } else {
+        response.sendError(HttpServletResponse.SC_FORBIDDEN);
       }
-
-      Optional<Queue.Helping> beingHelpedEntity =
-          ((EmbeddedEntity) classEntity.getProperty("beingHelped"))
-              .getProperties().entrySet().stream()
-                  .map(
-                      entry ->
-                          new SimpleEntry<String, EmbeddedEntity>(
-                              entry.getKey(), (EmbeddedEntity) entry.getValue()))
-                  .filter(entry -> entry.getValue().getProperty("taID").equals(TaID))
-                  .map(
-                      wrap(
-                          entry ->
-                              new Queue.Helping(
-                                  authInstance.getUser(entry.getKey()).getEmail(),
-                                  (String) entry.getValue().getProperty("workspaceID"))))
-                  .findFirst();
-
-      response.setContentType("application/json;");
-
-      Gson gson = new Gson();
-      response.getWriter().print(gson.toJson(new Queue(queue, beingHelpedEntity.orElse(null))));
 
     } catch (EntityNotFoundException e) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);

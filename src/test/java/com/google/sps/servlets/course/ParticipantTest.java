@@ -64,7 +64,6 @@ public class ParticipantTest {
     // Create a class
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
@@ -102,7 +101,6 @@ public class ParticipantTest {
     // Create a class
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
@@ -140,7 +138,6 @@ public class ParticipantTest {
     // Create a class
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
@@ -196,7 +193,6 @@ public class ParticipantTest {
     // Create a class
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
@@ -252,7 +248,6 @@ public class ParticipantTest {
     // Create a class
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
@@ -280,7 +275,6 @@ public class ParticipantTest {
     // Create a class
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
@@ -307,7 +301,6 @@ public class ParticipantTest {
     // Create a class
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
@@ -369,7 +362,6 @@ public class ParticipantTest {
     // Create a class
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());

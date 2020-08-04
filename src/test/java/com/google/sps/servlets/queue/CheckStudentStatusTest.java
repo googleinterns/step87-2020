@@ -2,6 +2,8 @@ package com.google.sps.servlets.queue;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -15,12 +17,14 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
+import com.google.sps.authentication.Authenticator;
 import com.google.sps.queue.StudentStatus;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,10 +45,9 @@ public class CheckStudentStatusTest {
   private DatastoreService datastore;
 
   @Mock HttpServletRequest httpRequest;
-
   @Mock HttpServletResponse httpResponse;
-
   @Mock FirebaseAuth authInstance;
+  @Mock Authenticator auth;
 
   @InjectMocks CheckStudentStatus queue;
 
@@ -68,8 +71,6 @@ public class CheckStudentStatusTest {
   @Test
   public void firstInQueue() throws Exception {
     Entity init = new Entity("Class");
-
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
 
     EmbeddedEntity studentInfo1 = new EmbeddedEntity();
@@ -83,6 +84,8 @@ public class CheckStudentStatusTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("studentToken")).thenReturn("testID");
+
+    when(auth.verifyInClass("testID", init.getKey())).thenReturn(true);
 
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
@@ -103,7 +106,6 @@ public class CheckStudentStatusTest {
   public void midQueue() throws Exception {
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", "");
 
@@ -133,6 +135,7 @@ public class CheckStudentStatusTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("studentToken")).thenReturn("testID");
+    when(auth.verifyInClass("testID", init.getKey())).thenReturn(true);
 
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
@@ -153,7 +156,6 @@ public class CheckStudentStatusTest {
   public void duplicateInQueue() throws Exception {
     Entity init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", "");
 
@@ -183,6 +185,7 @@ public class CheckStudentStatusTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("studentToken")).thenReturn("testID");
+    when(auth.verifyInClass("testID", init.getKey())).thenReturn(true);
 
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
@@ -202,8 +205,6 @@ public class CheckStudentStatusTest {
   @Test
   public void notInQueue() throws Exception {
     Entity init = new Entity("Class");
-
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
 
     EmbeddedEntity beingHelped = new EmbeddedEntity();
@@ -239,6 +240,7 @@ public class CheckStudentStatusTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("studentToken")).thenReturn("testID");
+    when(auth.verifyInClass("testID", init.getKey())).thenReturn(true);
 
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
@@ -263,8 +265,6 @@ public class CheckStudentStatusTest {
   @Test
   public void notBeingHelped() throws Exception {
     Entity init = new Entity("Class");
-
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
 
     EmbeddedEntity beingHelped = new EmbeddedEntity();
@@ -296,6 +296,7 @@ public class CheckStudentStatusTest {
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
     when(httpRequest.getParameter("studentToken")).thenReturn("testID");
+    when(auth.verifyInClass("testID", init.getKey())).thenReturn(true);
 
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
@@ -310,5 +311,24 @@ public class CheckStudentStatusTest {
     Gson gson = new Gson();
 
     assertEquals(stringWriter.toString(), gson.toJson(new StudentStatus(0, "")));
+  }
+
+  @Test
+  public void notInClass() throws Exception {
+    Entity init = new Entity("Class");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("studentQueue", Collections.emptyList());
+
+    datastore.put(init);
+
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("studentToken")).thenReturn("testID");
+
+    when(auth.verifyInClass("testID", init.getKey())).thenReturn(false);
+
+    queue.doGet(httpRequest, httpResponse);
+
+    verify(httpResponse, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
   }
 }
