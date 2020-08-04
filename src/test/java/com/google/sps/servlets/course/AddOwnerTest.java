@@ -145,7 +145,7 @@ public class AddOwnerTest {
 
     List<Key> ownedClassList = Arrays.asList(init.getKey(), init2.getKey());
 
-    userOwner.setProperty("userEmail", "testOwner@google.com");
+    userOwner.setProperty("userEmail", OWNER_EMAIL);
     userOwner.setProperty("registeredClasses", Collections.emptyList());
     userOwner.setProperty("taClasses", Collections.emptyList());
     userOwner.setProperty("ownedClasses", ownedClassList);
