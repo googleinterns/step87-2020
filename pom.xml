@@ -193,7 +193,7 @@
         </executions>
         <configuration>
             <version>2.9.3</version>
-            <options>esnext,maxparams:3,indent,camelcase,eqeqeq,forin,immed,latedef,noarg,noempty,nonew</options>
+            <options>esnext,maxparams:5,indent,camelcase,eqeqeq,forin,immed,latedef,noarg,noempty,nonew</options>
             <globals>require,$,yourFunkyJavascriptModule</globals>
             <directories>
                 <directory>src/main/webapp</directory>
