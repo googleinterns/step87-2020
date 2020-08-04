@@ -21,10 +21,12 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
+import com.google.sps.authentication.Authenticator;
 import com.google.sps.tasks.TaskScheduler;
 import com.google.sps.tasks.TaskSchedulerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -54,6 +56,7 @@ public class EndHelpTest {
   @Mock FirebaseAuth authInstance;
   @Mock TaskSchedulerFactory taskSchedulerFactory;
   @Mock TaskScheduler scheduler;
+  @Mock Authenticator auth;
 
   @InjectMocks EndHelp finishStudent;
 
@@ -79,7 +82,6 @@ public class EndHelpTest {
     Entity init = new Entity("Class");
     ArrayList<String> setQueue = new ArrayList<String>(Arrays.asList("uID1", "uID2"));
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("studentQueue", setQueue);
 
@@ -103,6 +105,7 @@ public class EndHelpTest {
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
     when(mockToken.getUid()).thenReturn("taID");
+    when(auth.verifyTaOrOwner("testID", KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     when(httpRequest.getParameter("studentEmail")).thenReturn("test@google.com");
 
@@ -130,5 +133,24 @@ public class EndHelpTest {
 
     verify(taskSchedulerFactory, times(1)).create(eq(QUEUE_NAME), eq("/tasks/deleteWorkspace"));
     verify(scheduler, times(1)).schedule(eq("workspaceID"), eq(TimeUnit.HOURS.toSeconds(1)));
+  }
+
+  @Test
+  public void notTA() throws Exception {
+    Entity init = new Entity("Class");
+    init.setProperty("name", "testClass");
+    init.setProperty("beingHelped", new EmbeddedEntity());
+    init.setProperty("studentQueue", Collections.emptyList());
+
+    datastore.put(init);
+
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("taToken")).thenReturn("testID");
+
+    when(auth.verifyTaOrOwner("testID", KeyFactory.keyToString(init.getKey()))).thenReturn(false);
+
+    finishStudent.doPost(httpRequest, httpResponse);
+
+    verify(httpResponse, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
   }
 }

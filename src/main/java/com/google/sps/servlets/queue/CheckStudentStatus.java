@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
+import com.google.sps.authentication.Authenticator;
 import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.queue.StudentStatus;
 import java.io.IOException;
@@ -27,11 +28,13 @@ import javax.servlet.http.HttpServletResponse;
 public class CheckStudentStatus extends HttpServlet {
   private FirebaseAuth authInstance;
   private DatastoreService datastore;
+  private Authenticator auth;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
     try {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
+      auth = new Authenticator();
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -44,52 +47,55 @@ public class CheckStudentStatus extends HttpServlet {
     try {
       // Find user ID
       String studentToken = request.getParameter("studentToken");
-      FirebaseToken decodedToken = authInstance.verifyIdToken(studentToken);
-      String studentID = decodedToken.getUid();
-
-      // Retrive entity
       String classCode = request.getParameter("classCode").trim();
       Key classKey = KeyFactory.stringToKey(classCode);
-      Entity classEntity = datastore.get(classKey);
 
-      // Find position in queue
-      ArrayList<EmbeddedEntity> queue =
-          (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
-      EmbeddedEntity studentEntity =
-          queue.stream()
-              .filter(elem -> (((String) elem.getProperty("uID")).equals(studentID)))
-              .findFirst()
-              .orElse(null);
+      if (auth.verifyInClass(studentToken, classKey)) {
+        FirebaseToken decodedToken = authInstance.verifyIdToken(studentToken);
+        String studentID = decodedToken.getUid();
+        Entity classEntity = datastore.get(classKey);
 
-      response.setContentType("application/json;");
+        // Find position in queue
+        ArrayList<EmbeddedEntity> queue =
+            (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
+        EmbeddedEntity studentEntity =
+            queue.stream()
+                .filter(elem -> (((String) elem.getProperty("uID")).equals(studentID)))
+                .findFirst()
+                .orElse(null);
 
-      Gson gson = new Gson();
-      if (studentEntity != null) {
-        response
-            .getWriter()
-            .print(
-                gson.toJson(
-                    new StudentStatus(
-                        queue.indexOf(studentEntity) + 1,
-                        (String) studentEntity.getProperty("workspaceID"))));
-      } else {
-        EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
-        if (beingHelped.hasProperty(studentID)) {
-          EmbeddedEntity queueInfo = (EmbeddedEntity) beingHelped.getProperty(studentID);
+        response.setContentType("application/json;");
 
-          // Get workspace id
-          String workspaceID = (String) queueInfo.getProperty("workspaceID");
-
-          // Get TA id
-          String taID = (String) queueInfo.getProperty("taID");
-
-          // Get TA email
-          UserRecord userRecord = authInstance.getUser(taID);
-          String taEmail = userRecord.getEmail();
-          response.getWriter().print(gson.toJson(new StudentStatus(0, workspaceID, taEmail)));
+        Gson gson = new Gson();
+        if (studentEntity != null) {
+          response
+              .getWriter()
+              .print(
+                  gson.toJson(
+                      new StudentStatus(
+                          queue.indexOf(studentEntity) + 1,
+                          (String) studentEntity.getProperty("workspaceID"))));
         } else {
-          response.getWriter().print(gson.toJson(new StudentStatus(0, "")));
+          EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
+          if (beingHelped.hasProperty(studentID)) {
+            EmbeddedEntity queueInfo = (EmbeddedEntity) beingHelped.getProperty(studentID);
+
+            // Get workspace id
+            String workspaceID = (String) queueInfo.getProperty("workspaceID");
+
+            // Get TA id
+            String taID = (String) queueInfo.getProperty("taID");
+
+            // Get TA email
+            UserRecord userRecord = authInstance.getUser(taID);
+            String taEmail = userRecord.getEmail();
+            response.getWriter().print(gson.toJson(new StudentStatus(0, workspaceID, taEmail)));
+          } else {
+            response.getWriter().print(gson.toJson(new StudentStatus(0, "")));
+          }
         }
+      } else {
+        response.sendError(HttpServletResponse.SC_FORBIDDEN);
       }
 
     } catch (EntityNotFoundException e) {

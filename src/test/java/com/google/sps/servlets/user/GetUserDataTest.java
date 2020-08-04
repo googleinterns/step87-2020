@@ -61,8 +61,6 @@ public class GetUserDataTest {
   @Test
   public void newUser() throws Exception {
     Entity initClass = new Entity("Class");
-
-    initClass.setProperty("owner", "ownerID");
     initClass.setProperty("name", "testClass");
     initClass.setProperty("beingHelped", new EmbeddedEntity());
     initClass.setProperty("studentQueue", Collections.emptyList());
@@ -90,8 +88,6 @@ public class GetUserDataTest {
   @Test
   public void existingUser() throws Exception {
     Entity initClass = new Entity("Class");
-
-    initClass.setProperty("owner", "ownerID");
     initClass.setProperty("name", "testClass");
     initClass.setProperty("beingHelped", new EmbeddedEntity());
     initClass.setProperty("studentQueue", Collections.emptyList());
@@ -135,8 +131,6 @@ public class GetUserDataTest {
   @Test
   public void existingUserInQueue() throws Exception {
     Entity initClass = new Entity("Class");
-
-    initClass.setProperty("owner", "ownerID");
     initClass.setProperty("name", "testClass");
     initClass.setProperty("beingHelped", new EmbeddedEntity());
 
@@ -187,8 +181,6 @@ public class GetUserDataTest {
   @Test
   public void existingUserBeingHelped() throws Exception {
     Entity initClass = new Entity("Class");
-
-    initClass.setProperty("owner", "ownerID");
     initClass.setProperty("name", "testClass");
     EmbeddedEntity beingHelped = new EmbeddedEntity();
     beingHelped.setProperty("uID", new EmbeddedEntity());

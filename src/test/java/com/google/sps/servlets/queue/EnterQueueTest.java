@@ -112,7 +112,6 @@ public class EnterQueueTest {
 
   @Test
   public void addFirstStudentToQueue() throws Exception {
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
@@ -156,7 +155,6 @@ public class EnterQueueTest {
 
   @Test
   public void addUniqueStudentToQueue() throws Exception {
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
 
@@ -216,7 +214,6 @@ public class EnterQueueTest {
 
   @Test
   public void addDuplicateStudentToQueue() throws Exception {
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
 
@@ -271,8 +268,6 @@ public class EnterQueueTest {
   @Test
   public void redirectVerifiedTA() throws Exception {
     Entity init = new Entity("Class");
-
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
     init.setProperty("studentQueue", Collections.emptyList());
@@ -305,8 +300,6 @@ public class EnterQueueTest {
   @Test
   public void redirectUnverifiedTA() throws Exception {
     Entity init = new Entity("Class");
-
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", Collections.emptyList());
     init.setProperty("studentQueue", Collections.emptyList());

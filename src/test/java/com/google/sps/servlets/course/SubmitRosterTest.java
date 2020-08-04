@@ -71,14 +71,12 @@ public class SubmitRosterTest {
     //
     init = new Entity("Class");
 
-    init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
 
     init2 = new Entity("Class");
 
-    init2.setProperty("owner", "ownerID2");
     init2.setProperty("name", "testClass2");
     init2.setProperty("beingHelped", new EmbeddedEntity());
     init2.setProperty("studentQueue", Collections.emptyList());

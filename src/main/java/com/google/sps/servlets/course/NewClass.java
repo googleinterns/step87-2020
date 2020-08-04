@@ -52,65 +52,53 @@ public class NewClass extends HttpServlet {
     try {
       String className = request.getParameter("className").trim();
 
-      // Prevents creating duplicate classes
-      Query query =
-          new Query("Class")
-              .setFilter(new FilterPredicate("name", FilterOperator.EQUAL, className));
+      String idToken = request.getParameter("idToken");
+      FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
 
-      if (datastore.prepare(query).countEntities() == 0) {
+      Entity classEntity = new Entity("Class");
+      classEntity.setProperty("name", className);
 
-        String idToken = request.getParameter("idToken");
-        FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
+      EmbeddedEntity beingHelped = new EmbeddedEntity();
+      classEntity.setProperty("beingHelped", beingHelped);
 
-        Entity classEntity = new Entity("Class");
-        classEntity.setProperty("owner", decodedToken.getUid());
-        classEntity.setProperty("name", className);
+      classEntity.setProperty("studentQueue", Collections.emptyList());
 
-        EmbeddedEntity beingHelped = new EmbeddedEntity();
-        classEntity.setProperty("beingHelped", beingHelped);
+      datastore.put(classEntity);
 
-        classEntity.setProperty("studentQueue", Collections.emptyList());
+      // Add the class to the owner's user entity class list
+      UserRecord userRecord = authInstance.getUser(decodedToken.getUid());
+      String ownerEmail = userRecord.getEmail();
 
-        datastore.put(classEntity);
+      PreparedQuery queryUser =
+          datastore.prepare(
+              new Query("User")
+                  .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, ownerEmail)));
 
-        // Add the class to the owner's user entity class list
-        UserRecord userRecord = authInstance.getUser(decodedToken.getUid());
-        String ownerEmail = userRecord.getEmail();
+      Entity user;
 
-        PreparedQuery queryUser =
-            datastore.prepare(
-                new Query("User")
-                    .setFilter(new FilterPredicate("userEmail", FilterOperator.EQUAL, ownerEmail)));
+      // Create a new user with one owned class if they don't exist
+      if (queryUser.countEntities() == 0) {
+        List<Key> ownedClassesList = Arrays.asList(classEntity.getKey());
 
-        Entity user;
+        user = new Entity("User");
+        user.setProperty("userEmail", ownerEmail);
+        user.setProperty("registeredClasses", Collections.emptyList());
+        user.setProperty("ownedClasses", ownedClassesList);
+        user.setProperty("taClasses", Collections.emptyList());
 
-        // Create a new user with one owned class if they don't exist
-        if (queryUser.countEntities() == 0) {
-          List<Key> ownedClassesList = Arrays.asList(classEntity.getKey());
-
-          user = new Entity("User");
-          user.setProperty("userEmail", ownerEmail);
-          user.setProperty("registeredClasses", Collections.emptyList());
-          user.setProperty("ownedClasses", ownedClassesList);
-          user.setProperty("taClasses", Collections.emptyList());
-
-          datastore.put(user);
-        } else {
-          // For existing users, add the class to ownedClasses
-          user = queryUser.asSingleEntity();
-          List<Key> ownedClassesList = (List<Key>) user.getProperty("ownedClasses");
-          ownedClassesList.add(classEntity.getKey());
-          user.setProperty("ownedClasses", ownedClassesList);
-
-          datastore.put(user);
-        }
-
-        response.sendRedirect(
-            ApplicationDefaults.DASHBOARD + KeyFactory.keyToString(classEntity.getKey()));
-
+        datastore.put(user);
       } else {
-        response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        // For existing users, add the class to ownedClasses
+        user = queryUser.asSingleEntity();
+        List<Key> ownedClassesList = (List<Key>) user.getProperty("ownedClasses");
+        ownedClassesList.add(classEntity.getKey());
+        user.setProperty("ownedClasses", ownedClassesList);
+
+        datastore.put(user);
       }
+
+      response.sendRedirect(
+          ApplicationDefaults.DASHBOARD + KeyFactory.keyToString(classEntity.getKey()));
 
     } catch (FirebaseAuthException e) {
       response.sendError(HttpServletResponse.SC_FORBIDDEN);
