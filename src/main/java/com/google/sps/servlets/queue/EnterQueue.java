@@ -85,82 +85,87 @@ public final class EnterQueue extends HttpServlet {
       List<Key> owned = (List<Key>) userEntity.getProperty("ownedClasses");
 
       if (registered.contains(classKey)) {
-        int retries = 10;
-        while (true) {
-          TransactionOptions options = TransactionOptions.Builder.withXG(true);
-          Transaction txn = datastore.beginTransaction(options);
-          try {
-            Entity classEntity = datastore.get(txn, classKey);
 
-            // Get date
-            LocalDate localDate = LocalDate.now(clock);
-            ZoneId defaultZoneId = ZoneId.systemDefault();
-            Date currDate = Date.from(localDate.atStartOfDay(defaultZoneId).toInstant());
+        EmbeddedEntity beingHelped =
+            (EmbeddedEntity) datastore.get(classKey).getProperty("beingHelped");
+        if (!beingHelped.hasProperty(userID)) {
+          int retries = 10;
+          while (true) {
+            TransactionOptions options = TransactionOptions.Builder.withXG(true);
+            Transaction txn = datastore.beginTransaction(options);
+            try {
+              Entity classEntity = datastore.get(txn, classKey);
 
-            // Get time
-            LocalDateTime localTime = LocalDateTime.now(clock);
-            Date currTime = Date.from(localTime.atZone(defaultZoneId).toInstant());
+              // Get date
+              LocalDate localDate = LocalDate.now(clock);
+              ZoneId defaultZoneId = ZoneId.systemDefault();
+              Date currDate = Date.from(localDate.atStartOfDay(defaultZoneId).toInstant());
 
-            // Query visit entity for particular day
-            Filter classVisitFilter =
-                new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
-            Filter dateVisitFilter = new FilterPredicate("date", FilterOperator.EQUAL, currDate);
-            CompositeFilter visitFilter =
-                CompositeFilterOperator.and(dateVisitFilter, classVisitFilter);
-            PreparedQuery query = datastore.prepare(new Query("Visit").setFilter(visitFilter));
+              // Get time
+              LocalDateTime localTime = LocalDateTime.now(clock);
+              Date currTime = Date.from(localTime.atZone(defaultZoneId).toInstant());
 
-            // Get visit entity for particular day
-            Entity visitEntity;
-            if (query.countEntities() == 0) {
-              visitEntity = new Entity("Visit");
-              visitEntity.setProperty("classKey", classKey);
-              visitEntity.setProperty("date", currDate);
-              visitEntity.setProperty("numVisits", (long) 0);
-            } else {
-              visitEntity = query.asSingleEntity();
-            }
+              // Query visit entity for particular day
+              Filter classVisitFilter =
+                  new FilterPredicate("classKey", FilterOperator.EQUAL, classKey);
+              Filter dateVisitFilter = new FilterPredicate("date", FilterOperator.EQUAL, currDate);
+              CompositeFilter visitFilter =
+                  CompositeFilterOperator.and(dateVisitFilter, classVisitFilter);
+              PreparedQuery query = datastore.prepare(new Query("Visit").setFilter(visitFilter));
 
-            long numVisits = (long) visitEntity.getProperty("numVisits");
-            List<EmbeddedEntity> updatedQueue =
-                (List<EmbeddedEntity>) classEntity.getProperty("studentQueue");
+              // Get visit entity for particular day
+              Entity visitEntity;
+              if (query.countEntities() == 0) {
+                visitEntity = new Entity("Visit");
+                visitEntity.setProperty("classKey", classKey);
+                visitEntity.setProperty("date", currDate);
+                visitEntity.setProperty("numVisits", (long) 0);
+              } else {
+                visitEntity = query.asSingleEntity();
+              }
 
-            // Update studentQueue and numVisit properties if student not already in queue
-            if (!updatedQueue.stream()
-                .filter(elem -> (((String) elem.getProperty("uID")).equals(userID)))
-                .findFirst()
-                .isPresent()) {
+              long numVisits = (long) visitEntity.getProperty("numVisits");
+              List<EmbeddedEntity> updatedQueue =
+                  (List<EmbeddedEntity>) classEntity.getProperty("studentQueue");
 
-              // create new student entity to add to queue
-              EmbeddedEntity studentInfo = new EmbeddedEntity();
-              studentInfo.setProperty("timeEntered", currTime);
+              // Update studentQueue and numVisit properties if student not already in queue
+              if (!updatedQueue.stream()
+                  .filter(elem -> (((String) elem.getProperty("uID")).equals(userID)))
+                  .findFirst()
+                  .isPresent()) {
 
-              Workspace w = workspaceFactory.create(classCode);
-              w.setStudentUID(userID);
-              studentInfo.setProperty("workspaceID", w.getWorkspaceID());
+                // create new student entity to add to queue
+                EmbeddedEntity studentInfo = new EmbeddedEntity();
+                studentInfo.setProperty("timeEntered", currTime);
 
-              studentInfo.setProperty("uID", userID);
+                Workspace w = workspaceFactory.create(classCode);
+                w.setStudentUID(userID);
+                studentInfo.setProperty("workspaceID", w.getWorkspaceID());
 
-              updatedQueue.add(studentInfo);
-              numVisits++;
-            }
+                studentInfo.setProperty("uID", userID);
 
-            visitEntity.setProperty("numVisits", numVisits);
-            datastore.put(txn, visitEntity);
+                updatedQueue.add(studentInfo);
+                numVisits++;
+              }
 
-            classEntity.setProperty("studentQueue", updatedQueue);
-            datastore.put(txn, classEntity);
+              visitEntity.setProperty("numVisits", numVisits);
+              datastore.put(txn, visitEntity);
 
-            txn.commit();
-            break;
-          } catch (ConcurrentModificationException e) {
-            if (retries == 0) {
-              throw e;
-            }
-            // Allow retry to occur
-            --retries;
-          } finally {
-            if (txn.isActive()) {
-              txn.rollback();
+              classEntity.setProperty("studentQueue", updatedQueue);
+              datastore.put(txn, classEntity);
+
+              txn.commit();
+              break;
+            } catch (ConcurrentModificationException e) {
+              if (retries == 0) {
+                throw e;
+              }
+              // Allow retry to occur
+              --retries;
+            } finally {
+              if (txn.isActive()) {
+                txn.rollback();
+              }
             }
           }
         }
