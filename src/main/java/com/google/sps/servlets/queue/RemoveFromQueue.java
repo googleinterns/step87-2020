@@ -8,16 +8,19 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Transaction;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.sps.authentication.Authenticator;
 import com.google.sps.firebase.FirebaseAppManager;
+import com.google.sps.tasks.TaskSchedulerFactory;
 import com.google.sps.workspace.WorkspaceFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -31,6 +34,9 @@ public class RemoveFromQueue extends HttpServlet {
   private DatastoreService datastore;
   private WorkspaceFactory factory;
   private Authenticator auth;
+  private TaskSchedulerFactory taskSchedulerFactory;
+
+  @VisibleForTesting protected String QUEUE_NAME;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -38,6 +44,7 @@ public class RemoveFromQueue extends HttpServlet {
       authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
       factory = WorkspaceFactory.getInstance();
       auth = new Authenticator();
+      taskSchedulerFactory = TaskSchedulerFactory.getInstance();
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -73,16 +80,34 @@ public class RemoveFromQueue extends HttpServlet {
                     .findFirst()
                     .orElse(null);
 
-            // Delete workspace
-            String workspaceID = (String) delEntity.getProperty("workspaceID");
-            factory.fromWorkspaceID(workspaceID).delete();
+            if (delEntity != null) {
+              // Delete workspace
+              String workspaceID = (String) delEntity.getProperty("workspaceID");
+              factory.fromWorkspaceID(workspaceID).delete();
 
-            // Update queue
-            queue.remove(delEntity);
+              // Update queue
+              queue.remove(delEntity);
 
-            // Update entities
-            classEntity.setProperty("studentQueue", queue);
-            datastore.put(txn, classEntity);
+              // Update entities
+              classEntity.setProperty("studentQueue", queue);
+              datastore.put(txn, classEntity);
+            }
+
+            EmbeddedEntity beingHelped = (EmbeddedEntity) classEntity.getProperty("beingHelped");
+            if (beingHelped.hasProperty(studentID)) {
+              EmbeddedEntity studentEntity = (EmbeddedEntity) beingHelped.getProperty(studentID);
+
+              taskSchedulerFactory
+                  .create(QUEUE_NAME, "/tasks/deleteWorkspace")
+                  .schedule(
+                      (String) studentEntity.getProperty("workspaceID"),
+                      TimeUnit.HOURS.toSeconds(1));
+
+              beingHelped.removeProperty(studentID);
+
+              classEntity.setProperty("beingHelped", beingHelped);
+              datastore.put(txn, classEntity);
+            }
 
             txn.commit();
             break;

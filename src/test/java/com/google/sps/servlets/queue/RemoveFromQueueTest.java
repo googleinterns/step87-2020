@@ -1,6 +1,8 @@
 package com.google.sps.servlets.queue;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,6 +20,8 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.sps.authentication.Authenticator;
+import com.google.sps.tasks.TaskScheduler;
+import com.google.sps.tasks.TaskSchedulerFactory;
 import com.google.sps.workspace.Workspace;
 import com.google.sps.workspace.WorkspaceFactory;
 import java.time.LocalDate;
@@ -45,6 +49,7 @@ public class RemoveFromQueueTest {
           new LocalDatastoreServiceTestConfig().setApplyAllHighRepJobPolicy());
 
   private DatastoreService datastore;
+  private String QUEUE_NAME = "QUEUE_NAME";
 
   @Mock HttpServletRequest httpRequest;
   @Mock HttpServletResponse httpResponse;
@@ -52,6 +57,8 @@ public class RemoveFromQueueTest {
   @Mock WorkspaceFactory factory;
   @Mock Workspace workspace;
   @Mock Authenticator auth;
+  @Mock TaskScheduler scheduler;
+  @Mock TaskSchedulerFactory taskSchedulerFactory;
 
   @InjectMocks RemoveFromQueue removeFromQueue;
 
@@ -138,5 +145,49 @@ public class RemoveFromQueueTest {
     removeFromQueue.doPost(httpRequest, httpResponse);
 
     verify(httpResponse, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
+  }
+
+  @Test
+  public void leaveQueueBeingHelped() throws Exception {
+    Entity init = new Entity("Class");
+    init.setProperty("name", "testClass");
+
+    EmbeddedEntity queueInfo = new EmbeddedEntity();
+    queueInfo.setProperty("taID", "taID");
+    queueInfo.setProperty("workspaceID", "workspaceID");
+
+    EmbeddedEntity beingHelped = new EmbeddedEntity();
+    beingHelped.setProperty("uID", queueInfo);
+
+    init.setProperty("beingHelped", beingHelped);
+
+    init.setProperty("studentQueue", Collections.emptyList());
+
+    datastore.put(init);
+
+    Entity initUser = new Entity("User");
+
+    initUser.setProperty("userEmail", "user@google.com");
+    initUser.setProperty("registeredClasses", Arrays.asList(init.getKey()));
+    initUser.setProperty("ownedClasses", Collections.emptyList());
+    initUser.setProperty("taClasses", Collections.emptyList());
+
+    datastore.put(initUser);
+
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn("testID");
+    when(auth.verifyInClass("testID", KeyFactory.keyToString(init.getKey()))).thenReturn(true);
+
+    FirebaseToken mockToken = mock(FirebaseToken.class);
+    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
+    when(mockToken.getUid()).thenReturn("uID");
+
+    when(taskSchedulerFactory.create(anyString(), anyString())).thenReturn(scheduler);
+    removeFromQueue.QUEUE_NAME = QUEUE_NAME;
+    removeFromQueue.doPost(httpRequest, httpResponse);
+    Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
+
+    EmbeddedEntity got = (EmbeddedEntity) testClassEntity.getProperty("beingHelped");
+    assertThat((EmbeddedEntity) got.getProperty("uID")).isNull();
   }
 }
