@@ -85,15 +85,15 @@ public final class EnterQueue extends HttpServlet {
       List<Key> owned = (List<Key>) userEntity.getProperty("ownedClasses");
 
       if (registered.contains(classKey)) {
+        int retries = 10;
+        while (true) {
+          TransactionOptions options = TransactionOptions.Builder.withXG(true);
+          Transaction txn = datastore.beginTransaction(options);
+          try {
+            EmbeddedEntity beingHelped =
+                (EmbeddedEntity) datastore.get(txn, classKey).getProperty("beingHelped");
 
-        EmbeddedEntity beingHelped =
-            (EmbeddedEntity) datastore.get(classKey).getProperty("beingHelped");
-        if (!beingHelped.hasProperty(userID)) {
-          int retries = 10;
-          while (true) {
-            TransactionOptions options = TransactionOptions.Builder.withXG(true);
-            Transaction txn = datastore.beginTransaction(options);
-            try {
+            if (!beingHelped.hasProperty(userID)) {
               Entity classEntity = datastore.get(txn, classKey);
 
               // Get date
@@ -153,19 +153,18 @@ public final class EnterQueue extends HttpServlet {
 
               classEntity.setProperty("studentQueue", updatedQueue);
               datastore.put(txn, classEntity);
-
-              txn.commit();
-              break;
-            } catch (ConcurrentModificationException e) {
-              if (retries == 0) {
-                throw e;
-              }
-              // Allow retry to occur
-              --retries;
-            } finally {
-              if (txn.isActive()) {
-                txn.rollback();
-              }
+            }
+            txn.commit();
+            break;
+          } catch (ConcurrentModificationException e) {
+            if (retries == 0) {
+              throw e;
+            }
+            // Allow retry to occur
+            --retries;
+          } finally {
+            if (txn.isActive()) {
+              txn.rollback();
             }
           }
         }

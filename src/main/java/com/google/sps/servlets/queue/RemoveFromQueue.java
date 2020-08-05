@@ -19,6 +19,7 @@ import com.google.sps.workspace.WorkspaceFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.ServletConfig;
@@ -74,14 +75,14 @@ public class RemoveFromQueue extends HttpServlet {
             // Get queue
             ArrayList<EmbeddedEntity> queue =
                 (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
-            EmbeddedEntity delEntity =
+            Optional<EmbeddedEntity> delOptional =
                 queue.stream()
                     .filter(elem -> (((String) elem.getProperty("uID")).equals(studentID)))
-                    .findFirst()
-                    .orElse(null);
+                    .findFirst();
 
-            if (delEntity != null) {
+            if (delOptional.isPresent()) {
               // Delete workspace
+              EmbeddedEntity delEntity = delOptional.get();
               String workspaceID = (String) delEntity.getProperty("workspaceID");
               factory.fromWorkspaceID(workspaceID).delete();
 
