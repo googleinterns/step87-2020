@@ -53,6 +53,12 @@ public class CheckStudentStatusTest {
 
   private String WORKSPACE_ID = "WORKSPACE_ID";
 
+  private Entity init;
+  private EmbeddedEntity addQueue1;
+  private EmbeddedEntity addQueue2;
+  private EmbeddedEntity addQueue3;
+  private EmbeddedEntity addQueue4;
+
   private static final LocalDate LOCAL_DATE = LocalDate.of(2020, 07, 06);
   private static final Date DATE =
       Date.from(LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -61,6 +67,28 @@ public class CheckStudentStatusTest {
   public void setUp() {
     helper.setUp();
     datastore = DatastoreServiceFactory.getDatastoreService();
+
+    init = new Entity("Class");
+
+    addQueue1 = new EmbeddedEntity();
+    addQueue1.setProperty("timeEntered", DATE);
+    addQueue1.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue1.setProperty("uID", "studentInfo1");
+
+    addQueue2 = new EmbeddedEntity();
+    addQueue2.setProperty("timeEntered", DATE);
+    addQueue2.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue2.setProperty("uID", "studentInfo2");
+
+    addQueue3 = new EmbeddedEntity();
+    addQueue3.setProperty("timeEntered", DATE);
+    addQueue3.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue3.setProperty("uID", "studentInfo3");
+
+    addQueue4 = new EmbeddedEntity();
+    addQueue4.setProperty("timeEntered", DATE);
+    addQueue4.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue4.setProperty("uID", "studentInfo4");
   }
 
   @After
@@ -70,7 +98,7 @@ public class CheckStudentStatusTest {
 
   @Test
   public void firstInQueue() throws Exception {
-    Entity init = new Entity("Class");
+    // Entity init = new Entity("Class");
     init.setProperty("name", "testClass");
 
     EmbeddedEntity studentInfo1 = new EmbeddedEntity();
@@ -104,8 +132,6 @@ public class CheckStudentStatusTest {
 
   @Test
   public void midQueue() throws Exception {
-    Entity init = new Entity("Class");
-
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", "");
 
@@ -154,8 +180,6 @@ public class CheckStudentStatusTest {
 
   @Test
   public void duplicateInQueue() throws Exception {
-    Entity init = new Entity("Class");
-
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", "");
 
@@ -204,7 +228,6 @@ public class CheckStudentStatusTest {
 
   @Test
   public void notInQueue() throws Exception {
-    Entity init = new Entity("Class");
     init.setProperty("name", "testClass");
 
     EmbeddedEntity beingHelped = new EmbeddedEntity();
@@ -213,27 +236,6 @@ public class CheckStudentStatusTest {
     helping.setProperty("workspaceID", WORKSPACE_ID);
     beingHelped.setProperty("uID", helping);
     init.setProperty("beingHelped", beingHelped);
-
-    EmbeddedEntity addQueue1 = new EmbeddedEntity();
-    addQueue1.setProperty("timeEntered", DATE);
-    addQueue1.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue1.setProperty("uID", "studentInfo1");
-
-    EmbeddedEntity addQueue2 = new EmbeddedEntity();
-    addQueue2.setProperty("timeEntered", DATE);
-    addQueue2.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue2.setProperty("uID", "studentInfo2");
-
-    EmbeddedEntity addQueue3 = new EmbeddedEntity();
-    addQueue3.setProperty("timeEntered", DATE);
-    addQueue3.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue3.setProperty("uID", "studentInfo3");
-
-    EmbeddedEntity addQueue4 = new EmbeddedEntity();
-    addQueue4.setProperty("timeEntered", DATE);
-    addQueue4.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue4.setProperty("uID", "studentInfo4");
-
     init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2, addQueue3, addQueue4));
 
     datastore.put(init);
@@ -264,32 +266,10 @@ public class CheckStudentStatusTest {
 
   @Test
   public void notBeingHelped() throws Exception {
-    Entity init = new Entity("Class");
     init.setProperty("name", "testClass");
 
     EmbeddedEntity beingHelped = new EmbeddedEntity();
     init.setProperty("beingHelped", beingHelped);
-
-    EmbeddedEntity addQueue1 = new EmbeddedEntity();
-    addQueue1.setProperty("timeEntered", DATE);
-    addQueue1.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue1.setProperty("uID", "studentInfo1");
-
-    EmbeddedEntity addQueue2 = new EmbeddedEntity();
-    addQueue2.setProperty("timeEntered", DATE);
-    addQueue2.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue2.setProperty("uID", "studentInfo2");
-
-    EmbeddedEntity addQueue3 = new EmbeddedEntity();
-    addQueue3.setProperty("timeEntered", DATE);
-    addQueue3.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue3.setProperty("uID", "studentInfo3");
-
-    EmbeddedEntity addQueue4 = new EmbeddedEntity();
-    addQueue4.setProperty("timeEntered", DATE);
-    addQueue4.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue4.setProperty("uID", "studentInfo4");
-
     init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2, addQueue3, addQueue4));
 
     datastore.put(init);
@@ -315,7 +295,6 @@ public class CheckStudentStatusTest {
 
   @Test
   public void notInClass() throws Exception {
-    Entity init = new Entity("Class");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
