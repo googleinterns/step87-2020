@@ -47,11 +47,26 @@ public class EnvironmentServletTest {
   @InjectMocks EnvironmentServlet servlet;
 
   private final String ID_TOKEN = "ID_TOKEN";
+  private final String STATUS = "STATUS";
+  private final String NAME = "NAME";
+  private final String ERROR = "ERROR";
+  private final String QUEUE_NAME = "QUEUE_NAME";
+
+  private Key classKey;
+
+  private Entity envEntity;
 
   @Before
   public void setUp() {
     helper.setUp();
     datastore = DatastoreServiceFactory.getDatastoreService();
+
+    classKey = datastore.put(new Entity("class"));
+
+    envEntity = new Entity("Environment");
+    envEntity.setProperty("status", STATUS);
+    envEntity.setProperty("name", NAME);
+    envEntity.setProperty("class", classKey);
   }
 
   @After
@@ -61,15 +76,6 @@ public class EnvironmentServletTest {
 
   @Test
   public void doGetTest() throws Exception {
-    String STATUS = "STATUS";
-    String NAME = "NAME";
-
-    Key classKey = datastore.put(new Entity("class"));
-
-    Entity envEntity = new Entity("Environment");
-    envEntity.setProperty("status", STATUS);
-    envEntity.setProperty("name", NAME);
-    envEntity.setProperty("class", classKey);
     String envID = KeyFactory.keyToString(datastore.put(envEntity));
 
     when(req.getParameter(eq("envID"))).thenReturn(envID);
@@ -94,15 +100,6 @@ public class EnvironmentServletTest {
 
   @Test
   public void doGetTestAuthFail() throws Exception {
-    String STATUS = "STATUS";
-    String NAME = "NAME";
-
-    Key classKey = datastore.put(new Entity("class"));
-
-    Entity envEntity = new Entity("Environment");
-    envEntity.setProperty("status", STATUS);
-    envEntity.setProperty("name", NAME);
-    envEntity.setProperty("class", classKey);
     String envID = KeyFactory.keyToString(datastore.put(envEntity));
 
     when(req.getParameter(eq("envID"))).thenReturn(envID);
@@ -116,16 +113,6 @@ public class EnvironmentServletTest {
 
   @Test
   public void doDeleteTest() throws Exception {
-    String STATUS = "STATUS";
-    String NAME = "NAME";
-    String QUEUE_NAME = "QUEUE_NAME";
-
-    Key classKey = datastore.put(new Entity("class"));
-
-    Entity envEntity = new Entity("Environment");
-    envEntity.setProperty("status", STATUS);
-    envEntity.setProperty("name", NAME);
-    envEntity.setProperty("class", classKey);
     String envID = KeyFactory.keyToString(datastore.put(envEntity));
 
     when(req.getParameter(eq("envID"))).thenReturn(envID);
@@ -145,16 +132,6 @@ public class EnvironmentServletTest {
 
   @Test
   public void doDeleteAuthFail() throws Exception {
-    String STATUS = "STATUS";
-    String NAME = "NAME";
-    String QUEUE_NAME = "QUEUE_NAME";
-
-    Key classKey = datastore.put(new Entity("class"));
-
-    Entity envEntity = new Entity("Environment");
-    envEntity.setProperty("status", STATUS);
-    envEntity.setProperty("name", NAME);
-    envEntity.setProperty("class", classKey);
     String envID = KeyFactory.keyToString(datastore.put(envEntity));
 
     when(req.getParameter(eq("envID"))).thenReturn(envID);
@@ -169,10 +146,6 @@ public class EnvironmentServletTest {
 
   @Test
   public void doGetTestWithError() throws Exception {
-    String STATUS = "STATUS";
-    String NAME = "NAME";
-    String ERROR = "ERROR";
-
     Key classKey = datastore.put(new Entity("class"));
 
     Entity envEntity = new Entity("Environment");
