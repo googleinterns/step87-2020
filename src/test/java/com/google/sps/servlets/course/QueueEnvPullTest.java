@@ -71,7 +71,7 @@ public class QueueEnvPullTest {
   @Test
   public void doGetTest() throws Exception {
     datastore.put(classEntity);
-    
+
     String classID = KeyFactory.keyToString(classEntity.getKey());
 
     when(req.getParameter(eq("classID"))).thenReturn(classID);
