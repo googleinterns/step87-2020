@@ -6,12 +6,8 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
-import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -19,17 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/get-class")
 public class GetClassName extends HttpServlet {
-  private FirebaseAuth authInstance;
   private DatastoreService datastore;
-
-  @Override
-  public void init(ServletConfig config) throws ServletException {
-    try {
-      authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
-    } catch (IOException e) {
-      throw new ServletException(e);
-    }
-  }
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {

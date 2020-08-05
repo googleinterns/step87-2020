@@ -49,7 +49,6 @@ public class GetUserRole extends HttpServlet {
       // Find user entity
       String idToken = request.getParameter("idToken");
       FirebaseToken decodedToken = authInstance.verifyIdToken(idToken);
-      String userID = decodedToken.getUid();
       String userEmail = decodedToken.getEmail();
 
       PreparedQuery queryUser =
@@ -59,7 +58,6 @@ public class GetUserRole extends HttpServlet {
 
       Entity userEntity = queryUser.asSingleEntity();
 
-      List<Key> registeredClassesList = (List<Key>) userEntity.getProperty("registeredClasses");
       List<Key> ownedClassesList = (List<Key>) userEntity.getProperty("ownedClasses");
       List<Key> taClassesList = (List<Key>) userEntity.getProperty("taClasses");
 

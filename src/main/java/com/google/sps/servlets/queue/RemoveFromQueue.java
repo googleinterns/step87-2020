@@ -69,7 +69,7 @@ public class RemoveFromQueue extends HttpServlet {
                 (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
             EmbeddedEntity delEntity =
                 queue.stream()
-                    .filter(elem -> (((String) elem.getProperty("uID")).equals(studentID)))
+                    .filter(elem -> ((String) elem.getProperty("uID")).equals(studentID))
                     .findFirst()
                     .orElse(null);
 

@@ -15,7 +15,7 @@ public class ExceptionWrapper {
     };
   }
 
-  public static interface ExceptionFunction<T, R> {
-    public R apply(T param) throws Exception;
+  public interface ExceptionFunction<T, R> {
+    R apply(T param) throws Exception;
   }
 }

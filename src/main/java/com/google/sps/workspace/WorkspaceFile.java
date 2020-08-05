@@ -74,7 +74,7 @@ public class WorkspaceFile {
                 }
 
                 // Remove surrogate pair padding.
-                doc.replaceAll("\0", "");
+                doc = doc.replaceAll("\0", "");
 
                 if (idx != doc.length()) {
                   future.completeExceptionally(

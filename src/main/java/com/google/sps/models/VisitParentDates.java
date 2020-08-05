@@ -12,4 +12,14 @@ public class VisitParentDates {
     dates = classDates;
     classVisits = visits;
   }
+
+  /** @return the dates */
+  public List<Date> getDates() {
+    return dates;
+  }
+
+  /** @return the classVisits */
+  public List<Long> getClassVisits() {
+    return classVisits;
+  }
 }
