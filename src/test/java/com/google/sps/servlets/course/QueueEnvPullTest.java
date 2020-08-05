@@ -53,10 +53,14 @@ public class QueueEnvPullTest {
   private final String QUEUE_NAME = "QUEUE_NAME";
   private final String ID_TOKEN = "ID_TOKEN";
 
+  private Entity classEntity;
+
   @Before
   public void setUp() {
     helper.setUp();
     datastore = DatastoreServiceFactory.getDatastoreService();
+
+    classEntity = new Entity("Class");
   }
 
   @After
@@ -66,8 +70,8 @@ public class QueueEnvPullTest {
 
   @Test
   public void doGetTest() throws Exception {
-    Entity classEntity = new Entity("Class");
     datastore.put(classEntity);
+    
     String classID = KeyFactory.keyToString(classEntity.getKey());
 
     when(req.getParameter(eq("classID"))).thenReturn(classID);
@@ -96,8 +100,8 @@ public class QueueEnvPullTest {
 
   @Test
   public void doGetTestConfict() throws Exception {
-    Entity classEntity = new Entity("Class");
     datastore.put(classEntity);
+
     String classID = KeyFactory.keyToString(classEntity.getKey());
 
     Entity conflicting = new Entity("Environment");
@@ -120,8 +124,8 @@ public class QueueEnvPullTest {
 
   @Test
   public void doGetTestAuthFail() throws Exception {
-    Entity classEntity = new Entity("Class");
     datastore.put(classEntity);
+
     String classID = KeyFactory.keyToString(classEntity.getKey());
 
     Entity conflicting = new Entity("Environment");
