@@ -12,4 +12,14 @@ public class WaitData {
     dates = classDates;
     waitTimes = times;
   }
+
+  /** @return the dates */
+  public List<Date> getDates() {
+    return dates;
+  }
+
+  /** @return the waitTimes */
+  public List<Long> getWaitTimes() {
+    return waitTimes;
+  }
 }

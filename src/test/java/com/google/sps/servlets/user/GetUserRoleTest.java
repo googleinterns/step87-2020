@@ -77,7 +77,6 @@ public class GetUserRoleTest {
 
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("uID")).thenReturn(mockToken);
-    when(mockToken.getUid()).thenReturn("uID");
     when(mockToken.getEmail()).thenReturn("user@google.com");
 
     when(httpRequest.getParameter("classCode"))
@@ -113,7 +112,6 @@ public class GetUserRoleTest {
 
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("uID")).thenReturn(mockToken);
-    when(mockToken.getUid()).thenReturn("uID");
     when(mockToken.getEmail()).thenReturn("user@google.com");
 
     when(httpRequest.getParameter("classCode"))
@@ -149,7 +147,6 @@ public class GetUserRoleTest {
 
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("uID")).thenReturn(mockToken);
-    when(mockToken.getUid()).thenReturn("uID");
     when(mockToken.getEmail()).thenReturn("user@google.com");
 
     when(httpRequest.getParameter("classCode"))

@@ -14,9 +14,7 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.sps.authentication.Authenticator;
-import com.google.sps.firebase.FirebaseAppManager;
 import com.google.sps.tasks.TaskSchedulerFactory;
 import com.google.sps.workspace.WorkspaceFactory;
 import java.io.IOException;
@@ -33,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/delete-class")
 public class DeleteClass extends HttpServlet {
-  private FirebaseAuth authInstance;
   private DatastoreService datastore;
   private WorkspaceFactory workspaceFactory;
   private TaskSchedulerFactory taskSchedulerFactory;
@@ -43,7 +40,6 @@ public class DeleteClass extends HttpServlet {
   @Override
   public void init(ServletConfig config) throws ServletException {
     try {
-      authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
       taskSchedulerFactory = TaskSchedulerFactory.getInstance();
       workspaceFactory = WorkspaceFactory.getInstance();
       QUEUE_NAME = System.getenv("EXECUTION_QUEUE_ID");

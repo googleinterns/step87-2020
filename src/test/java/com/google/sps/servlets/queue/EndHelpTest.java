@@ -107,7 +107,6 @@ public class EndHelpTest {
     when(httpRequest.getParameter("taToken")).thenReturn("testID");
     FirebaseToken mockToken = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
-    when(mockToken.getUid()).thenReturn("taID");
     when(auth.verifyTaOrOwner("testID", KeyFactory.keyToString(init.getKey()))).thenReturn(true);
 
     when(httpRequest.getParameter("studentEmail")).thenReturn("test@google.com");

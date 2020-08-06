@@ -60,7 +60,7 @@ public class CheckStudentStatus extends HttpServlet {
             (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
         EmbeddedEntity studentEntity =
             queue.stream()
-                .filter(elem -> (((String) elem.getProperty("uID")).equals(studentID)))
+                .filter(elem -> ((String) elem.getProperty("uID")).equals(studentID))
                 .findFirst()
                 .orElse(null);
 

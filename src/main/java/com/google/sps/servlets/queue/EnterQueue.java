@@ -126,7 +126,7 @@ public final class EnterQueue extends HttpServlet {
 
             // Update studentQueue and numVisit properties if student not already in queue
             if (!updatedQueue.stream()
-                .filter(elem -> (((String) elem.getProperty("uID")).equals(userID)))
+                .filter(elem -> ((String) elem.getProperty("uID")).equals(userID))
                 .findFirst()
                 .isPresent()) {
 

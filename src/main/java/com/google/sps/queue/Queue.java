@@ -12,6 +12,16 @@ public class Queue {
     this.helping = helping;
   }
 
+  /** @return the queue */
+  public List<String> getQueue() {
+    return queue;
+  }
+
+  /** @return the helping */
+  public Helping getHelping() {
+    return helping;
+  }
+
   public static class Helping {
     private String email;
     private String workspace;
@@ -20,6 +30,16 @@ public class Queue {
     public Helping(String email, String workspaceID) {
       this.email = email;
       this.workspace = WORKSPACE + workspaceID;
+    }
+
+    /** @return the email */
+    public String getEmail() {
+      return email;
+    }
+
+    /** @return the workspace */
+    public String getWorkspace() {
+      return workspace;
     }
   }
 }

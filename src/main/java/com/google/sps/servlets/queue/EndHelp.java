@@ -11,7 +11,6 @@ import com.google.appengine.api.datastore.Transaction;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.sps.authentication.Authenticator;
 import com.google.sps.firebase.FirebaseAppManager;
@@ -59,9 +58,6 @@ public class EndHelp extends HttpServlet {
       String taToken = request.getParameter("taToken");
 
       if (auth.verifyTaOrOwner(taToken, classCode)) {
-        FirebaseToken decodedToken = authInstance.verifyIdToken(taToken);
-        String taID = decodedToken.getUid();
-
         int retries = 10;
         while (true) {
           Transaction txn = datastore.beginTransaction();
