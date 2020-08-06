@@ -62,10 +62,17 @@ public class NotifyStudentTest {
 
   @InjectMocks NotifyStudent alertStudent;
 
+  private final String WORKSPACE_ID = "WORKSPACE_ID";
+
   private Clock fixedClock;
   private static final LocalDate LOCAL_DATE = LocalDate.of(2020, 07, 07);
   private static final Date DATE =
       Date.from(LocalDate.of(2020, 07, 06).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+  private EmbeddedEntity addQueue1;
+  private EmbeddedEntity addQueue2;
+
+  private Entity init;
 
   @Before
   public void setUp() {
@@ -76,6 +83,18 @@ public class NotifyStudentTest {
         Clock.fixed(
             LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
     doReturn(fixedClock.getZone()).when(clock).getZone();
+
+    addQueue1 = new EmbeddedEntity();
+    addQueue1.setProperty("timeEntered", DATE);
+    addQueue1.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue1.setProperty("uID", "studentID");
+
+    addQueue2 = new EmbeddedEntity();
+    addQueue2.setProperty("timeEntered", DATE);
+    addQueue2.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue2.setProperty("uID", "uID2");
+
+    init = new Entity("Class");
   }
 
   @After
@@ -91,21 +110,7 @@ public class NotifyStudentTest {
 
   @Test
   public void takeOff() throws Exception {
-    String WORKSPACE_ID = "WORKSPACE_ID";
-
-    Entity init = new Entity("Class");
     init.setProperty("name", "testClass");
-
-    EmbeddedEntity addQueue1 = new EmbeddedEntity();
-    addQueue1.setProperty("timeEntered", DATE);
-    addQueue1.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue1.setProperty("uID", "studentID");
-
-    EmbeddedEntity addQueue2 = new EmbeddedEntity();
-    addQueue2.setProperty("timeEntered", DATE);
-    addQueue2.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue2.setProperty("uID", "uID2");
-
     init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2));
 
     EmbeddedEntity beingHelped = new EmbeddedEntity();
@@ -156,7 +161,6 @@ public class NotifyStudentTest {
 
   @Test
   public void isStudent() throws Exception {
-    Entity init = new Entity("Class");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
@@ -174,23 +178,8 @@ public class NotifyStudentTest {
 
   @Test
   public void doPostAlreadyHelping() throws Exception {
-    String WORKSPACE_ID = "WORKSPACE_ID";
-
-    Entity init = new Entity("Class");
-
     init.setProperty("owner", "ownerID");
     init.setProperty("name", "testClass");
-
-    EmbeddedEntity addQueue1 = new EmbeddedEntity();
-    addQueue1.setProperty("timeEntered", DATE);
-    addQueue1.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue1.setProperty("uID", "studentID");
-
-    EmbeddedEntity addQueue2 = new EmbeddedEntity();
-    addQueue2.setProperty("timeEntered", DATE);
-    addQueue2.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue2.setProperty("uID", "uID2");
-
     init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2));
 
     EmbeddedEntity beingHelped = new EmbeddedEntity();

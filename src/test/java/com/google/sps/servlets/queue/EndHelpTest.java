@@ -49,6 +49,8 @@ public class EndHelpTest {
   private DatastoreService datastore;
   private String QUEUE_NAME = "QUEUE_NAME";
 
+  private Entity init;
+
   @Mock HttpServletRequest httpRequest;
 
   @Mock HttpServletResponse httpResponse;
@@ -64,6 +66,8 @@ public class EndHelpTest {
   public void setUp() {
     helper.setUp();
     datastore = DatastoreServiceFactory.getDatastoreService();
+
+    init = new Entity("Class");
   }
 
   @After
@@ -79,7 +83,6 @@ public class EndHelpTest {
 
   @Test
   public void doneHelping() throws Exception {
-    Entity init = new Entity("Class");
     ArrayList<String> setQueue = new ArrayList<String>(Arrays.asList("uID1", "uID2"));
 
     init.setProperty("name", "testClass");
@@ -137,7 +140,6 @@ public class EndHelpTest {
 
   @Test
   public void notTA() throws Exception {
-    Entity init = new Entity("Class");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());

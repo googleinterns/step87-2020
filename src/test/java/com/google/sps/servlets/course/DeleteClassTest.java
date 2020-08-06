@@ -50,6 +50,7 @@ public class DeleteClassTest {
           new LocalDatastoreServiceTestConfig().setApplyAllHighRepJobPolicy());
 
   private DatastoreService datastore;
+
   @Mock HttpServletRequest httpRequest;
   @Mock HttpServletResponse httpResponse;
   @Mock FirebaseAuth authInstance;

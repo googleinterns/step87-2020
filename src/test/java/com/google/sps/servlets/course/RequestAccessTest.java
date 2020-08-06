@@ -54,24 +54,35 @@ public class RequestAccessTest {
 
   @InjectMocks RequestAccess servlet;
 
-  private String ID_TOKEN = "ID_TOKEN";
-  private String FROM_EMAIL = "from@example.com";
-  private String USER_EMAIL = "user@example.com";
-  private String USER_NAME = "USER_NAME";
-  private String OWNER_EMAIL = "owner@example.com";
-  private String OWNER_ID = "OWNER_ID";
-  private String OWNER_NAME = "OWNER_NAME";
-  private String OWNER_EMAIL2 = "owner2@example.com";
-  private String OWNER_ID2 = "OWNER_ID2";
-  private String OWNER_NAME2 = "OWNER_NAME2";
-  private String SCHEME = "https";
-  private String SERVER_NAME = "SERVER_NAME";
+  private final String ID_TOKEN = "ID_TOKEN";
+  private final String FROM_EMAIL = "from@example.com";
+  private final String USER_EMAIL = "user@example.com";
+  private final String USER_NAME = "USER_NAME";
+  private final String OWNER_EMAIL = "owner@example.com";
+  private final String OWNER_ID = "OWNER_ID";
+  private final String OWNER_NAME = "OWNER_NAME";
+  private final String OWNER_EMAIL2 = "owner2@example.com";
+  private final String OWNER_ID2 = "OWNER_ID2";
+  private final String OWNER_NAME2 = "OWNER_NAME2";
+  private final String SCHEME = "https";
+  private final String SERVER_NAME = "SERVER_NAME";
+  private final String TA_EMAIL_1 = "ta1@example.com";
+  private final String TA_EMAIL_2 = "ta2@example.com";
+
+  private Entity classEntity;
+  private Entity ownerEntity;
 
   @Before
   public void setUp() {
     helper.setUp();
     servlet.FROM_ADDRESS = FROM_EMAIL;
     datastore = DatastoreServiceFactory.getDatastoreService();
+
+    classEntity = new Entity("Class");
+
+    ownerEntity = new Entity("User");
+    ownerEntity.setProperty("userEmail", OWNER_EMAIL);
+    ownerEntity.setProperty("ownedClasses", Arrays.asList(classEntity.getKey()));
   }
 
   @After
@@ -81,12 +92,7 @@ public class RequestAccessTest {
 
   @Test
   public void doGetUserDoesntExist() throws Exception {
-    Entity classEntity = new Entity("Class");
     datastore.put(classEntity);
-
-    Entity ownerEntity = new Entity("User");
-    ownerEntity.setProperty("userEmail", OWNER_EMAIL);
-    ownerEntity.setProperty("ownedClasses", Arrays.asList(classEntity.getKey()));
     datastore.put(ownerEntity);
 
     when(req.getParameter("idToken")).thenReturn(ID_TOKEN);
@@ -129,7 +135,6 @@ public class RequestAccessTest {
 
   @Test
   public void doGetUserExists() throws Exception {
-    Entity classEntity = new Entity("Class");
     datastore.put(classEntity);
 
     Entity user = new Entity("User");
@@ -137,9 +142,6 @@ public class RequestAccessTest {
     user.setProperty("registeredClasses", Collections.emptyList());
     datastore.put(user);
 
-    Entity ownerEntity = new Entity("User");
-    ownerEntity.setProperty("userEmail", OWNER_EMAIL);
-    ownerEntity.setProperty("ownedClasses", Arrays.asList(classEntity.getKey()));
     datastore.put(ownerEntity);
 
     when(req.getParameter("idToken")).thenReturn(ID_TOKEN);
@@ -182,7 +184,6 @@ public class RequestAccessTest {
 
   @Test
   public void doGetAlreadyInClass() throws Exception {
-    Entity classEntity = new Entity("Class");
     datastore.put(classEntity);
 
     Entity user = new Entity("User");
@@ -190,9 +191,6 @@ public class RequestAccessTest {
     user.setProperty("registeredClasses", Arrays.asList(classEntity.getKey()));
     datastore.put(user);
 
-    Entity ownerEntity = new Entity("User");
-    ownerEntity.setProperty("userEmail", OWNER_EMAIL);
-    ownerEntity.setProperty("ownedClasses", Arrays.asList(classEntity.getKey()));
     datastore.put(ownerEntity);
 
     when(req.getParameter("idToken")).thenReturn(ID_TOKEN);
@@ -209,7 +207,6 @@ public class RequestAccessTest {
 
   @Test
   public void doGetWithTAs() throws Exception {
-    Entity classEntity = new Entity("Class");
     datastore.put(classEntity);
 
     Entity classEntity2 = new Entity("Class");
@@ -225,9 +222,6 @@ public class RequestAccessTest {
     user.setProperty("userEmail", USER_EMAIL);
     user.setProperty("registeredClasses", Collections.emptyList());
     datastore.put(user);
-
-    String TA_EMAIL_1 = "ta1@example.com";
-    String TA_EMAIL_2 = "ta2@example.com";
 
     Entity ta1 = new Entity("User");
     ta1.setProperty("userEmail", TA_EMAIL_1);
@@ -286,7 +280,6 @@ public class RequestAccessTest {
 
   @Test
   public void multipleOwners() throws Exception {
-    Entity classEntity = new Entity("Class");
     datastore.put(classEntity);
 
     Entity user = new Entity("User");
@@ -294,9 +287,6 @@ public class RequestAccessTest {
     user.setProperty("registeredClasses", Collections.emptyList());
     datastore.put(user);
 
-    Entity ownerEntity = new Entity("User");
-    ownerEntity.setProperty("userEmail", OWNER_EMAIL);
-    ownerEntity.setProperty("ownedClasses", Arrays.asList(classEntity.getKey()));
     datastore.put(ownerEntity);
 
     Entity ownerEntity2 = new Entity("User");
