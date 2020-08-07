@@ -154,6 +154,7 @@ public final class EnterQueue extends HttpServlet {
               classEntity.setProperty("studentQueue", updatedQueue);
               datastore.put(txn, classEntity);
             }
+            
             txn.commit();
             break;
           } catch (ConcurrentModificationException e) {

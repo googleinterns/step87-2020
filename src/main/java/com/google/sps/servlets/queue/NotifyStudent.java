@@ -129,7 +129,7 @@ public class NotifyStudent extends HttpServlet {
                   (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
               EmbeddedEntity delEntity =
                   queue.stream()
-                      .filter(elem -> (((String) elem.getProperty("uID")).equals(studentID)))
+                      .filter(elem -> ((String) elem.getProperty("uID")).equals(studentID))
                       .findFirst()
                       .orElse(null);
               ArrayList<Long> waitTimes = (ArrayList<Long>) waitEntity.getProperty("waitDurations");

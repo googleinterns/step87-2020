@@ -9,10 +9,8 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.google.sps.authentication.Authenticator;
-import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.servlet.ServletConfig;
@@ -24,14 +22,12 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/participants")
 public class Participants extends HttpServlet {
-  private FirebaseAuth authInstance;
   private DatastoreService datastore;
   private Authenticator auth;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
     try {
-      authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
       auth = new Authenticator();
     } catch (IOException e) {
       throw new ServletException(e);

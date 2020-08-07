@@ -11,10 +11,8 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Transaction;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.sps.ApplicationDefaults;
 import com.google.sps.authentication.Authenticator;
-import com.google.sps.firebase.FirebaseAppManager;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,15 +28,12 @@ import javax.servlet.http.HttpServletResponse;
 // Once class owner submits a TA email, retrieve that user and add them as a TA to the class
 @WebServlet("/add-class-ta")
 public class AddClassTA extends HttpServlet {
-
-  private FirebaseAuth authInstance;
   private Authenticator auth;
 
   // Get the current session
   @Override
   public void init(ServletConfig config) throws ServletException {
     try {
-      authInstance = FirebaseAuth.getInstance(FirebaseAppManager.getApp());
       auth = new Authenticator();
     } catch (IOException e) {
       throw new ServletException(e);

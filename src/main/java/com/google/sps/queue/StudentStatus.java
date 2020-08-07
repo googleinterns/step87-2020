@@ -15,4 +15,19 @@ public class StudentStatus {
     this.workspace = WORKSPACE + workspaceID;
     this.ta = ta;
   }
+
+  /** @return the position */
+  public int getPosition() {
+    return position;
+  }
+
+  /** @return the workspace */
+  public String getWorkspace() {
+    return workspace;
+  }
+
+  /** @return the ta */
+  public String getTa() {
+    return ta;
+  }
 }

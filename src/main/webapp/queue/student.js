@@ -76,6 +76,8 @@ function makeRequest(){
     
       } else {
         document.getElementById("beingHelped").innerText = "You are being helped by " + studentPosition.ta;
+        document.getElementById("workspaceRedirect").href = studentPosition.workspace;
+        document.getElementById("workspaceRedirect").innerText = "go to workspace";
         setTimeout(makeRequest, 1000);
       }
 

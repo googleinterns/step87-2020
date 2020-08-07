@@ -62,10 +62,33 @@ public class GetQueueTest {
   private String HELPING_EMAIL = "HELPING_EMAIL";
   private String WORKSPACE_ID = "WORKSPACE_ID";
 
+  private Entity init;
+
+  private EmbeddedEntity addQueue1;
+  private EmbeddedEntity addQueue2;
+
+  private UserRecord mockUser1;
+  private UserRecord mockUser2;
+
   @Before
   public void setUp() {
     helper.setUp();
     datastore = DatastoreServiceFactory.getDatastoreService();
+
+    init = new Entity("Class");
+
+    addQueue1 = new EmbeddedEntity();
+    addQueue1.setProperty("timeEntered", DATE);
+    addQueue1.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue1.setProperty("uID", "uID1");
+
+    addQueue2 = new EmbeddedEntity();
+    addQueue2.setProperty("timeEntered", DATE);
+    addQueue2.setProperty("workspaceID", WORKSPACE_ID);
+    addQueue2.setProperty("uID", "uID2");
+
+    mockUser1 = mock(UserRecord.class);
+    mockUser2 = mock(UserRecord.class);
   }
 
   @After
@@ -75,21 +98,8 @@ public class GetQueueTest {
 
   @Test
   public void getQueue() throws Exception {
-    Entity init = new Entity("Class");
-
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
-
-    EmbeddedEntity addQueue1 = new EmbeddedEntity();
-    addQueue1.setProperty("timeEntered", DATE);
-    addQueue1.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue1.setProperty("uID", "uID1");
-
-    EmbeddedEntity addQueue2 = new EmbeddedEntity();
-    addQueue2.setProperty("timeEntered", DATE);
-    addQueue2.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue2.setProperty("uID", "uID2");
-
     init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2));
 
     datastore.put(init);
@@ -101,11 +111,9 @@ public class GetQueueTest {
     FirebaseToken token = mock(FirebaseToken.class);
     when(authInstance.verifyIdToken(eq(ID_TOKEN))).thenReturn(token);
 
-    UserRecord mockUser1 = mock(UserRecord.class);
     when(authInstance.getUser("uID1")).thenReturn(mockUser1);
     when(mockUser1.getEmail()).thenReturn("test1@google.com");
 
-    UserRecord mockUser2 = mock(UserRecord.class);
     when(authInstance.getUser("uID2")).thenReturn(mockUser2);
     when(mockUser2.getEmail()).thenReturn("test2@google.com");
 
@@ -123,8 +131,6 @@ public class GetQueueTest {
 
   @Test
   public void emptyQueue() throws Exception {
-    Entity init = new Entity("Class");
-
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
 
@@ -151,8 +157,6 @@ public class GetQueueTest {
 
   @Test
   public void getQueueWithHelping() throws Exception {
-    Entity init = new Entity("Class");
-
     init.setProperty("name", "testClass");
     EmbeddedEntity beingHelped = new EmbeddedEntity();
     EmbeddedEntity helping = new EmbeddedEntity();
@@ -160,17 +164,6 @@ public class GetQueueTest {
     helping.setProperty("workspaceID", WORKSPACE_ID);
     beingHelped.setProperty(HELPING_ID, helping);
     init.setProperty("beingHelped", beingHelped);
-
-    EmbeddedEntity addQueue1 = new EmbeddedEntity();
-    addQueue1.setProperty("timeEntered", DATE);
-    addQueue1.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue1.setProperty("uID", "uID1");
-
-    EmbeddedEntity addQueue2 = new EmbeddedEntity();
-    addQueue2.setProperty("timeEntered", DATE);
-    addQueue2.setProperty("workspaceID", WORKSPACE_ID);
-    addQueue2.setProperty("uID", "uID2");
-
     init.setProperty("studentQueue", Arrays.asList(addQueue1, addQueue2));
 
     datastore.put(init);
@@ -187,11 +180,9 @@ public class GetQueueTest {
     when(authInstance.getUser(eq(HELPING_ID))).thenReturn(helpingUser);
     when(helpingUser.getEmail()).thenReturn(HELPING_EMAIL);
 
-    UserRecord mockUser1 = mock(UserRecord.class);
     when(authInstance.getUser("uID1")).thenReturn(mockUser1);
     when(mockUser1.getEmail()).thenReturn("test1@google.com");
 
-    UserRecord mockUser2 = mock(UserRecord.class);
     when(authInstance.getUser("uID2")).thenReturn(mockUser2);
     when(mockUser2.getEmail()).thenReturn("test2@google.com");
 
@@ -212,7 +203,6 @@ public class GetQueueTest {
 
   @Test
   public void isStudent() throws Exception {
-    Entity init = new Entity("Class");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());

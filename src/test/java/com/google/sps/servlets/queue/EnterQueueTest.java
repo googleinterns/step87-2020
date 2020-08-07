@@ -78,6 +78,8 @@ public class EnterQueueTest {
   private CompositeFilter visitFilter;
   private Query visitQuery;
   private Entity init;
+  private Entity initUser;
+  private Entity visitInit;
 
   @Before
   public void setUp() {
@@ -97,6 +99,19 @@ public class EnterQueueTest {
     visitFilter = CompositeFilterOperator.and(dateVisitFilter, classVisitFilter);
 
     visitQuery = new Query("Visit").setFilter(visitFilter);
+
+    initUser = new Entity("User");
+
+    initUser.setProperty("userEmail", "user@google.com");
+    initUser.setProperty("registeredClasses", Arrays.asList(init.getKey()));
+    initUser.setProperty("ownedClasses", Collections.emptyList());
+    initUser.setProperty("taClasses", Collections.emptyList());
+
+    visitInit = new Entity("Visit");
+
+    visitInit.setProperty("classKey", init.getKey());
+    visitInit.setProperty("date", DATE);
+    visitInit.setProperty("numVisits", 1);
   }
 
   @After
@@ -117,14 +132,6 @@ public class EnterQueueTest {
     init.setProperty("studentQueue", Collections.emptyList());
 
     datastore.put(init);
-
-    Entity initUser = new Entity("User");
-
-    initUser.setProperty("userEmail", "user@google.com");
-    initUser.setProperty("registeredClasses", Arrays.asList(init.getKey()));
-    initUser.setProperty("ownedClasses", Collections.emptyList());
-    initUser.setProperty("taClasses", Collections.emptyList());
-
     datastore.put(initUser);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
@@ -163,22 +170,7 @@ public class EnterQueueTest {
     init.setProperty("studentQueue", Arrays.asList(studentInfo));
 
     datastore.put(init);
-
-    Entity visitInit = new Entity("Visit");
-
-    visitInit.setProperty("classKey", init.getKey());
-    visitInit.setProperty("date", DATE);
-    visitInit.setProperty("numVisits", 1);
-
     datastore.put(visitInit);
-
-    Entity initUser = new Entity("User");
-
-    initUser.setProperty("userEmail", "user@google.com");
-    initUser.setProperty("registeredClasses", Arrays.asList(init.getKey()));
-    initUser.setProperty("ownedClasses", Collections.emptyList());
-    initUser.setProperty("taClasses", Collections.emptyList());
-
     datastore.put(initUser);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
@@ -222,22 +214,7 @@ public class EnterQueueTest {
     init.setProperty("studentQueue", Arrays.asList(studentInfo));
 
     datastore.put(init);
-
-    Entity visitInit = new Entity("Visit");
-
-    visitInit.setProperty("classKey", init.getKey());
-    visitInit.setProperty("date", DATE);
-    visitInit.setProperty("numVisits", 1);
-
     datastore.put(visitInit);
-
-    Entity initUser = new Entity("User");
-
-    initUser.setProperty("userEmail", "user@google.com");
-    initUser.setProperty("registeredClasses", Arrays.asList(init.getKey()));
-    initUser.setProperty("ownedClasses", Collections.emptyList());
-    initUser.setProperty("taClasses", Collections.emptyList());
-
     datastore.put(initUser);
 
     when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
@@ -266,7 +243,6 @@ public class EnterQueueTest {
 
   @Test
   public void redirectVerifiedTA() throws Exception {
-    Entity init = new Entity("Class");
     init.setProperty("name", "testClass");
     init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());

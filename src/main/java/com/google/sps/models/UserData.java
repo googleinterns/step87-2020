@@ -16,4 +16,24 @@ public class UserData {
     this.type = type;
     this.inQueue = inQueue;
   }
+
+  /** @return the name */
+  public String getName() {
+    return name;
+  }
+
+  /** @return the code */
+  public String getCode() {
+    return code;
+  }
+
+  /** @return the type */
+  public String getType() {
+    return type;
+  }
+
+  /** @return whether the user is in the queue */
+  public boolean getInQueue() {
+    return inQueue;
+  }
 }

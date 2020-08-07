@@ -77,8 +77,8 @@ public class RemoveFromQueue extends HttpServlet {
                 (ArrayList<EmbeddedEntity>) classEntity.getProperty("studentQueue");
             Optional<EmbeddedEntity> delOptional =
                 queue.stream()
-                    .filter(elem -> (((String) elem.getProperty("uID")).equals(studentID)))
-                    .findFirst();
+                     .filter(elem -> (((String) elem.getProperty("uID")).equals(studentID)))
+                     .findFirst();
 
             if (delOptional.isPresent()) {
               // Delete workspace
