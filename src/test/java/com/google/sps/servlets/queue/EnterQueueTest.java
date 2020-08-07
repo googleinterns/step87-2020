@@ -163,8 +163,7 @@ public class EnterQueueTest {
   @Test
   public void addUniqueStudentToQueue() throws Exception {
     init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", Collections.emptyList());
-
+    init.setProperty("beingHelped", new EmbeddedEntity());
     EmbeddedEntity studentInfo = new EmbeddedEntity();
     studentInfo.setProperty("timeEntered", DATE);
     studentInfo.setProperty("uID", "student1");
@@ -207,7 +206,7 @@ public class EnterQueueTest {
   @Test
   public void addDuplicateStudentToQueue() throws Exception {
     init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", Collections.emptyList());
+    init.setProperty("beingHelped", new EmbeddedEntity());
 
     EmbeddedEntity studentInfo = new EmbeddedEntity();
     studentInfo.setProperty("timeEntered", DATE);
@@ -245,7 +244,7 @@ public class EnterQueueTest {
   @Test
   public void redirectVerifiedTA() throws Exception {
     init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", Collections.emptyList());
+    init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
 
     datastore.put(init);
@@ -277,7 +276,7 @@ public class EnterQueueTest {
   public void redirectUnverifiedTA() throws Exception {
     Entity init = new Entity("Class");
     init.setProperty("name", "testClass");
-    init.setProperty("beingHelped", Collections.emptyList());
+    init.setProperty("beingHelped", new EmbeddedEntity());
     init.setProperty("studentQueue", Collections.emptyList());
 
     datastore.put(init);
@@ -302,5 +301,50 @@ public class EnterQueueTest {
     addFirst.doPost(httpRequest, httpResponse);
 
     verify(httpResponse).sendError(403);
+  }
+
+  @Test
+  public void joinQueueBeingHelped() throws Exception {
+    init.setProperty("name", "testClass");
+
+    EmbeddedEntity queueInfo = new EmbeddedEntity();
+    queueInfo.setProperty("taID", "taID");
+    queueInfo.setProperty("workspaceID", "workspaceID");
+
+    EmbeddedEntity beingHelped = new EmbeddedEntity();
+    beingHelped.setProperty("uID", queueInfo);
+
+    init.setProperty("beingHelped", beingHelped);
+
+    init.setProperty("studentQueue", Collections.emptyList());
+
+    datastore.put(init);
+
+    Entity initUser = new Entity("User");
+
+    initUser.setProperty("userEmail", "user@google.com");
+    initUser.setProperty("registeredClasses", Arrays.asList(init.getKey()));
+    initUser.setProperty("ownedClasses", Collections.emptyList());
+    initUser.setProperty("taClasses", Collections.emptyList());
+
+    datastore.put(initUser);
+
+    when(httpRequest.getParameter("classCode")).thenReturn(KeyFactory.keyToString(init.getKey()));
+    when(httpRequest.getParameter("idToken")).thenReturn("testID");
+
+    FirebaseToken mockToken = mock(FirebaseToken.class);
+    when(authInstance.verifyIdToken("testID")).thenReturn(mockToken);
+    when(mockToken.getUid()).thenReturn("uID");
+    when(mockToken.getEmail()).thenReturn("user@google.com");
+
+    addFirst.doPost(httpRequest, httpResponse);
+
+    Entity testClassEntity = datastore.prepare(new Query("Class")).asSingleEntity();
+
+    ArrayList<EmbeddedEntity> testQueue =
+        (ArrayList<EmbeddedEntity>) testClassEntity.getProperty("studentQueue");
+    assertEquals(
+        KeyFactory.keyToString(init.getKey()), KeyFactory.keyToString(testClassEntity.getKey()));
+    assertEquals(0, testQueue.size());
   }
 }
